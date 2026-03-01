@@ -4,13 +4,13 @@
 	langnames="Français"
 
 	host="camap.localdomain"
-	name = "CAMAP"
+	name = "CAMAP-LOCAL"
 	webmaster_email = "webmaster@camap.localdomain"
 	
 	database="mysql://root:root@loc-mysql/db-camap"
 	sqllog="0"
 	
-	debug="0"
+	debug="1"
 	cache="0"
 	maintain="0"
 	cachetpl="0"

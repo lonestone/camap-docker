@@ -13,6 +13,10 @@
 			"path": "camap-hx/lang/master/tpl"
 		},
 		{
+			"name": "[HX] Sass",
+			"path": "camap-hx/www/theme/default/css"
+		},
+		{
 			"name": "[HX] Common",
 			"path": "camap-hx/common"
 		},
@@ -56,10 +60,21 @@
 		"i18n-ally.displayLanguage": "fr",
 		"haxe.configurations": [
 			[
-				"camap-hx/backend/build.hxml"
+				"camap-hx/backend/build.hxml",
+				"--cwd",
+				"camap-hx/backend"
 			],
 			[
-				"camap-hx/frontend/build.hxml"
+				"camap-hx/backend/build.hxml",
+				"--cwd",
+				"camap-hx/backend",
+				"-D",
+				"i18n_generation"
+			],
+			[
+				"camap-hx/frontend/build.hxml",
+				"--cwd",
+				"camap-hx/frontend"
 			],
 		],
 		"search.exclude": {
@@ -75,8 +90,8 @@
 		"version": "2.0.0",
 		"tasks": [
 			{
-				"label": "[TS] build:api",
-				"command": "cd ${workspaceFolder}/camap-ts/packages/api-core && npm run start:dev",
+				"label": "[TS] build:front",
+				"command": "cd ${workspaceFolder}/camap-ts/packages/front-core && npm run watch",
 				"type": "shell",
 				"args": [],
 				"runOptions": {
@@ -92,8 +107,25 @@
 				"group": "build"
 			},
 			{
-				"label": "[TS] build:front",
-				"command": "cd ${workspaceFolder}/camap-ts/packages/front-core && npm run watch",
+				"label": "[TS] build:common",
+				"command": "cd ${workspaceFolder}/camap-ts/packages/camap-common && npm run dev",
+				"type": "shell",
+				"args": [],
+				"runOptions": {
+					"runOn": "folderOpen",
+				},
+				"problemMatcher": [
+					"$tsc"
+				],
+				"presentation": {
+					"reveal": "always",
+					"group": "build"
+				},
+				"group": "build"
+			},
+			{
+				"label": "[HX] build:backend",
+				"command": "cd ${workspaceFolder}/camap-hx/backend && npm run watch",
 				"type": "shell",
 				"args": [],
 				"runOptions": {
