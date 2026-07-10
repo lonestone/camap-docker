@@ -37,6 +37,10 @@
 			"path": "camap-ts/packages/front-core"
 		},
 		{
+			"name": "[TS] static+locales",
+			"path": "camap-ts/public"
+		},
+		{
 			"name": "[DOCS]",
 			"path": "camap-ts/docs"
 		}
@@ -84,6 +88,10 @@
 			"**/dist": true,
 			"**/package-lock.json": true,
 			"camap-hx/www": true
+		},
+		"html.validate.scripts": false,
+		"files.associations": {
+			"*.mtt": "html"
 		}
 	},
 	"tasks": {
