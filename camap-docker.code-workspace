@@ -92,7 +92,8 @@
 		"html.validate.scripts": false,
 		"files.associations": {
 			"*.mtt": "html"
-		}
+		},
+		"js/ts.tsdk.path": "[ROOT] camap-docker/camap-ts/node_modules/typescript/lib"
 	},
 	"tasks": {
 		"version": "2.0.0",

@@ -1,0 +1,54 @@
+# Products (CAT-PRD)
+
+Actors: catalog coordinator, member.
+
+- **CAT-PRD-001** As a catalog coordinator, I can create a product in a catalog I manage. <!-- 03-features/catalogs-products-vendors-places.md S3.1; camap-hx/src/controller/Product.hx:103 -->
+  - A product has a name (128 characters), reference (32), price, VAT rate, description, quantity, unit and image.
+  - Options: organic, variable price, multi-weight, bulk, active.
+
+- **CAT-PRD-002** As a catalog coordinator, a new product starts with VAT 5.5%, unit "piece", quantity 1 and active. <!-- 03-features/catalogs-products-vendors-places.md R18; camap-hx/src/db/Product.hx:42-54 -->
+  - A quantity of 0 is stored as empty.
+  - An empty VAT is read as 0.
+
+- **CAT-PRD-003** As a catalog coordinator, I can edit a product I manage. <!-- 03-features/catalogs-products-vendors-places.md S3.1; camap-hx/src/controller/Product.hx:34 -->
+
+- **CAT-PRD-004** As a catalog coordinator, the price, quantity and unit of a product are locked once the product has been ordered, whatever the status of the order. <!-- 03-features/catalogs-products-vendors-places.md R6; camap-hx/src/controller/Product.hx:40-83 -->
+  - The price is shown as read-only text.
+  - The server checks it again.
+
+- **CAT-PRD-005** As a catalog coordinator, I can copy a product and deactivate the original, to change price, quantity or unit of an ordered product. <!-- 03-features/catalogs-products-vendors-places.md R6, S3.1; camap-hx/src/controller/Product.hx:169-184 -->
+  - The copy keeps the stock settings.
+
+- **CAT-PRD-006** As a catalog coordinator, I cannot delete a product referenced by any order. <!-- 03-features/catalogs-products-vendors-places.md R22; camap-hx/src/controller/Product.hx:149-159 -->
+  - Deletion needs a valid security token.
+
+- **CAT-PRD-007** As a catalog coordinator, I can enable or disable several products at once. <!-- 03-features/catalogs-products-vendors-places.md R22; camap-hx/src/service/ProductService.hx:14-48 -->
+  - **ERRATUM** The rights check uses the catalog of the page, but the products sent can belong to another catalog. Source: `camap-hx/src/service/ProductService.hx:14,35, camap-hx/src/controller/ContractAdmin.hx:258-259` (CODE-017).
+
+- **CAT-PRD-008** *Undecided (UND-040)*: As a catalog coordinator, a batch enable or disable only affects products of the catalog I manage. <!-- 03-features/catalogs-products-vendors-places.md R22; camap-hx/src/service/ProductService.hx:14-27,35-48; camap-hx/src/controller/ContractAdmin.hx:275-285 -->
+  - **SUGGESTION** Bind the batch to the catalog in the URL. Pass that catalog to the service and reject any product id that is not in it, before firing the event. Based on: `camap-hx/src/controller/ContractAdmin.hx:258-285` (rights checked on the URL catalog only), `camap-hx/src/service/ProductService.hx:14-48` (catalog taken from the first id). Confidence: high.
+
+- **CAT-PRD-009** As a catalog coordinator of a constant catalog, I do not see the bulk and variable-price options. <!-- 03-features/catalogs-products-vendors-places.md R21; camap-hx/src/service/ProductService.hx:105-108 -->
+
+- **CAT-PRD-010** As a catalog coordinator, a bulk product needs a unit and a quantity and cannot be multi-weight. <!-- 03-features/catalogs-products-vendors-places.md R21; camap-hx/src/service/ProductService.hx:197-205 -->
+
+- **CAT-PRD-011** *Undecided (UND-049)*: As a catalog coordinator, a multi-weight product must also be a variable-price product. <!-- 03-features/catalogs-products-vendors-places.md R21; camap-hx/src/db/Product.hx:285-289 -->
+  - **SUGGESTION** Allow multi-weight without variable price and drop the rule from the spec. Based on: `camap-hx/src/db/Product.hx:285-289` (rule commented out under the note "Permettre la multipesée seule"). Confidence: high.
+
+- **CAT-PRD-012** As a member, I see a default vegetable picture for a product without image. <!-- 03-features/catalogs-products-vendors-places.md R23; camap-hx/src/db/Product.hx:191-197 -->
+
+- **CAT-PRD-013** As a catalog coordinator, I can upload and crop a product image. <!-- 03-features/catalogs-products-vendors-places.md R23, R46; camap-hx/js/App.hx:94-106; camap-ts/packages/api-core/src/vendors/resolvers/products.resolver.ts:39 -->
+  - The new image replaces the previous one.
+  - The image is compressed.
+
+- **CAT-PRD-014** As a member, I can order quantities in units: piece, kilogram, gram, litre, centilitre or millilitre. <!-- 03-features/catalogs-products-vendors-places.md S2; camap-hx/common/Common.hx:90-97 -->
+
+- **CAT-PRD-015** *Undecided (UND-038)*: As a catalog coordinator, a product edit that fails validation leaves its stock settings untouched. <!-- 03-features/catalogs-products-vendors-places.md R26; camap-hx/src/controller/Product.hx:70-76; camap-hx/src/service/ProductService.hx:150 -->
+  - **SUGGESTION** Validate first, then rewrite stock rows. Run the frozen-field and validation checks before `updateProductStocksConfiguration`. Based on: `camap-hx/src/controller/Product.hx:70-76` (stock rewrite precedes the checks), `camap-hx/src/service/ProductService.hx:150` (stock rows deleted unconditionally). Confidence: high.
+
+- **CAT-PRD-016** As a member, I can see products with their unit, quantity, price and organic label in the catalog. <!-- 03-features/catalogs-products-vendors-places.md R25; camap-hx/src/db/Product.hx:224-248 -->
+
+- **CAT-PRD-017** As a vendor, I can see a sample of products of my vendor record, with similar names merged. <!-- 03-features/catalogs-products-vendors-places.md S3.3; camap-ts/packages/api-core/src/vendors/resolvers/products.resolver.ts:179-198 -->
+
+- **CAT-PRD-018** *Undecided (UND-043)*: As a logged-in user, I can see a sample of a vendor's products. <!-- 03-features/catalogs-products-vendors-places.md S3.3, S7; camap-ts/packages/api-core/src/vendors/resolvers/products.resolver.ts:179 -->
+  - **SUGGESTION** Require login on all of them. Restrict catalog `subscriptions` to catalog managers and the subscriber, catalog `products` to group members or managers, and `place` to members of its group. Keep vendor professions and company-number search for logged-in users. Based on: `camap-ts/packages/api-core/src/vendors/resolvers/vendors.resolver.ts:66-68,83-85` (sibling queries use `GqlAuthGuard`), `camap-ts/packages/api-core/src/vendors/resolvers/catalogs.resolver.ts:52-65` (the `catalog` query checks `canManageCatalog`), `camap-ts/packages/api-core/src/vendors/resolvers/catalogs.resolver.ts:141-149` (subscription field has no check). Confidence: medium. Needs product input on public vendor pages.
