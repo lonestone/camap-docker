@@ -13,6 +13,5 @@ Actors: superadmin, member.
   - TS reads the stored white-label setting, with the default theme as fallback.
   - Saving the theme clears the TS cache, so the change shows without a restart.
   - **ERRATUM** Today the TS side always uses the default theme, cached forever. Source: `camap-ts/packages/api-core/src/tools/variable.service.ts:61-72` (CODE-104).
-  - **DECISION (UND-101, 2026-11-02)** TS reads the stored white-label theme (default theme as fallback, cache cleared on save); colors stay on the built-in palette.
-
+  - **DECISION (UND-101, 2026-11-02)** TS reads the stored white-label theme (default theme as fallback, cache cleared on save); colors stay on the built-in palette. This changes nothing in the current Haxe + TS system: it is applied when Haxe is ported to TS, see [TS-ONLY-STEP.md](../../TS-ONLY-STEP.md).
 - **ADM-THM-004** As a visitor, the platform shows a default theme when none is saved or the saved one is unreadable. <!-- 03-features/admin-superadmin.md S4 Variable keys; camap-hx/src/App.hx:145-150 -->

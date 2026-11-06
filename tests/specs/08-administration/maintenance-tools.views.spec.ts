@@ -3,8 +3,7 @@
  *
  * Not testable from here:
  *  - ADM-TLS-002 (email template preview and list) and ADM-TLS-003 (stored image view / recompression):
- *    only camap-ts serves them (`/mails/...`, `/files/...`), and the test stack does not route those
- *    paths through the hx origin (only /graphql, /neostatic/ and /locales/ are proxied to Nest).
+ *    only camap-ts serves them (`/mails/...`, `/files/...`), on its own origin: see maintenance-tools.api.spec.ts.
  *  - ADM-TLS-004 is CAT-CDD-007 and ADM-TLS-005 is ADM-USR-003 (tagged on their tests).
  *  - ADM-TLS-006 (UND-115) is in platform-settings.graphql.spec.ts.
  */

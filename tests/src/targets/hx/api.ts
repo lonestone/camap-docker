@@ -8,6 +8,7 @@ import { queryOne } from '../../db/client.js';
 import type { RegOptionName } from '../../encodings/flags.js';
 import { sha1 } from '../../encodings/passwords.js';
 import { hxUrls } from './urls.js';
+import { env } from '../../env.js';
 import type { GroupSettingsForm, GroupSettingsView, RightsChoice, GroupAdminSection, CatalogAbsences, ProductStockInput, ProductFormInput, ProductFormView, ProductUnit, Flash, CatalogFlagName, CatalogFormInput, CatalogFormView, CatalogKind, VendorForm, PlaceForm, PlaceFormView, ActionResult, ProductImportPage, CsvResult, CycleForm, GraphqlResult, SessionForm, SessionsOverview, VolunteerSettings, PageView, PaymentForm, ApiResult, CamapApp, SubscriptionAbsences, SubscriptionForm, FileScope, FileListing, UploadFile, AdminLink } from '../types.js';
 
 /** The quit page (views/account/quit.mtt) hands the ids to the quit widget: `groupId: 3, userId: 5, controlKey`. */
@@ -141,6 +142,37 @@ export const hxApi: CamapApp['api'] = {
       return distributionId == null
         ? gql(r, `query($catalogId: Int!) { sheet: attendanceClassicContract(catalogId: $catalogId) { ${header} } }`, { catalogId })
         : gql(r, `query($catalogId: Int!, $distributionId: Int!) { sheet: attendanceVariableContract(catalogId: $catalogId, distributionId: $distributionId) { ${header} distribution { multiDistrib { id volunteers { volunteerRole { id name catalogId } user { id firstName lastName } } } } } }`, { catalogId, distributionId });
+    },
+  },
+  // camap-ts mails.controller.ts and file.controller.ts: Nest-only REST routes, on the API origin
+  adminTools: {
+    mailTemplates: async (request) => {
+      const res = await request.get(`${env.apiUrl}/mails/list`);
+      const html = await res.text();
+      const links = [...html.matchAll(/href="([^"]*)"/g)].map((m) => m[1]);
+      const templates = [...html.matchAll(/<li><a [^>]*>([^<]*)<\/a><\/li>/g)].map((m) => m[1]);
+      return { status: res.status(), body: { html, templates, links } };
+    },
+    mailPreview: async (request, template, params) => {
+      const res = await request.get(`${env.apiUrl}/mails/get/${encodeURIComponent(template)}/${encodeURIComponent(JSON.stringify(params))}`);
+      return { status: res.status(), body: await res.text() };
+    },
+    storedImage: async (request, fileId) => {
+      const res = await request.get(`${env.apiUrl}/files/get/${fileId}`);
+      return { status: res.status(), body: await res.text() };
+    },
+    compressImage: async (request, fileId) => {
+      const res = await request.get(`${env.apiUrl}/files/compress/${fileId}`, { timeout: 30_000 });
+      return { status: res.status(), body: await res.text() };
+    },
+    compressImagePage: async (request, page, timeoutMs = 30_000) => {
+      try {
+        const res = await request.get(`${env.apiUrl}/files/compressAll/${page}`, { timeout: timeoutMs });
+        return { status: res.status(), body: await res.text() };
+      } catch (e) {
+        if (/timeout/i.test(String(e))) return { status: 'no-answer' as const };
+        throw e;
+      }
     },
   },
   platform: {

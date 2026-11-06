@@ -66,7 +66,7 @@ test.describe('sending a group message', () => {
   });
 
   test('a user without the messages right cannot send (finding: the right is not checked)', { tag: ['@COM-MSG-010'] }, async ({ app, as }) => {
-    deviation('FINDING-MSG-RIGHT');
+    deviation('UND-120');
     const s = await make.amapScenario();
     const plain = await as(s.users.member);
 

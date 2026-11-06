@@ -10,10 +10,35 @@
 |---|---|
 | Specs (user statements) | ✅ 709 statements in [specs/](specs/README.md); UND decisions ongoing ([UNDECIDED.md](specs/UNDECIDED.md)) |
 | 0. Test tooling | ✅ Harness delivered in `camap-docker/tests`, against camap-hx (entry 2026-11-02) |
-| 1. Characterisation tests | ✅ Remainder pass done: 682 / 709 statements covered by 1675 tests; the 27 left are not observable on this stack (entry 2026-11-06) |
+| 1. Characterisation tests | ✅ 685 / 709 statements covered by 1688 tests; the 24 left are not observable on this stack (entries 2026-11-06) |
 | 2–5 | ⬜ Not started |
 
 ---
+
+## 2026-11-06: Nest-only REST routes reachable (ADM-TLS-002/003, CAT-DOC-011)
+
+Decision with the user: publish the Nest test port (production serves Nest and hx on separate hostnames too).
+- `docker-compose.test.yml`: `nest-test` publishes `3180:3010`. Harness: `env.apiUrl` (`CAMAP_API_URL`), `app.api.adminTools`
+  (`mailTemplates`, `mailPreview`, `storedImage`, `compressImage`, `compressImagePage`). Login cookies set on :8180 are sent to :3180.
+- New `08-administration/maintenance-tools.api.spec.ts` (13 tests, green twice in a row). **Coverage: 685 / 709, 1688 tests.**
+- Deviation added: **UND-106** (templates no flow sends are still listed), targets `hx` and `ts`; marked
+  before the migration by the user (item 8 of [PRE-MIGRATION-TASKS.md](PRE-MIGRATION-TASKS.md)).
+- Findings: `/files/compressAll/:page` never answers when the first file of the page is not an image (the images are still
+  recompressed; `file.controller.ts:90-150`); the template list includes the layouts `_base`, `_layout-*`; its preview links are
+  built on `FRONT_URL`, not on the API origin that serves them; anonymous calls get 403, not 401.
+- Remaining 24 uncovered: Nest-only crons on real time, schedule/config/replicas, no implementation, browser/cookie/deployment,
+  deadlock (see the 2026-11-06 full-run entry below).
+
+## 2026-11-06: D2 triage (fix now or at the port)
+
+The 9 decided fixes missing from both apps (deviations with targets `hx` and `ts`) were put to the user one by one.
+- **Before the migration** (7): UND-062, UND-061, UND-120, UND-121, UND-098, UND-110, UND-015 (CODE-056). Listed in the new
+  [PRE-MIGRATION-TASKS.md](PRE-MIGRATION-TASKS.md), with code pointers and the test that turns green.
+- **At the port** (2): UND-101 (white-label theme in TS), UND-088 (subscription balance formula). Recorded in
+  [TS-ONLY-STEP.md](TS-ONLY-STEP.md) §1; their deviations now target `hx` only.
+- The two findings of the remainder pass got UND entries: `FINDING-MSG-RIGHT` → **UND-120** (COM-MSG-010),
+  `FINDING-MSG-RECIPIENTS` → **UND-121** (COM-MSG-003). Deviation keys and the two tests renamed; specs, UNDECIDED.md,
+  the FR summary and README updated (121 points, all decided). Every affected decision now carries a timing note.
 
 ## 2026-11-03: Phase 1 started, 05-orders (non-UI first)
 
@@ -608,5 +633,5 @@ README: new "The Mapbox stub" section. Stale comments updated (group-selection, 
 (ACC-PUR-001..007, COM-MSG-009, COM-JOB-009/010), schedule/config/replicas (COM-JOB-001/003/011/012), Nest-only REST routes not
 proxied (ADM-TLS-002/003, CAT-DOC-011), no implementation to test (GRP-DSB-005, CAT-VEN-009, CAT-VEN-011, CAT-PPR-003,
 PAY-TYP-005, PAY-RPT-008), browser/cookie/deployment (ACC-SES-007/009, CAT-PLC-008), deadlock (ADM-ERR-008).
-Open decision for the user: proxy Nest-only REST routes (or publish the nest-test port) to reach ADM-TLS-002/003, CAT-DOC-011.
+Open decision for the user: proxy Nest-only REST routes (or publish the nest-test port) to reach ADM-TLS-002/003, CAT-DOC-011. → Decided 2026-11-06: port published, see the entry at the top.
 Next: commit the harness and tests (user pushes); triage the findings into docs/inconsistencies-code.md / UNDECIDED.md.

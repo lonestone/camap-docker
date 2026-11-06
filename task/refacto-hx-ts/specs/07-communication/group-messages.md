@@ -12,6 +12,9 @@ Actors: messages manager.
 
 - **COM-MSG-003** As a messages manager, I choose recipients from lists of members. <!-- 03-features/messaging-mails.md S3; camap-ts/packages/api-core/src/users/users.resolver.ts:99-119 -->
   - The list I chose is saved with the message.
+  - Only a user with the messages right on the group gets the names and emails of its members.
+  - **ERRATUM** Today the right check is not awaited, so any logged-in user gets the names and emails of the members of any group. Source: `camap-ts/packages/api-core/src/users/users.resolver.ts:105`.
+  - **DECISION (UND-121, 2026-11-06)** The recipient lookup requires the messages right on the group; fixed before the migration ([PRE-MIGRATION-TASKS.md](../../PRE-MIGRATION-TASKS.md)).
 
 - **COM-MSG-004** As a recipient, each message email has a link to quit the group. <!-- 03-features/messaging-mails.md R7, F5; camap-ts/packages/api-core/src/mails/mails.service.ts:347-352 -->
   - I must log in to use it.
@@ -36,6 +39,9 @@ Actors: messages manager.
   - **ERRATUM** The delete is not awaited, so it may not complete within the job. Source: `camap-ts/packages/api-core/src/messages/messages.service.ts:83` (CODE-059).
 
 - **COM-MSG-010** As a messages manager, I cannot send a message without the messages right. <!-- 03-features/messaging-mails.md S3; camap-ts/packages/api-core/src/messages/messages.resolver.ts:206-218 -->
+  - Nothing is stored and no email is queued.
+  - **ERRATUM** Today `createMessage` only requires a login, so any logged-in user can send a message to the members of any group. Source: `camap-ts/packages/api-core/src/messages/messages.resolver.ts:135-218`.
+  - **DECISION (UND-120, 2026-11-06)** Sending a message requires the messages right on the group; fixed before the migration ([PRE-MIGRATION-TASKS.md](../../PRE-MIGRATION-TASKS.md)).
 
 - **COM-MSG-011** As a messages manager, I see an error when none of the recipients of my message is valid. <!-- 03-features/messaging-mails.md R7; camap-ts/packages/api-core/src/messages/messages.resolver.ts:192-197 -->
   - No message is stored and no email is queued.

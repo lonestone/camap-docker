@@ -93,3 +93,7 @@
   - **C1** partly addressed: a TypeORM-synced baseline is committed for tests. The production-derived baseline is still needed.
   - **C2/C3** addressed for tests: the encodings are centralised and unit-tested.
   - **D1** mechanism in place: `deviation('UND-NNN')` makes a test an expected failure.
+- **2026-11-06** **D2** decided. The 9 decided fixes that neither app implements were triaged: 7 are fixed in the current system before the migration ([PRE-MIGRATION-TASKS.md](PRE-MIGRATION-TASKS.md): UND-061, 062, 098, 110, 015/CODE-056, and the two messaging findings now recorded as UND-120 and UND-121); 2 are applied only at the port ([TS-ONLY-STEP.md](TS-ONLY-STEP.md) §1: UND-101, UND-088). All 7 pre-migration fixes are in camap-ts code that the port keeps.
+- **2026-11-06** **H2** in effect (confirmed by the user): feature freeze on Haxe. No new feature goes into camap-hx; new work goes to TS only. Haxe changes are limited to the decided fixes that must touch it (see [PRE-MIGRATION-TASKS.md](PRE-MIGRATION-TASKS.md)).
+- **2026-11-06** **G1** partly known (user): production serves Nest and hx on separate hostnames. The test stack now mirrors that for the Nest-only REST routes (published Nest port 3180). The rest of the production routing is still to read in `CAMAP-APP/minikube-camap`.
+- **2026-11-06** **D2** follow-up: UND-106 (remove the email templates no flow sends) added to [PRE-MIGRATION-TASKS.md](PRE-MIGRATION-TASKS.md) (item 8), after its test became reachable.

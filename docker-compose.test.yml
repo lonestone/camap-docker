@@ -1,7 +1,7 @@
 # Characterisation test stack (see tests/README.md).
 #
 # Isolated from the dev stack: own compose project ("camap-test"), own network,
-# throw-away MySQL (tmpfs), no Traefik. Host ports: hx 8180, MySQL 3307,
+# throw-away MySQL (tmpfs), no Traefik. Host ports: hx 8180, Nest 3180, MySQL 3307,
 # mailpit UI 8026.
 #
 #   tests/scripts/stack.sh up      # build + start + wait until healthy
@@ -49,6 +49,11 @@ services:
       # with env_file.
       - ./tests/stack/nest.test.env:/srv/.env:ro
     command: ["node", "packages/api-core/dist/main.js"]
+    ports:
+      # Nest-only REST routes (/mails/*, /files/*) are not proxied by Apache;
+      # production serves Nest on its own hostname too. Cookies ignore the
+      # port, so a login on :8180 also works here.
+      - "3180:3010"
     networks:
       default:
         aliases:

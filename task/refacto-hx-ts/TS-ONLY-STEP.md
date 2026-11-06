@@ -35,6 +35,22 @@ Statements: [ADM-MNT-005, ADM-MNT-006](specs/08-administration/maintenance-insta
 - Today the Haxe ping has a hard-coded version and the TS endpoints read an environment variable. The current system gets one build-time version through both ping endpoints (UND-113).
 - The Haxe ping disappears with the port: only the TS `/ping` and `/health` remain, with the build-time version. There is nothing to port.
 
+### UND-101: TS reads the saved white-label theme (deferred 2026-11-06)
+Statements: [COM-EML-008](specs/07-communication/emails.md), [ADM-THM-003](specs/08-administration/theme.md), [NAV-THM-002](specs/09-navigation/theme-layout.md).
+
+- The decision stands (TS reads the white-label theme saved by the superadmin, falls back to the default, clears its cache on save; colors stay on the built-in palette), but the product owner chose to apply it only at the port.
+- Until then the current system keeps today's behaviour: Nest `VariableService.getTheme()` returns the default theme, cached forever, so TS emails ignore the saved theme (`camap-ts/packages/api-core/src/tools/variable.service.ts:61-72`, CODE-104).
+- The test stays an expected failure on the hx stack (deviation `UND-101`, target `hx` only) and must pass on the TS target.
+
+### UND-088: one subscription balance formula in TS (deferred 2026-11-06)
+Statements: [PAY-BAL-007, PAY-BAL-008](specs/06-payments/balances.md), [ORD-AMT-003](specs/05-orders/order-amounts.md).
+
+- The decision stands (every screen shows payments minus the subscription total, rounded to cents, as Haxe computes it), but it is applied only at the port.
+- Until then the current system keeps today's behaviour: the TS field `CsaSubscription.balance` used by the attendance sheet sums every operation of the subscription, unrounded, and the TS service subtracts without rounding (`camap-ts/packages/api-core/src/groups/resolvers/csa-subscriptions.resolver.ts:17-35`, `groups/services/csa-subscriptions.service.ts:104-137`, CODE-102).
+- When porting the balance, use the Haxe formula (`camap-hx/src/db/Subscription.hx:23-67`). The test stays an expected failure on the hx stack (deviation `UND-088`, target `hx` only) and must pass on the TS target.
+
+The other decided fixes that are missing from both apps are done **before** the migration: see [PRE-MIGRATION-TASKS.md](PRE-MIGRATION-TASKS.md).
+
 ## 2. Removed in the current system, so nothing to port
 
 These features are removed from today's system by a decision. There is no TS counterpart to build.

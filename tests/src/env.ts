@@ -19,6 +19,8 @@ export const env = {
   target,
   /** Origin of the app under test. On hx, Apache also proxies /graphql, /neostatic/, /locales/ to Nest. */
   baseUrl: process.env.CAMAP_BASE_URL ?? 'http://localhost:8180',
+  /** Origin of the camap-ts API (Nest) for its REST routes that the app origin does not proxy (/mails/*, /files/*). Production serves it on its own hostname. */
+  apiUrl: process.env.CAMAP_API_URL ?? 'http://localhost:3180',
   /** Shared MySQL, used for arrange (factories) and assert (DB state). */
   db: {
     host: process.env.CAMAP_DB_HOST ?? '127.0.0.1',

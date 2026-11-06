@@ -4,3 +4,6 @@
 [submodule "camap-ts"]
 	path = camap-ts
 	url = https://github.com/lonestone/camap-ts.git
+[submodule "minikube-camap"]
+	path = minikube-camap
+	url = https://github.com/CAMAP-APP/minikube-camap.git

@@ -44,7 +44,7 @@ repo root), next to the dev stack without touching it:
 | Service | Host port | Notes |
 |---|---|---|
 | `neko-test` | 8180 | camap-hx + libfaketime. Apache proxies `/graphql`, `/neostatic/`, `/locales/` to Nest |
-| `nest-test` | – | camap-ts built image (`dist/main.js`), network alias `nest-devcamap` |
+| `nest-test` | 3180 | camap-ts built image (`dist/main.js`), network alias `nest-devcamap`. Published for the Nest-only REST routes (`/mails/*`, `/files/*`), which Apache does not proxy; production also serves Nest on its own hostname |
 | `mysql-test` | 3307 | `camap_test`, root/root, loads `db/schema.sql` and `db/seed.sql` on start |
 | `mailpit-test` | 8026 | web UI, for debugging only (tests read the mail queue table) |
 
@@ -178,6 +178,7 @@ To port a domain:
 |---|---|
 | `TARGET` | `hx` |
 | `CAMAP_BASE_URL` | `http://localhost:8180` |
+| `CAMAP_API_URL` | `http://localhost:3180` (camap-ts origin, for its REST routes) |
 | `CAMAP_DB_HOST` / `_PORT` / `_USER` / `_PASSWORD` / `_NAME` | `127.0.0.1` / `3307` / `root` / `root` / `camap_test` |
 | `CAMAP_KEY` | `camap-test-key-0123456789` (= hx `key` = Nest `CAMAP_KEY`) |
 | `CAMAP_FAKETIME_DIR` | `tests/.faketime` |

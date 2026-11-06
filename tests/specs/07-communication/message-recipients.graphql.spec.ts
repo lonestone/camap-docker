@@ -27,7 +27,7 @@ test.describe('recipients of a message', () => {
 
   test('a member without the messages right gets no recipients', { tag: ['@COM-MSG-003'] }, async ({ app, as }) => {
     // Finding: the right check is a promise that is never awaited, so it is always true (users.resolver.ts:105)
-    deviation('FINDING-MSG-RECIPIENTS');
+    deviation('UND-121');
     const s = await make.amapScenario();
     const plain = await as(s.users.member);
 

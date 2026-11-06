@@ -548,6 +548,22 @@ export interface CamapApp {
       attendanceSheetHeader(request: APIRequestContext, catalogId: number, distributionId?: number): Promise<GraphqlResult<{ sheet: AttendanceSheetHeader }>>;
     };
     /** Failures of the JSON API (what a client receives when a request goes wrong). */
+    /**
+     * Superadmin tools served only by camap-ts on its own origin (env.apiUrl): email template preview,
+     * stored image view and recompression. `body` is the raw response text.
+     */
+    adminTools: {
+      /** The list of email templates (camap-ts GET /mails/list): file names and the preview links it gives. */
+      mailTemplates(request: APIRequestContext): Promise<ApiResult<{ html: string; templates: string[]; links: string[] }>>;
+      /** One email template rendered with the given sample parameters (GET /mails/get/:template/:params). */
+      mailPreview(request: APIRequestContext, template: string, params: Record<string, unknown>): Promise<ApiResult<string>>;
+      /** A stored file shown as an image (GET /files/get/:id). */
+      storedImage(request: APIRequestContext, fileId: number): Promise<ApiResult<string>>;
+      /** Recompress one stored image in place (GET /files/compress/:id). */
+      compressImage(request: APIRequestContext, fileId: number): Promise<ApiResult<string>>;
+      /** Recompress a page of 500 stored files (GET /files/compressAll/:page); `timeoutMs` bounds the wait for an answer. */
+      compressImagePage(request: APIRequestContext, page: number, timeoutMs?: number): Promise<ApiResult<string> | { status: 'no-answer' }>;
+    };
     platform: {
       /** A request the API cannot even route (a malformed id): an unexpected error. */
       unexpectedFailure(request: APIRequestContext): Promise<ApiResult<{ error?: { code?: number; message?: string; stack?: string } }>>;

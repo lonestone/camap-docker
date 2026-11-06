@@ -27,8 +27,7 @@ Actors: the system, recipient.
   - TS emails read the white-label theme saved by the superadmin.
   - When none is saved or it cannot be read, the default theme is used.
   - **ERRATUM** Today TS emails always use the default theme and ignore the white-label setting. Source: `camap-ts/packages/api-core/src/tools/variable.service.ts:61-72` (CODE-104).
-  - **DECISION (UND-101, 2026-11-02)** TS reads the stored white-label theme (default theme as fallback, cache cleared on save); colors stay on the built-in palette.
-
+  - **DECISION (UND-101, 2026-11-02)** TS reads the stored white-label theme (default theme as fallback, cache cleared on save); colors stay on the built-in palette. This changes nothing in the current Haxe + TS system: it is applied when Haxe is ported to TS, see [TS-ONLY-STEP.md](../../TS-ONLY-STEP.md).
 - **COM-EML-009** As a recipient, emails are rendered in a shared layout for the platform or the group. <!-- 03-features/messaging-mails.md S2 Templates, R3; camap-hx/lang/fr/tpl/mail/layout-camap.mtt -->
 
 - **COM-EML-010** As a visitor, I receive emails in French. <!-- 03-features/crons-scheduled-jobs.md S4.1; camap-hx/src/controller/Cron.hx:458-622 -->
