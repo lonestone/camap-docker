@@ -7,7 +7,7 @@ Actors: visitor, user.
 - **NAV-THM-002** As a user, the interactive screens follow the platform theme for its name, sender, footer and terms; their colors stay on the built-in palette. <!-- 03-features/frontend-templates-i18n.md R24; camap-ts/packages/front-core/src/neo.tsx:12 -->
   - The theme is the same JSON the superadmin theme form saves.
   - Colors are set at build time; the theme has no color field.
-  - **DECISION (UND-101, 2026-11-02)** TS reads the stored white-label theme (default theme as fallback, cache cleared on save); colors stay on the built-in palette. This changes nothing in the current Haxe + TS system: it is applied when Haxe is ported to TS, see [TS-ONLY-STEP.md](../../TS-ONLY-STEP.md).
+  - **DECISION (UND-101, 2026-11-02)** TS reads the stored white-label theme (default theme as fallback, cache cleared on save); colors stay on the built-in palette. Fixed in camap-ts at the start of the migration ([TS-FIXES-FIRST.md](../../TS-FIXES-FIRST.md)).
 - **NAV-THM-003** As a user, the terms-of-service, terms-of-sale and privacy links come from the theme. <!-- 03-features/frontend-templates-i18n.md R22; camap-hx/common/Common.hx:317-337 -->
 
 - **NAV-THM-004** As a user, buttons protect me from submitting a form twice by accident. <!-- 03-features/frontend-templates-i18n.md R4; camap-hx/lang/master/tpl/base.mtt:98-115 -->

@@ -35,21 +35,16 @@ Statements: [ADM-MNT-005, ADM-MNT-006](specs/08-administration/maintenance-insta
 - Today the Haxe ping has a hard-coded version and the TS endpoints read an environment variable. The current system gets one build-time version through both ping endpoints (UND-113).
 - The Haxe ping disappears with the port: only the TS `/ping` and `/health` remain, with the build-time version. There is nothing to port.
 
-### UND-101: TS reads the saved white-label theme (deferred 2026-11-06)
-Statements: [COM-EML-008](specs/07-communication/emails.md), [ADM-THM-003](specs/08-administration/theme.md), [NAV-THM-002](specs/09-navigation/theme-layout.md).
+### Security fixes of the current system done at the port (CODE-177, CODE-178, CODE-179)
+Statements: [CAT-DOC-012](specs/03-catalogs/documents-files.md), [ACC-SES-001, ACC-SES-007](specs/01-accounts/sessions-tokens.md). Found in the sugoi read ([docs/08-sugoi.md](docs/08-sugoi.md)).
 
-- The decision stands (TS reads the white-label theme saved by the superadmin, falls back to the default, clears its cache on save; colors stay on the built-in palette), but the product owner chose to apply it only at the port.
-- Until then the current system keeps today's behaviour: Nest `VariableService.getTheme()` returns the default theme, cached forever, so TS emails ignore the saved theme (`camap-ts/packages/api-core/src/tools/variable.service.ts:61-72`, CODE-104).
-- The test stays an expected failure on the hx stack (deviation `UND-101`, target `hx` only) and must pass on the TS target.
+- Production has these holes today, but there is no slot for patching the current system before the migration (user, 2026-11-06). They are fixed by the TS design, and the port must not copy them.
+- **CODE-177**: the TS file route (`/file/<id>_<sign>`, same signature) answers a bad signature with a plain 404 that reveals nothing.
+- **CODE-178**: TS never takes a session id from the URL, and it issues a new session id at login. The TS login also keeps the old id today (`camap-ts/packages/api-core/src/auth/auth.service.ts:71-78`), but renewing it while Haxe reads the same `sid` cookie would break Haxe sessions, so this TS half waits for the port too.
+- **CODE-179**: session ids come from a cryptographic generator, and every session cookie is `HttpOnly`, `Secure` (outside development) and `SameSite`.
+- While Haxe still serves pages, its `sid` cookie keeps today's behaviour. The fixes are complete once the Haxe pages are gone.
 
-### UND-088: one subscription balance formula in TS (deferred 2026-11-06)
-Statements: [PAY-BAL-007, PAY-BAL-008](specs/06-payments/balances.md), [ORD-AMT-003](specs/05-orders/order-amounts.md).
-
-- The decision stands (every screen shows payments minus the subscription total, rounded to cents, as Haxe computes it), but it is applied only at the port.
-- Until then the current system keeps today's behaviour: the TS field `CsaSubscription.balance` used by the attendance sheet sums every operation of the subscription, unrounded, and the TS service subtracts without rounding (`camap-ts/packages/api-core/src/groups/resolvers/csa-subscriptions.resolver.ts:17-35`, `groups/services/csa-subscriptions.service.ts:104-137`, CODE-102).
-- When porting the balance, use the Haxe formula (`camap-hx/src/db/Subscription.hx:23-67`). The test stays an expected failure on the hx stack (deviation `UND-088`, target `hx` only) and must pass on the TS target.
-
-The other decided fixes that are missing from both apps are done **before** the migration: see [PRE-MIGRATION-TASKS.md](PRE-MIGRATION-TASKS.md).
+Decided fixes in camap-ts code that the port keeps are done at the start of the migration, not here: see [TS-FIXES-FIRST.md](TS-FIXES-FIRST.md). That includes UND-101 and UND-088, which were listed here first.
 
 ## 2. Removed in the current system, so nothing to port
 

@@ -30,6 +30,8 @@ both directions. See [01-architecture.md](01-architecture.md) and
 | [04-haxe-inventory.md](04-haxe-inventory.md) | Every Haxe controller action, service, db class, template directory and JS file, with its TS counterpart (none / partial / full) |
 | [05-cross-stack-integration.md](05-cross-stack-integration.md) | Haxe `/api/*`, Nest `/bridge/*`, calls in both directions, shared DB writes, shared auth, GraphQL/REST inventory |
 | [06-existing-tests.md](06-existing-tests.md) | Existing Haxe utest and TS Jest/e2e/Storybook suites, whether they can run, fixtures, CI |
+| [07-production-deployment.md](07-production-deployment.md) | Production Helm chart (minikube-camap): topology, ingress routing, what it means for the cut-over; production schema vs the test baseline |
+| [08-sugoi.md](08-sugoi.md) | The sugoi framework (pinned `c3b8db8`): request lifecycle, sessions, files, cache, CSRF, forms, mail, i18n; each mechanism labelled Match or Reimplement for the port |
 | [inconsistencies-documentation.md](inconsistencies-documentation.md) | Where the existing docs (`camap-ts/docs`, READMEs…) contradict the code |
 | [inconsistencies-code.md](inconsistencies-code.md) | Contradictions inside the code: rights/security gaps, bugs, Haxe↔TS divergences, dead code, config, tests |
 | [_drafts/](_drafts/) | Working drafts per area (verified, tagged). They are kept for traceability; the files above are the reference. |

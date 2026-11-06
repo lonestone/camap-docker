@@ -227,7 +227,7 @@ Decided so far:
 - UND-012 (2026-11-06): suggestion accepted; changing the login email requires the current password, no verification mail for now.
 - UND-013 (2026-11-06): suggestion accepted; the 18-year minimum age rule is dropped, birth date stays optional.
 - UND-014 (2026-11-06): suggestion accepted; TS login records which household person logged in, and no language is copied into the session.
-- UND-015 (2026-11-06): suggestion accepted; account deletion stops with an error when it cannot proceed, with no logout and no admin email; fixed before the migration.
+- UND-015 (2026-11-06): suggestion accepted; account deletion stops with an error when it cannot proceed, with no logout and no admin email; fixed in camap-ts at the start of the migration.
 - UND-016 (2026-11-06): current behaviour kept; inactive purge thresholds, exact-day warnings and no warning for never-logged users stay.
 - UND-017 (2026-11-06): suggestion accepted; TS user reads are manager-only, user(id) is dropped, invitation lookup is by hash.
 - UND-018 (2026-11-06): current behaviour kept; the invitation hash covers the email only.
@@ -273,8 +273,8 @@ Decided so far:
 - UND-058 (2026-11-04): suggestion accepted; price change redirects to `/distribution` and the validate buttons are removed.
 - UND-059 (2026-11-04): current behaviour kept; session edit and price change are not scoped to the user's group.
 - UND-060 (2026-11-04): current behaviour kept; no explicit rights checks are added to the distribution handlers.
-- UND-061 (2026-11-02): suggestion accepted; TS distribution reads require login and group membership, user orders only for the owner and managers; fixed before the migration.
-- UND-062 (2026-11-02): suggestion accepted; the variable-orders attendance sheet uses the classic access rule; fixed before the migration.
+- UND-061 (2026-11-02): suggestion accepted; TS distribution reads require login and group membership, user orders only for the owner and managers; fixed in camap-ts at the start of the migration.
+- UND-062 (2026-11-02): suggestion accepted; the variable-orders attendance sheet uses the classic access rule; fixed in camap-ts at the start of the migration.
 - UND-063 (2026-11-06): current behaviour kept; cycle generation aborts at the first conflict and the cycle stubs stay.
 - UND-064 (2026-11-06): suggestion accepted; volunteer self-registration is a POST with token and all checks, several roles stay allowed.
 - UND-065 (2026-11-02, amended 2026-11-04): suggestion accepted; removing registered volunteers needs a confirmation; the role edit/delete rights checks were dropped.
@@ -300,7 +300,7 @@ Decided so far:
 - UND-085 (2026-11-02): suggestion accepted; the legacy shop-mode order edit page is removed.
 - UND-086 (2026-11-06): suggestion accepted; the basket total is computed on read and no longer stored.
 - UND-087 (2026-11-06): current behaviour kept for legacy compatibility; the balance counts only operations of subscriptions starting after 2022.
-- UND-088 (2026-11-02): suggestion accepted; a subscription balance is payments minus total, rounded to cents, on every screen; applied at the port to TS (TS-only step).
+- UND-088 (2026-11-02): suggestion accepted; a subscription balance is payments minus total, rounded to cents, on every screen; fixed in camap-ts at the start of the migration.
 - UND-089 (2026-11-06): suggestion accepted; TS rounds operations to 2 decimals, locks/rounds/awaits on payment update, reuses only pending on-the-spot payments.
 - UND-090 (2026-11-02): suggestion accepted; operations without a subscription can be edited and deleted without crashing.
 - UND-091 (2026-11-02): current behaviour kept; a payment and a debt are settled together only when their sum is exactly zero.
@@ -310,19 +310,19 @@ Decided so far:
 - UND-095 (2026-11-02): suggestion accepted; the attendance sheet format form offers CSV.
 - UND-096 (2026-11-06): suggestion accepted; TS validate/delete operation mutations are kept and require the membership right.
 - UND-097 (2026-11-02): suggestion accepted; job endpoints require the shared key again and HX_TRIGGER_CRONS is read as a boolean.
-- UND-098 (2026-11-02): suggestion accepted; reading messages requires the messages right, unknown ids give "not found", latest messages are filtered on the right; fixed before the migration.
+- UND-098 (2026-11-02): suggestion accepted; reading messages requires the messages right, unknown ids give "not found", latest messages are filtered on the right; fixed in camap-ts at the start of the migration.
 - UND-099 (2026-11-02): suggestion accepted; a message with no valid recipient returns an error and stores nothing.
 - UND-100 (2026-11-06): suggestion accepted; emails use the platform address with the sender name and reply to the sender.
-- UND-101 (2026-11-02): suggestion accepted; TS reads the stored white-label theme (default as fallback, cache cleared on save), colors stay on the built-in palette; applied at the port to TS (TS-only step).
+- UND-101 (2026-11-02): suggestion accepted; TS reads the stored white-label theme (default as fallback, cache cleared on save), colors stay on the built-in palette; fixed in camap-ts at the start of the migration.
 - UND-102 (2026-11-02): suggestion accepted; purge jobs await every deletion.
 - UND-103 (2026-11-06): current behaviour kept; daily job and message purge stay at midnight, the 00:15 comment and docs are corrected.
 - UND-104 (2026-11-06): suggestion accepted as amended by UND-118; automatic emails stay French, subjects and dates move to translation files at the port.
 - UND-105 (2026-11-06): suggestion accepted; cron recap uses WHERE, errors email uses the faked clock, each job takes a lock across replicas.
-- UND-106 (2026-11-06): suggestion accepted; email templates that nothing sends are removed until their flows are specified; fixed before the migration.
+- UND-106 (2026-11-06): suggestion accepted; email templates that nothing sends are removed until their flows are specified; fixed in camap-ts at the start of the migration.
 - UND-107 (2026-11-02): admin@camap.tld stays the default admin user; diagnostics are superadmin-only; the CSS demo page is removed.
 - UND-108 (2026-11-02): suggestion accepted; the error purge needs a POST with a token and a confirmation, and the clean-up script is CLI-only with a dry-run by default.
 - UND-109 (2026-11-02): suggestion accepted; admin group search uses parameterised queries and an explicit superadmin guard.
-- UND-110 (2026-11-02): suggestion accepted; the `deleted@camap.tld` placeholder is created at install and by a migration, and account deletion fails loudly if it is missing; fixed before the migration.
+- UND-110 (2026-11-02): suggestion accepted; the `deleted@camap.tld` placeholder is created at install and by a migration, and account deletion fails loudly if it is missing; fixed in camap-ts at the start of the migration.
 - UND-111 (2026-11-06): suggestion accepted; a maintenance-mode toggle is added, SMTP/analytics/version stay in environment configuration.
 - UND-112 (2026-11-06): current behaviour kept; theme and superadmin pages stay unlinked in the sidebar, theme reload stays manual.
 - UND-113 (2026-11-06): suggestion accepted; both ping endpoints return one build-time version, the Haxe one disappears with the port.
@@ -332,5 +332,5 @@ Decided so far:
 - UND-117 (2026-11-02): current behaviour kept; a user can choose any group and sees every component that does not check membership.
 - UND-118 (2026-11-02): French only, no change to the current system; when Haxe is ported to TS, every hard-coded string is exported to the translation files and the language parameter is dropped (TS-only step).
 - UND-119 (2026-11-06): current behaviour kept, no graceful degradation is built; the dependency disappears with the Haxe pages (TS-only step).
-- UND-120 (2026-11-06): suggestion accepted; sending a message requires the messages right; fixed before the migration.
-- UND-121 (2026-11-06): suggestion accepted; the recipient lookup requires the messages right; fixed before the migration.
+- UND-120 (2026-11-06): suggestion accepted; sending a message requires the messages right; fixed in camap-ts at the start of the migration.
+- UND-121 (2026-11-06): suggestion accepted; the recipient lookup requires the messages right; fixed in camap-ts at the start of the migration.

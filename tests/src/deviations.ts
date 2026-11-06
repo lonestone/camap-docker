@@ -124,7 +124,7 @@ export const DEVIATIONS: Record<string, Deviation> = {
   },
   'UND-101': {
     reason: 'Nest VariableService.getTheme() always returns the default theme, cached forever: the saved white-label theme is ignored in emails (variable.service.ts:61-72, CODE-104)',
-    targets: ['hx'], // decided for the port only (TS-ONLY-STEP): the hx stack keeps today's behaviour
+    targets: ['hx', 'ts'],
   },
   'UND-106': {
     reason: 'the email templates that no flow sends (distribution validation and reminder, vendor invitations, vendor certification, anti-cheat, time-slot resolution) are still shipped and listed by /mails/list (camap-ts/packages/api-core/mails/dist, mails.controller.ts list)',
@@ -144,7 +144,7 @@ export const DEVIATIONS: Record<string, Deviation> = {
   },
   'UND-088': {
     reason: 'the TS GraphQL field CsaSubscription.balance (attendance sheet) sums every operation of the subscription, unrounded, instead of payments minus the order total rounded to cents (csa-subscriptions.resolver.ts:17-35, CODE-102)',
-    targets: ['hx'], // decided for the port only (TS-ONLY-STEP): the hx stack keeps today's behaviour
+    targets: ['hx', 'ts'],
   },
 };
 

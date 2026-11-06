@@ -44,3 +44,4 @@ Actors: group admin, catalog coordinator, vendor, member, the system, superadmin
 - **CAT-DOC-011** As a superadmin, I can view a stored image and recompress existing images to save space. <!-- 03-features/catalogs-products-vendors-places.md S3.3; camap-ts/packages/api-core/src/files/file.controller.ts:33-150 -->
 
 - **CAT-DOC-012** As a member, I can open files through a signed link that cannot be guessed. <!-- 03-features/catalogs-products-vendors-places.md R45; camap-ts/packages/api-core/src/files/file.service.ts:59-78 -->
+  - **ERRATUM** Today a link with a wrong signature gets a 404 that prints the valid signature, so any stored file can be downloaded by walking the ids. Source: `sugoi/src/sugoi/BaseController.hx:49-62` (CODE-177). Fixed when Haxe is ported to TS, not in the current system: see [TS-ONLY-STEP.md](../../TS-ONLY-STEP.md).

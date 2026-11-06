@@ -3,10 +3,11 @@
 Source: "Code inconsistencies" sections of drafts 01 to 11 (`task/refacto-hx-ts/docs/_drafts/`; draft 11 table I-1 to I-17; doc-side items of draft 11 are in `inconsistencies-documentation.md`). Factual only: no fix recommendations. Items tagged REFUTED by the verification pass are excluded and listed in the appendix.
 
 Conventions
-- Paths are repo-relative to the `camap-docker` root; draft aliases (HX/, API/, FE/, COMMON/, TPL/) are expanded. `SUGOI` = external Haxe lib `sugoi` (not in the repo; lix cache `~/haxe/haxe_libraries/sugoi/1.0.0/github/c3b8db853ccedf4be0eb15d6f27b16940ffcd37b/src/sugoi/`). Lines marked `~` are approximate as given by the verifier.
+- Paths are repo-relative to the `camap-docker` root; draft aliases (HX/, API/, FE/, COMMON/, TPL/) are expanded. `SUGOI` = Haxe lib `sugoi`, now the `sugoi/` submodule at the pinned commit `c3b8db8` (`SUGOI src/…` = `sugoi/src/…`; earlier entries were read in the lix cache of the same commit). Lines marked `~` are approximate as given by the verifier.
 - Refs: draft number + item (`03#C5` = draft 03 item C5, `05#3` = draft 05 item 3, `11#I-2` = draft 11 table row I-2). Several refs on one entry mean the same finding was reported by several drafts and was merged (dedup). Where several closely related findings of one draft share one root area they are merged in one entry; the title lists all aspects.
 - Severity: High = authentication/rights bypass or data loss (or, for Config/build, a blocker that prevents the app from starting or building); Medium = incorrect behaviour or weaker rights with limited reach, or likely data inconsistency; Low = cosmetic, dead code, or unverified/limited effect. The justification is given on entries rated High and on some Medium ones.
 - Verdict tags: CONFIRMED (verifier read the cited lines) or PLAUSIBLE with the reason it could not be fully confirmed. Findings about runtime behaviour that nobody executed say so in the description.
+- Entries CODE-164 and later, and the "Observed" lines, come from the characterisation suite (`camap-docker/tests`, see `PROGRESS.md`): their Refs name the test file instead of a draft.
 
 ## Index
 
@@ -175,6 +176,26 @@ Conventions
 | CODE-161 | Tests | Low | Dataset generator `reset()` truncates `db.<table>`; test DB is `test` |
 | CODE-162 | Tests | Low | e2e utils: unused `resetDb` parameter; `cleanDB` used by one spec |
 | CODE-163 | Tests | Low | `test:cov` omits `TZ=UTC` |
+| CODE-164 | Security/rights | High | TS message recipient lookup: rights check un-awaited |
+| CODE-165 | Security/rights | High | TS `createMessage` does not check the messages right |
+| CODE-166 | Bug/crash (null deref, un-awaited async) | Low | `/files/compressAll` never answers when the first file of the page is not an image |
+| CODE-167 | Bug/crash (null deref, un-awaited async) | Low | Sugoi file signature cache is a Neko array indexed by file id |
+| CODE-168 | Bug/crash (null deref, un-awaited async) | Low | Nest email layouts: unquoted `src` / `alt` attributes |
+| CODE-169 | Dead code/unused | Low | HX `OrderService.sendOrderSummaryToMembers` has no caller |
+| CODE-170 | Dead code/unused | Low | Email templates that no flow sends |
+| CODE-171 | Dead code/unused | Low | HX reads the `smtp_*` platform variables only in commented-out code |
+| CODE-172 | Config/build | Low | GraphQL Playground served whenever `NODE_ENV` is not `production` |
+| CODE-173 | Config/build | Low | Superadmin email template list: layouts listed, links built on `FRONT_URL` |
+| CODE-174 | Bug/crash (null deref, un-awaited async) | Medium | HX `/api/*` errors are rolled back out of the `Error` table |
+| CODE-175 | Bug/crash (null deref, un-awaited async) | Low | HX `/api/catalog/subscriptionAbsences/:id` answers 500 to an anonymous call |
+| CODE-176 | Bug/crash (null deref, un-awaited async) | Low | HX `/cron/minute?json=1` writes an `Error` row on every call |
+| CODE-177 | Security/rights | High | Sugoi `/file/*` 404 discloses the valid file signature |
+| CODE-178 | Security/rights | High | Session fixation: `?sid=` adopted and planted as cookie; no new id at login |
+| CODE-179 | Security/rights | Medium | Weak session ids and cookie flags |
+| CODE-180 | Bug/crash (null deref, un-awaited async) | Low | `TransactionWrappedTask` commits a failed task's partial writes |
+| CODE-181 | Bug/crash (null deref, un-awaited async) | Low | CSV export does not escape quotes; `Csv.escape` is partly a no-op |
+| CODE-182 | Config/build | Low | Last-resort error handler re-initialises the database schema |
+| CODE-183 | Data integrity | Low | IPv4-sized `ip` columns truncate IPv6 addresses |
 
 ### Counts
 
@@ -311,6 +332,7 @@ Conventions
 - Description: `Cron.canRun()` returns `true` unconditionally (auth/CLI checks commented out, intended guard in the comment :39-50); `doMinute`/`doHour`/`doDaily` call it; Apache rewrites any path to `index.n`; no Apache or Traefik rule blocks `/cron`; Nest calls it with plain `axios.get` and no credentials. Reachable only if the HX port is exposed.
 - Evidence: camap-hx/src/controller/Cron.hx:36-38, :59, :93, :341; camap-hx/www/.htaccess:5-8; camap-hx/apache/camap-static.conf; camap-hx/apache.conf; camap-ts/packages/api-core/src/tools/crontab.service.ts:19-20
 - Verdict: CONFIRMED
+- Observed (characterisation suite, 2026-11-02): the controller constructor prints `now is <server time>` for any `/cron/*` URL, `doDefault` included, unless `json=1` (`camap-hx/src/controller/Cron.hx:26-28`): the server clock is public. The test harness uses it to check its fake clock.
 - Refs: 01#14, 08#1, 10#5
 
 ### CODE-016 - HX `Product.doExport` lacks `canManageContract`; `/api/catalog` and `/api/product` unauthenticated
@@ -343,6 +365,7 @@ Conventions
 - Description: `doInviteFarmers` (479), `doVolunteerRoles` (873), `doVolunteers` (937), `doListByProductUser` (78) have no rights check in the body; `doDeleteCycle` checks the section only and has no token (858-867); `ContractAdmin.doParticipate` has no `canManageContract` (1001-1011); `doEditRole` / `doDeleteRole` do not verify that the role belongs to the contract/group (221-249). Not checked against a global guard.
 - Evidence: camap-hx/src/controller/Distribution.hx:78,479,858-867,873,937 (sibling check at :24); camap-hx/src/controller/ContractAdmin.hx:221-249,1001-1011
 - Verdict: PLAUSIBLE: by reading only; a global/route guard (sugoi or Main) was not checked
+- Observed (characterisation suite, 2026-11-06): `ContractAdmin.doBatchOrder` (:1102-1109) has no check of its own either: the controller constructor's `isContractManager()` (:29-31) lets a coordinator of any one catalog open the batch-order page of every catalog (`tests/specs/05-orders/order-pages.views.spec.ts`, ORD-ADO-001/011).
 - Refs: 05#4
 
 ### CODE-020 - HX member subscription delete is a GET without CSRF token
@@ -415,6 +438,7 @@ Conventions
 - Description: HX `canManageAllCatalogs` = `ContractAdmin(null)` (params == null); TS = any `ContractAdmin` entry, including single-catalog ones. TS ignores HX auto rights (claimed vendors) in every check except `canManageCatalog`, which lets a claimed vendor owner manage any catalog of its vendor (no HX equivalent in `canManageContract`). `isGroupMember` returns true for superadmins for any group (HX `isMemberOf` does not). The superadmin test is written three ways in TS (`rights === 1`, `hasFlag`, ...). Equivalence of `rights === 1` and HX `isAdmin()` unverified.
 - Evidence: camap-hx/src/db/User.hx:191-195, :342-344, :74-76; camap-hx/src/db/UserGroup.hx:155-168; camap-ts/packages/api-core/src/groups/services/user-groups.service.ts:102-105, :112-114, :138-140, :160-171; camap-ts/packages/api-core/src/users/models/user.entity.ts:123-125; camap-ts/packages/api-core/src/vendors/resolvers/vendors.resolver.ts:555
 - Verdict: CONFIRMED
+- Observed (characterisation suite, 2026-11-06): `validateOperation` / `deleteOperation` require `canManageAllCatalogs`, which `hasRight(catalogAdmin)` grants to any `ContractAdmin` row whatever its catalog (`user-groups.service.ts:112-114,160-171`): a single-catalog coordinator validates and deletes payments (`tests/specs/06-payments/operation-mutations.graphql.spec.ts`, PAY-ENT-011).
 - Refs: 03#C12, 03#C13, 04#C4 (verified part)
 
 ### CODE-029 - HX rights editor issues
@@ -464,6 +488,47 @@ Conventions
 - Evidence: camap-ts/packages/api-core/src/messages/messages.resolver.ts:83-100
 - Verdict: CONFIRMED
 - Refs: 08#16
+
+### CODE-164 - TS message recipient lookup: rights check un-awaited
+- Category: Security/rights
+- Severity: High
+- Description: `getEmailRecipientsByUserIds` tests `canManageMessages(...)` without `await`; a pending promise is always truthy, so any logged-in user gets the names and emails of the members of any group.
+- Evidence: camap-ts/packages/api-core/src/users/users.resolver.ts:100-112 (:106); camap-ts/packages/api-core/src/groups/services/user-groups.service.ts:116-118
+- Verdict: CONFIRMED (observed: a member without the messages right gets other members' emails)
+- Refs: characterisation suite `tests/specs/07-communication/message-recipients.graphql.spec.ts`; UND-121
+
+### CODE-165 - TS `createMessage` does not check the messages right
+- Category: Security/rights
+- Severity: High
+- Description: `createMessage` needs only a login: unlike the read queries it never calls `userIsAllowedToAccessMessages`, so any logged-in user can store a message and queue emails to the members of any group.
+- Evidence: camap-ts/packages/api-core/src/messages/messages.resolver.ts:136-201 (no check), :206-218 (the check, used at :45, :54, :65)
+- Verdict: CONFIRMED (observed: a plain member sends a group message)
+- Refs: characterisation suite `tests/specs/07-communication/group-messages.graphql.spec.ts`; UND-120
+
+### CODE-177 - Sugoi `/file/*` 404 discloses the valid file signature
+- Category: Security/rights
+- Severity: High
+- Description: When the signature in a `/file/<id>_<sign>` URL is wrong, `doFile` answers `404 - File signature do not match '<given>' != '<valid>'`, printing the valid signature. Requesting `/file/<valid>` then serves the file, without login. Every stored file (catalog and group documents with `members`/`subscribers` visibility, contracts, images) can be downloaded by walking the ids. It defeats the signing scheme entirely.
+- Evidence: SUGOI src/sugoi/BaseController.hx:49-62 (message :60); camap-hx/www/.htaccess (`/file/` not rewritten, `ErrorDocument 404 /index.n`)
+- Verdict: CONFIRMED on the test stack: `GET /file/1_x` printed the signature of file 1, and `GET /file/<it>` returned the PDF (200 after the `?reload=1` redirect)
+- Refs: Sugoi read (docs/08-sugoi.md)
+
+### CODE-178 - Session fixation: `?sid=` adopted and planted as cookie; no new id at login
+- Category: Security/rights
+- Severity: High
+- Description: `mainLoop` takes the session id from the `sid` URL parameter before the cookie, and `setCookie` then sends that id as the visitor's `sid` cookie. Logging in keeps the id: Haxe `Session.setUser` only sets `uid`, and TS login sets `uid` on the existing row. A link carrying an attacker's anonymous `sid` therefore plants it in the victim's browser; once the victim logs in, the attacker's browser shares the logged-in session.
+- Evidence: SUGOI src/sugoi/BaseApp.hx:203-207,213-217,238; SUGOI src/sugoi/db/Session.hx:41-48; camap-ts/packages/api-core/src/auth/auth.service.ts:71-78
+- Verdict: PLAUSIBLE: the cookie planting is CONFIRMED on the test stack (`GET /user/login?sid=<A>` answers `Set-Cookie: sid=<A>`); the takeover after the victim's login was not run end to end
+- Refs: Sugoi read (docs/08-sugoi.md)
+
+### CODE-179 - Weak session ids and cookie flags
+- Category: Security/rights
+- Severity: Medium
+- Description: Session ids are 32 characters drawn with `Std.random` (not cryptographic) from a 60-character alphabet that misses `g`/`G` and has `j`/`J` twice. The `sid` cookie is sent without `HttpOnly`, `Secure` or `SameSite`, so scripts can read it and it travels over plain http.
+- Evidence: SUGOI src/sugoi/db/Session.hx:107-115; SUGOI src/sugoi/BaseApp.hx:205
+- Verdict: CONFIRMED (by reading; cookie observed on the test stack)
+- Refs: Sugoi read (docs/08-sugoi.md)
+
 
 ---
 
@@ -628,6 +693,15 @@ Conventions
 - Evidence: camap-hx/src/service/ReportService.hx:24, :27-37
 - Verdict: CONFIRMED
 - Refs: 07#15
+
+### CODE-183 - IPv4-sized `ip` columns truncate IPv6 addresses
+- Category: Data integrity
+- Severity: Low
+- Description: `Session.ip` and `Error.ip` are `SString<15>`. MySQL runs without strict mode, so IPv6 client addresses are cut silently.
+- Evidence: SUGOI src/sugoi/db/Session.hx:12; SUGOI src/sugoi/db/Error.hx:11; docs/07-production-deployment.md §2 (`sql-mode`)
+- Verdict: PLAUSIBLE (by reading; no IPv6 client on the test stack)
+- Refs: Sugoi read (docs/08-sugoi.md)
+
 
 ---
 
@@ -815,6 +889,7 @@ Conventions
 - Description: 5th parameter of `make` is `?paid:Bool`; `make` throws without a subscription; no callers of `confirmTmpBasket`; a Haxe compile error is expected so a build check is needed.
 - Evidence: camap-hx/src/service/OrderService.hx:30, :109, :476
 - Verdict: PLAUSIBLE: could not check whether the Haxe build type-checks this code
+- Observed (characterisation suite, 2026-11-06): `/contractAdmin/tmpBaskets` fails as soon as an OPEN basket exists (`camap-hx/src/db/Basket.hx:231`), although nothing creates one any more (`tests/specs/05-orders/order-pages.views.spec.ts`, ORD-BSK-003; feature removed by UND-077).
 - Refs: 06#C13
 
 ### CODE-078 - Orders/basket: REST `adminMode` handling
@@ -905,6 +980,71 @@ Conventions
 - Verdict: CONFIRMED
 - Refs: 08#17
 
+### CODE-166 - `/files/compressAll` never answers when the first file of the page is not an image
+- Category: Bug/crash (null deref, un-awaited async)
+- Severity: Low
+- Description: The response is written only inside the loop, when it reaches index 0 and that file was recompressed. If the first file of the page fails (not an image) or the page is empty, the request hangs until a timeout, although the other images are recompressed. Production's ingress cuts it at 30 s anyway (docs/07 §4).
+- Evidence: camap-ts/packages/api-core/src/files/file.controller.ts:90-150 (response only at :132-140)
+- Verdict: CONFIRMED (observed: no answer within 5 s, image recompressed)
+- Refs: characterisation suite `tests/specs/08-administration/maintenance-tools.api.spec.ts`; related CODE-073
+
+### CODE-167 - Sugoi file signature cache is a Neko array indexed by file id
+- Category: Bug/crash (null deref, un-awaited async)
+- Severity: Low
+- Description: `File.makeSign` caches signatures in `CACHE[id]`, a Neko array: a very large id (beyond the Neko array limit, about 2^29) fails. Production ids are far below, so this is latent; it made two tests fail depending on the time of day when ids came from `Date.now()`.
+- Evidence: SUGOI src/sugoi/db/File.hx:28-36 (`CACHE[id]` read :31, written :34, at `c3b8db8`)
+- Verdict: CONFIRMED (observed in the test suite before the id range was narrowed)
+- Refs: characterisation suite `tests/specs/03-catalogs/documents-files.views.spec.ts`
+
+### CODE-168 - Nest email layouts: unquoted `src` / `alt` attributes
+- Category: Bug/crash (null deref, un-awaited async)
+- Severity: Low
+- Description: The logo `<img>` of the twig layouts writes `src={{ ... }}` and `alt={{ ... }}` without quotes, so a theme name with a space breaks the attribute: `alt=logo CAMAP` gives `alt="logo"` plus a stray attribute `camap=""`.
+- Evidence: camap-ts/packages/api-core/mails/src/_layout-camap.twig:10; camap-ts/packages/api-core/mails/src/_layout-group.twig:34
+- Verdict: CONFIRMED (by reading the templates; the stray `camap=""` attribute was seen in rendered emails during the test pass, no test asserts it)
+- Refs: characterisation suite `tests/specs/07-communication/mail-content.cron.spec.ts`
+
+### CODE-174 - HX `/api/*` errors are rolled back out of the `Error` table
+- Category: Bug/crash (null deref, un-awaited async)
+- Severity: Medium
+- Description: `Main.doApi` logs an unexpected error with `logError()` and then calls `app.rollback()`, which removes the row it just wrote; service errors (`tink.core.Error`) are not logged at all. Errors raised under `/api/*` (the JSON API used by the ordering widgets) leave no trace in the error log nor in the daily errors email.
+- Evidence: camap-hx/src/controller/Main.hx:189-206 (logError :203, rollback :198, :205)
+- Verdict: CONFIRMED (observed: an API 500 leaves no `Error` row)
+- Refs: characterisation suite `tests/specs/00-stack/smoke.spec.ts`
+
+### CODE-175 - HX `/api/catalog/subscriptionAbsences/:id` answers 500 to an anonymous call
+- Category: Bug/crash (null deref, un-awaited async)
+- Severity: Low
+- Description: `doSubscriptionAbsences` calls `app.user.canManageContract(...)` and reads `app.user.id` with no login check, so a visitor gets a null-dereference 500 instead of a refusal. No data is returned. Related: CODE-016 (unauthenticated `/api/catalog`), CODE-174 (the error is not logged).
+- Evidence: camap-hx/src/controller/api/Catalog.hx:77-80
+- Verdict: CONFIRMED (observed: anonymous call → 500)
+- Refs: characterisation suite `tests/specs/00-stack/smoke.spec.ts`
+
+### CODE-176 - HX `/cron/minute?json=1` writes an `Error` row on every call
+- Category: Bug/crash (null deref, un-awaited async)
+- Severity: Low
+- Description: On purpose ("debug in error log db"), the JSON mode of the minute job logs its clock and job list with `logError` on every run. This pollutes the error log and the daily errors email (COM-JOB-006) with non-errors.
+- Evidence: camap-hx/src/controller/Cron.hx:80-84
+- Verdict: CONFIRMED (by reading; seen in the `Error` table while building the harness, no test asserts it)
+- Refs: Phase 0 harness work (`PROGRESS.md`, 2026-11-02)
+
+### CODE-180 - `TransactionWrappedTask` commits a failed task's partial writes
+- Category: Bug/crash (null deref, un-awaited async)
+- Severity: Low
+- Description: With `noException` (what the cron jobs pass in production, `!App.config.DEBUG`), an exception is logged and the task then **commits**, keeping whatever it wrote before failing. Its `START TRANSACTION` also implicitly commits the pending work of the surrounding request transaction.
+- Evidence: SUGOI src/sugoi/tools/TransactionWrappedTask.hx:38-60; camap-hx/src/controller/Cron.hx:154,210,218,225,278,286,351,376
+- Verdict: CONFIRMED (by reading)
+- Refs: Sugoi read (docs/08-sugoi.md)
+
+### CODE-181 - CSV export does not escape quotes; `Csv.escape` is partly a no-op
+- Category: Bug/crash (null deref, un-awaited async)
+- Severity: Low
+- Description: `printCsvDataFromObjects` / `printCsvDataFromStringArray` wrap each value in `"` without doubling inner quotes, so a value containing `"` or `;` breaks the row. `Csv.escape` replaces `"` but its newline and tab replacements discard their result.
+- Evidence: SUGOI src/sugoi/tools/Csv.hx:244-293
+- Verdict: CONFIRMED (by reading)
+- Refs: Sugoi read (docs/08-sugoi.md)
+
+
 ---
 
 ## HX↔TS divergence
@@ -987,6 +1127,7 @@ Conventions
 - Description: HX geocodes the vendor on every save; TS `updateVendor` never geocodes and lat/lng are plain editable fields; HX place insert never geocodes unlike edit. Place country rule: insert only FR/BE vs 8 options in the form vs 13 codes in the front.
 - Evidence: camap-hx/src/service/VendorService.hx:137-145; camap-ts/packages/api-core/src/vendors/resolvers/vendors.resolver.ts:224-277; camap-ts/packages/front-core/src/modules/vendorDashboard/VendorForm.tsx:402-436; camap-hx/src/controller/Place.hx:50-56, :75-82; camap-hx/src/db/Place.hx:113-125; camap-ts/packages/front-core/src/utils/mapbox-geocoding.ts:24-25,33
 - Verdict: CONFIRMED
+- Observed (characterisation suite, 2026-11-06): when a place's address changes, hx geocodes it and overwrites the coordinates typed in the same form (`camap-hx/src/controller/Place.hx:49-55`; `tests/specs/03-catalogs/places.forms.spec.ts`).
 - Refs: 04#C5, 04#C6
 
 ### CODE-099 - Document visibility lists differ
@@ -1139,6 +1280,7 @@ Conventions
 - Description: HX strips a leading `app.` from `HOST`; TS strips only `https://` from `CAMAP_HOST`; an expiry cookie must match Domain to delete, so deletion may fail when `HOST` starts with `app.` (runtime unverified).
 - Evidence: camap-hx/src/controller/User.hx:84-88, :99-102, :108-111; camap-ts/packages/api-core/src/auth/auth.service.ts:348-357
 - Verdict: CONFIRMED
+- Observed (characterisation suite, 2026-11-02): since only `https://` is stripped, an `http://` `CAMAP_HOST` gives `Domain=http://…`, an invalid cookie domain: browsers drop the cookie and login fails on any non-development http deployment (`auth.service.ts:348-357`; development returns no Domain at all, which is why the test stack works).
 - Refs: 03#C16
 
 ### CODE-118 - TS login does not copy `User.lang` to `Session.lang` nor set `whichUser`
@@ -1304,6 +1446,31 @@ Conventions
 - Evidence: camap-ts/scripts/start.sh:25-26; camap-ts/scripts/tune-env-file.pl:20-22; camap-ts/camap-ts.Dockerfile:36,65; camap-ts/scripts/iso-3166-1.sh:9; camap-ts/scripts/setup.sh:3-11; camap-ts/README.md:22
 - Verdict: CONFIRMED for start.sh / tune-env-file.pl / iso-3166-1.sh; PLAUSIBLE for setup.sh (shell behaviour on symlink not run)
 - Refs: 01#22, 01#23, 01#24
+
+### CODE-169 - HX `OrderService.sendOrderSummaryToMembers` has no caller
+- Category: Dead code/unused
+- Severity: Low
+- Description: The order summary email to members is implemented but nothing calls it, so hx never sends it.
+- Evidence: camap-hx/src/service/OrderService.hx:528
+- Verdict: CONFIRMED (no caller in camap-hx or camap-ts; observed: no such email)
+- Refs: characterisation suite `tests/specs/05-orders/subscription-rules.api.spec.ts` (ORD-HIS-008)
+
+### CODE-170 - Email templates that no flow sends
+- Category: Dead code/unused
+- Severity: Low
+- Description: Eight twig templates are shipped and listed by the superadmin template list but no code sends them: `anticheat`, `existingVendorInvitation`, `newVendorInvitation`, `time-slots-resolution`, `validateDistributedDistribution`, `validateDistributedDistribution-reminder`, `vendorCertificationInProgress`, `vendorCertificationRefused`.
+- Evidence: camap-ts/packages/api-core/mails/src/ (and dist/); camap-ts/packages/api-core/src/mails/controllers/mails.controller.ts:70-86
+- Verdict: CONFIRMED (observed in the template list)
+- Refs: characterisation suite `tests/specs/08-administration/maintenance-tools.api.spec.ts`; UND-106
+
+### CODE-171 - HX reads the `smtp_*` platform variables only in commented-out code
+- Category: Dead code/unused
+- Severity: Low
+- Description: `BufferedJsonMail.finallySend`, the only reader of `smtp_host`, `smtp_port`, `smtp_user`, `smtp_pass`, is commented out: those stored variables have no effect; Nest sends the mail with its own `SMTP_*` settings.
+- Evidence: camap-hx/src/db/BufferedJsonMail.hx:75-90
+- Verdict: CONFIRMED
+- Refs: characterisation suite `tests/specs/08-administration/platform-settings.views.spec.ts` (ADM-MNT-009)
+
 
 ---
 
@@ -1476,6 +1643,31 @@ Conventions
 - Evidence: camap-ts/packages/front-core/webpack.config.js:80-100 (:86); camap-ts/.env.sample:55
 - Verdict: CONFIRMED
 - Refs: 09#C11
+
+### CODE-172 - GraphQL Playground served whenever `NODE_ENV` is not `production`
+- Category: Config/build
+- Severity: Low
+- Description: `GET /graphql` with `Accept: text/html` serves the GraphQL Playground unless `NODE_ENV=production`. The test and dev stacks run `development`, and so does the production chart template (`camapConfig.nodeEnv`), so a deployment that keeps that value exposes it publicly.
+- Evidence: camap-ts/packages/api-core/src/app.module.ts:47; minikube-camap/deployments/camap/values.yaml (`nodeEnv: development`)
+- Verdict: CONFIRMED on the test stack; production value not known
+- Refs: characterisation suite `tests/specs/09-navigation/platform-pages.views.spec.ts`; docs/07-production-deployment.md
+
+### CODE-173 - Superadmin email template list: layouts listed, links built on `FRONT_URL`
+- Category: Config/build
+- Severity: Low
+- Description: `/mails/list` lists every `.twig` file, the shared layouts `_base`, `_layout-camap`, `_layout-group` included, and builds each preview link on `FRONT_URL`. The routes are served on the API origin, and the production chart sets `FRONT_URL` to the in-cluster API URL (`http://camap-api:3010`), so the links do not open from a browser. Anonymous calls get 403 (not 401).
+- Evidence: camap-ts/packages/api-core/src/mails/controllers/mails.controller.ts:70-86 (:81); minikube-camap/deployments/camap/templates/deployment-api.yaml (`FRONT_URL` = `camapApiUrl`)
+- Verdict: CONFIRMED on the test stack
+- Refs: characterisation suite `tests/specs/08-administration/maintenance-tools.api.spec.ts`; docs/07-production-deployment.md
+
+### CODE-182 - Last-resort error handler re-initialises the database schema
+- Category: Config/build
+- Severity: Low
+- Description: If rendering the error page fails and `Error` can't be read, `errorHandler` calls `sys.db.admin.Admin.initializeDatabase()`, which creates the missing tables from the Haxe classes. A transient DB fault during an error could therefore run schema changes against production.
+- Evidence: SUGOI src/sugoi/BaseApp.hx:358-370
+- Verdict: CONFIRMED (by reading; not provoked)
+- Refs: Sugoi read (docs/08-sugoi.md)
+
 
 ---
 

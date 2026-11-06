@@ -100,10 +100,12 @@ Phase 4 is where the risk is. Orders/subscriptions is the densest area: Subscrip
 ## 7. What will happen, in sequence (outline only)
 
 1. Write stories and characterisation tests against **today's** behaviour, and record the known bugs as known.
-2. Upgrade camap-ts so new code targets current APIs.
+2. Upgrade camap-ts so new code targets current APIs, and fix the decided bugs of the camap-ts code the port keeps ([TS-FIXES-FIRST.md](TS-FIXES-FIRST.md)).
 3. Lay the foundations: schema baseline, rights layer, app shell, strangler routing.
 4. Port domain by domain, starting with the least coupled (messaging/crons, admin), then catalogs → distributions → orders/subscriptions → payments. Each domain is "done" when its characterisation suite passes on TS and its pages are routed to TS.
 5. Switch the last routes, then delete camap-hx.
+
+How the code is ported (when to reproduce sugoi, how pages are rebuilt) is set in [PORTING-RULES.md](PORTING-RULES.md).
 
 The functional specs ([specs/](specs/README.md)) describe the current Haxe + TS system. What applies only once Haxe is ported and removed is in [TS-ONLY-STEP.md](TS-ONLY-STEP.md).
 

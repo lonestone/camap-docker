@@ -177,7 +177,7 @@ Each entry lists:
     - (a) stop with an error
     - (b) create the placeholder automatically
   - **Suggestion**: Stop with an error when deletion cannot proceed; seed placeholder user by migration. Confidence: high.
-  - **Decision** (2026-11-06): Suggestion accepted (option a). Deletion stops with an error when it cannot proceed, with no logout and no admin email; the placeholder is seeded by migration (UND-110). Timing (2026-11-06): fixed in the current system, before the migration ([PRE-MIGRATION-TASKS.md](../PRE-MIGRATION-TASKS.md)).
+  - **Decision** (2026-11-06): Suggestion accepted (option a). Deletion stops with an error when it cannot proceed, with no logout and no admin email; the placeholder is seeded by migration (UND-110). Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md)).
   - **Impact of UND-110**: the placeholder is now created at install and by a migration, and deletion fails loudly when it is missing. Option (a) follows from the UND-110 decision; confirm to close this point.
 
 - **UND-016** Inactive purge warning rules — **DECIDED**
@@ -653,7 +653,7 @@ Each entry lists:
     - (a) group members (orders: self or managers)
     - (b) keep
   - **Suggestion**: Require login and group membership; user orders for owner or managers. Confidence: high.
-  - **Decision** (2026-11-02): Suggestion accepted (option a). Login and group membership are required; user orders are visible only to the owner and managers. Timing (2026-11-06): fixed in the current system, before the migration ([PRE-MIGRATION-TASKS.md](../PRE-MIGRATION-TASKS.md)).
+  - **Decision** (2026-11-02): Suggestion accepted (option a). Login and group membership are required; user orders are visible only to the owner and managers. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md)).
 
 - **UND-062** Variable-orders attendance without rights check — **DECIDED**
   - **Statements**: [DIS-ATT-007](04-distributions/attendance-sheets.md)
@@ -663,7 +663,7 @@ Each entry lists:
     - (a) same rule
     - (b) keep
   - **Suggestion**: Apply the classic attendance rule: manager of all/catalog or session volunteer. Confidence: high.
-  - **Decision** (2026-11-02): Suggestion accepted (option a). The variable-orders sheet uses the classic attendance rule. Timing (2026-11-06): fixed in the current system, before the migration ([PRE-MIGRATION-TASKS.md](../PRE-MIGRATION-TASKS.md)).
+  - **Decision** (2026-11-02): Suggestion accepted (option a). The variable-orders sheet uses the classic attendance rule. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md)).
 
 - **UND-063** Cycles: half-implemented — **DECIDED**
   - **Statements**: [DIS-CYC-004](04-distributions/cycles.md), [DIS-CYC-008](04-distributions/cycles.md)
@@ -932,7 +932,7 @@ Each entry lists:
     - (a) Haxe formula
     - (b) TS formula
   - **Suggestion**: Haxe formula: payments minus total, rounded to cents (TS service has it). Confidence: high.
-  - **Decision** (2026-11-02): Suggestion accepted (option a). Every screen uses payments minus subscription total, rounded to cents. Timing (2026-11-06): applied when Haxe is ported to TS, not in the current system ([TS-ONLY-STEP.md](../TS-ONLY-STEP.md)).
+  - **Decision** (2026-11-02): Suggestion accepted (option a). Every screen uses payments minus subscription total, rounded to cents. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md)). First put at the port, moved the same day: the bug is in camap-ts code that is kept.
 
 - **UND-089** TS payment operation creation differs from Haxe — **DECIDED**
   - **Statements**: [PAY-ENT-013](06-payments/payment-entry.md), [PAY-OPE-006](06-payments/operations.md), [PAY-ENT-012](06-payments/payment-entry.md), [PAY-OPE-005](06-payments/operations.md), [PAY-BAL-003](06-payments/balances.md)
@@ -1037,7 +1037,7 @@ Each entry lists:
     - (a) fix
     - (b) keep
   - **Suggestion**: Null-check before group read; require messages right and filter latest messages. Confidence: high.
-  - **Decision** (2026-11-02): Suggestion accepted (option a). The message is null-checked before its group is read, the messages right is required, and latest messages are filtered on that right. Timing (2026-11-06): fixed in the current system, before the migration ([PRE-MIGRATION-TASKS.md](../PRE-MIGRATION-TASKS.md)).
+  - **Decision** (2026-11-02): Suggestion accepted (option a). The message is null-checked before its group is read, the messages right is required, and latest messages are filtered on that right. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md)).
 
 - **UND-099** Queued email may be missing when a message is created — **DECIDED**
   - **Statements**: [COM-MSG-011](07-communication/group-messages.md)
@@ -1067,7 +1067,7 @@ Each entry lists:
     - (a) TS reads the setting
     - (b) drop white-label
   - **Suggestion**: TS reads the stored white-label theme (default as fallback, cache cleared on save); colors stay on the built-in palette. Confidence: high.
-  - **Decision** (2026-11-02): Suggestion accepted (option a). TS reads the stored white-label theme, with the default as fallback and the cache cleared on save; colors stay on the built-in palette. Timing (2026-11-06): applied when Haxe is ported to TS, not in the current system ([TS-ONLY-STEP.md](../TS-ONLY-STEP.md)).
+  - **Decision** (2026-11-02): Suggestion accepted (option a). TS reads the stored white-label theme, with the default as fallback and the cache cleared on save; colors stay on the built-in palette. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md)). First put at the port, moved the same day: the bug is in camap-ts code that is kept.
 
 - **UND-102** Deletions not awaited in purge jobs — **DECIDED**
   - **Statements**: [COM-JOB-010](07-communication/scheduled-jobs.md)
@@ -1112,34 +1112,34 @@ Each entry lists:
 
 - **UND-106** Email templates with no sender — **DECIDED**
   - **Statements**: [COM-AUT-003](07-communication/automatic-emails.md), [COM-AUT-004](07-communication/automatic-emails.md), [ADM-TLS-002](08-administration/maintenance-tools.md)
-  - **Current behavior**: Templates for distribution validation (and reminder), new and existing vendor invitation, vendor certification (in progress, refused), anti-cheat and time-slot resolution are in the TS template folder but referenced by no sender (use elsewhere unverified); the distribution "validated" state is dead (UND-057) (`camap-ts/packages/api-core/mails/src/*.twig`).
+  - **Current behavior**: (CODE-170) Templates for distribution validation (and reminder), new and existing vendor invitation, vendor certification (in progress, refused), anti-cheat and time-slot resolution are in the TS template folder but referenced by no sender (use elsewhere unverified); the distribution "validated" state is dead (UND-057) (`camap-ts/packages/api-core/mails/src/*.twig`).
   - **Question**: Which of these features are in scope?
   - **Options**:
     - (a) implement the flows
     - (b) remove templates
   - **Suggestion**: Remove templates with no sender until their flows are specified. Confidence: medium.
-  - **Decision** (2026-11-06): Suggestion accepted (option b). Templates with no sender are removed until their flows are specified. Timing (2026-11-06): fixed in the current system, before the migration ([PRE-MIGRATION-TASKS.md](../PRE-MIGRATION-TASKS.md)).
+  - **Decision** (2026-11-06): Suggestion accepted (option b). Templates with no sender are removed until their flows are specified. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md)).
 
 
 - **UND-120** Sending a message does not check the messages right — **DECIDED**
   - **Statements**: [COM-MSG-010](07-communication/group-messages.md)
-  - **Current behavior**: `createMessage` checks only that the user is logged in; only the read queries call `userIsAllowedToAccessMessages`, so any logged-in user can send a message by email to the members of any group (`camap-ts/packages/api-core/src/messages/messages.resolver.ts:135-218`). Found by the characterisation suite (test `group-messages.graphql`).
+  - **Current behavior**: `createMessage` checks only that the user is logged in; only the read queries call `userIsAllowedToAccessMessages`, so any logged-in user can send a message by email to the members of any group (CODE-165; `camap-ts/packages/api-core/src/messages/messages.resolver.ts:135-218`). Found by the characterisation suite (test `group-messages.graphql`).
   - **Question**: Must sending require the messages right on the group?
   - **Options**:
     - (a) fix: require the messages right
     - (b) keep
   - **Suggestion**: Require the messages right on the group before storing or queuing anything. Confidence: high.
-  - **Decision** (2026-11-06): Suggestion accepted (option a). Sending a message requires the messages right on the group; otherwise nothing is stored or queued. Timing (2026-11-06): fixed in the current system, before the migration ([PRE-MIGRATION-TASKS.md](../PRE-MIGRATION-TASKS.md)).
+  - **Decision** (2026-11-06): Suggestion accepted (option a). Sending a message requires the messages right on the group; otherwise nothing is stored or queued. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md)).
 
 - **UND-121** Recipient lookup leaks member emails — **DECIDED**
   - **Statements**: [COM-MSG-003](07-communication/group-messages.md)
-  - **Current behavior**: `getEmailRecipientsByUserIds` tests `canManageMessages()` without awaiting it; a pending promise is always truthy, so any logged-in user gets the names and emails of the members of any group (`camap-ts/packages/api-core/src/users/users.resolver.ts:105`). Found by the characterisation suite (test `message-recipients.graphql`).
+  - **Current behavior**: `getEmailRecipientsByUserIds` tests `canManageMessages()` without awaiting it; a pending promise is always truthy, so any logged-in user gets the names and emails of the members of any group (CODE-164; `camap-ts/packages/api-core/src/users/users.resolver.ts:105`). Found by the characterisation suite (test `message-recipients.graphql`).
   - **Question**: Must the recipient lookup require the messages right?
   - **Options**:
     - (a) fix: await the check
     - (b) keep
   - **Suggestion**: Await the right check; without the messages right the lookup returns nothing. Confidence: high.
-  - **Decision** (2026-11-06): Suggestion accepted (option a). The recipient lookup requires the messages right on the group; without it no name or email is returned. Timing (2026-11-06): fixed in the current system, before the migration ([PRE-MIGRATION-TASKS.md](../PRE-MIGRATION-TASKS.md)).
+  - **Decision** (2026-11-06): Suggestion accepted (option a). The recipient lookup requires the messages right on the group; without it no name or email is returned. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md)).
 
 
 ## Administration (ADM)
@@ -1182,7 +1182,7 @@ Each entry lists:
     - (a) install and migration create it
     - (b) manual
   - **Suggestion**: Create the deleted@camap.tld placeholder in install and migration; fail loudly if missing. Confidence: high.
-  - **Decision** (2026-11-02): Suggestion accepted (option a). The install step and a migration create the placeholder; account deletion fails loudly when it is missing. Timing (2026-11-06): fixed in the current system, before the migration ([PRE-MIGRATION-TASKS.md](../PRE-MIGRATION-TASKS.md)).
+  - **Decision** (2026-11-02): Suggestion accepted (option a). The install step and a migration create the placeholder; account deletion fails loudly when it is missing. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md)).
 
 - **UND-111** Platform settings have no admin screen — **DECIDED**
   - **Statements**: [ADM-MNT-001](08-administration/maintenance-install.md), [ADM-MNT-009](08-administration/maintenance-install.md), [ADM-MNT-010](08-administration/maintenance-install.md)
@@ -1332,7 +1332,7 @@ One line per undecided point. The suggestion is written so it can be read on its
 | UND-103 | **Decided:** The daily job and the message purge stay at midnight, not staggered; the code comment and old docs that say 00:15 are corrected (current behaviour kept). |
 | UND-104 | **Decided:** Automatic emails are in French only (UND-118); their hard-coded subjects and dates go into the translation files when the emails are ported to TS. |
 | UND-105 | **Decided:** The cron jobs use a proper SQL WHERE clause, the errors email shows the faked clock, and each job takes a lock so several replicas do not run it twice. |
-| UND-106 | **Decided:** Email templates that nothing sends are removed until their flows are specified. Fixed before the migration. |
+| UND-106 | **Decided:** Email templates that nothing sends are removed until their flows are specified. Fixed in camap-ts at the start of the migration. |
 | UND-111 | **Decided:** Superadmins get a maintenance-mode switch; SMTP, analytics and version settings stay in the environment configuration. |
 | UND-112 | **Decided:** The theme and superadmin pages stay unlinked in the sidebar and the theme keeps being reloaded manually (current behaviour kept). |
 | UND-113 | **Decided:** Both ping endpoints return the same build-time version number; the Haxe endpoint disappears when Haxe is removed. |
@@ -1344,7 +1344,7 @@ One line per undecided point. The suggestion is written so it can be read on its
 | UND-007 | **Decided:** A password reset invalidates the old password immediately (the legacy-compatibility hash is cleared), so only the new password works. |
 | UND-009 | **Decided:** The password reset form checks the reset token and the user it was issued for when the new password is submitted. |
 | UND-010 | **Decided:** The Haxe rule is kept: logging in as another user is allowed only to a superadmin, or to a group manager for a non-admin member who belongs to that single group, with the check awaited in TS. |
-| UND-015 | **Decided:** Account deletion stops with an error when it cannot proceed, without logging the user out or emailing the admins; the placeholder "deleted" user is created by a migration (see UND-110). Fixed before the migration. |
+| UND-015 | **Decided:** Account deletion stops with an error when it cannot proceed, without logging the user out or emailing the admins; the placeholder "deleted" user is created by a migration (see UND-110). Fixed in camap-ts at the start of the migration. |
 | UND-018 | **Decided:** The invitation link hash keeps covering the email only; the group and user parts are not signed (current behaviour kept). |
 | UND-022 | **Decided:** When a superadmin deletes a user and the deletion is refused, the reason is shown, and the deletion call is a POST. |
 | UND-023 | **Decided:** The "full" registration option stays a closed state with a "group is full" notice: no direct joining and no waiting list (current behaviour kept). |
@@ -1368,8 +1368,8 @@ One line per undecided point. The suggestion is written so it can be read on its
 | UND-058 | **Decided:** After editing a session, the user is sent back to the distributions page, and the buttons to validate a session are removed. |
 | UND-059 | **Decided:** Editing a session or changing its prices stays checked against the section right only, with no comparison with the user's group. |
 | UND-060 | **Decided:** The distribution and volunteer-role handlers keep their current rights checks; no new explicit checks are added. |
-| UND-061 | **Decided:** TS distribution queries require login and group membership, and a user's orders are visible only to that user and to managers. Fixed before the migration. |
-| UND-062 | **Decided:** the attendance sheet of a variable-orders catalog is visible only to coordinators of all catalogs or of that catalog, and to the session's volunteers. Fixed before the migration. |
+| UND-061 | **Decided:** TS distribution queries require login and group membership, and a user's orders are visible only to that user and to managers. Fixed in camap-ts at the start of the migration. |
+| UND-062 | **Decided:** the attendance sheet of a variable-orders catalog is visible only to coordinators of all catalogs or of that catalog, and to the session's volunteers. Fixed in camap-ts at the start of the migration. |
 | UND-065 | **Decided:** editing a volunteer role asks for confirmation before removing the volunteers already registered; no rights checks are added (amended 2026-11-04). |
 | UND-066 | **Decided:** A session counts as having vacant roles when at least one of its roles has no volunteer. |
 | UND-067 | **Decided:** when a member subscribes, all member checks apply; admin mode is used only by admins and catalog coordinators. |
@@ -1386,22 +1386,22 @@ One line per undecided point. The suggestion is written so it can be read on its
 | UND-084 | **Decided:** the minimum-order error message shows the total rounded to cents. |
 | UND-085 | **Decided:** the legacy shop-mode page for editing orders is removed. |
 | UND-086 | **Decided:** The basket total is computed on read from its orders and no longer stored. |
-| UND-088 | **Decided:** a subscription balance is its payments minus its total, rounded to cents, as Haxe computes it, on every screen. Applied at the port to TS (TS-only step). |
+| UND-088 | **Decided:** a subscription balance is its payments minus its total, rounded to cents, as Haxe computes it, on every screen. Fixed in camap-ts at the start of the migration. |
 | UND-090 | **Decided:** editing or deleting an operation that has no subscription (variable order, membership) works instead of crashing. |
 | UND-091 | **Decided:** a payment and a debt are settled together when their sum is exactly zero, as today (no cent tolerance). |
 | UND-092 | **Decided:** the unused link field of payment types is removed; the documentation link stays. |
 | UND-095 | **Decided:** the attendance sheet format form offers CSV, which the code already supports. |
 | UND-097 | **Decided:** the cron endpoints require the shared key again, and the setting that enables crons is read as a true/false value. |
-| UND-098 | **Decided:** reading messages requires the messages right on the group, unknown messages give "not found", and latest messages are listed only for groups where the user still has that right. Fixed before the migration. |
+| UND-098 | **Decided:** reading messages requires the messages right on the group, unknown messages give "not found", and latest messages are listed only for groups where the user still has that right. Fixed in camap-ts at the start of the migration. |
 | UND-099 | **Decided:** sending a message with no valid recipient returns an error and stores nothing. |
-| UND-101 | **Decided:** TS reads the white-label theme saved by the superadmin (falling back to the default, refreshed on save), while colors stay on the built-in palette. Applied at the port to TS (TS-only step). |
+| UND-101 | **Decided:** TS reads the white-label theme saved by the superadmin (falling back to the default, refreshed on save), while colors stay on the built-in palette. Fixed in camap-ts at the start of the migration. |
 | UND-102 | **Decided:** purge jobs wait for every deletion to finish. |
-| UND-120 | **Decided:** sending a group message requires the messages right on the group. Fixed before the migration. |
-| UND-121 | **Decided:** looking up message recipients requires the messages right; otherwise no name or email is returned. Fixed before the migration. |
+| UND-120 | **Decided:** sending a group message requires the messages right on the group. Fixed in camap-ts at the start of the migration. |
+| UND-121 | **Decided:** looking up message recipients requires the messages right; otherwise no name or email is returned. Fixed in camap-ts at the start of the migration. |
 | UND-107 | **Decided:** first install keeps creating admin@camap.tld as the default admin user; diagnostics are for superadmins only; the CSS demo page is removed. |
 | UND-108 | **Decided:** purging errors needs a POST with a security token and a confirmation, and the clean-up script runs only from the command line, with a dry-run by default. |
 | UND-109 | **Decided:** The admin group search uses parameterised queries and an explicit superadmin check. |
-| UND-110 | **Decided:** the placeholder "deleted" user is created at install and by a migration, and account deletion fails loudly if it is missing. Fixed before the migration. |
+| UND-110 | **Decided:** the placeholder "deleted" user is created at install and by a migration, and account deletion fails loudly if it is missing. Fixed in camap-ts at the start of the migration. |
 | UND-116 | **Decided:** stack traces stay in the server logs; the API returns only an error code and message. |
 | UND-117 | **Decided:** a user can choose any group, even one they do not belong to, and sees every component that does not check membership. |
 | UND-118 | **Decided:** French only, no change to the current system; when porting Haxe to TS, every hard-coded string is exported to the translation files and the language parameter is dropped (TS-only step). |

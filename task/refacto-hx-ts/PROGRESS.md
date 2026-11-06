@@ -15,6 +15,51 @@
 
 ---
 
+## 2026-11-06: camap-ts fixes first (D2 revised)
+
+Agreed with the user: a production patch before the migration is never planned, but bugs in **camap-ts code that the port
+keeps** are fixed first, on the migration branch with the upgrade, because they confuse the porting (copied patterns, noisy
+tests). Haxe/sugoi bugs are only fixed by the port.
+- `PRE-MIGRATION-TASKS.md` replaced by [TS-FIXES-FIRST.md](TS-FIXES-FIRST.md): the 8 items (UND-110 without its Haxe
+  part) plus UND-088 and UND-101, moved back from TS-ONLY-STEP. Their deviations target `hx` and `ts` again.
+- Specs, UNDECIDED.md, the FR summary and the specs README now say "fixed in camap-ts at the start of the migration".
+- The other decided camap-ts fixes will be sorted with the same rule when the plan is written.
+
+## 2026-11-06: sugoi read (B1), porting rules
+
+- **Porting rules** set by the user, written in [PORTING-RULES.md](PORTING-RULES.md) (linked from OVERVIEW §7):
+  reproduce sugoi only where existing data requires it, otherwise use Nest/React practice; pages keep the Haxe structure,
+  with the TS/React design.
+- **Sugoi read** (submodule `sugoi/` at the pinned `c3b8db8`, 94 files): [docs/08-sugoi.md](docs/08-sugoi.md). Request
+  lifecycle; every mechanism labelled Match / Reimplement; the 10 compatibility constraints listed (§3).
+- **Findings CODE-177 to CODE-183.** Two High, both checked on the test stack:
+  - CODE-177: the `/file/*` 404 prints the valid signature; the file is then served without login;
+  - CODE-178: a `?sid=` URL parameter plants the session cookie, and the id is not renewed at login.
+  - Others: CODE-179 weak ids and cookie flags, 180 cron tasks commit partial work, 181 CSV quoting, 182 schema
+    re-initialisation in the error handler, 183 IPv6 cut in `ip` columns.
+- Decided by the user: CODE-177, 178 and 179 are fixed at the port, not before (no slot for production patches before the
+  migration). Recorded in TS-ONLY-STEP §1, with errata on CAT-DOC-012, ACC-SES-001 and ACC-SES-007.
+
+## 2026-11-06: findings of the remainder pass and the Nest-routes pass triaged
+
+All findings were moved into [docs/inconsistencies-code.md](docs/inconsistencies-code.md), each one checked against the code.
+- **New entries CODE-164 to CODE-173.** Security: 164 recipient lookup un-awaited (UND-121), 165 `createMessage` without the
+  messages right (UND-120). Bugs: 166 `compressAll` never answers, 167 sugoi file signature cache, 168 unquoted attributes in
+  the email layouts. Dead code: 169 `sendOrderSummaryToMembers`, 170 email templates nothing sends (UND-106), 171 hx `smtp_*`
+  variables. Config: 172 GraphQL Playground, 173 template list links on `FRONT_URL`.
+- **"Observed" lines added to existing entries:** CODE-019 (batch-order page open to any coordinator), CODE-028 (a
+  single-catalog coordinator validates and deletes payments), CODE-077 (temporary-baskets page crash), CODE-098 (place
+  geocoding overwrites typed coordinates).
+- **Already covered, nothing added:** REG-010 (UND-005), REG-012 (CODE-004), REG-003 (UND-003), INV-006 and RPT-011
+  (CODE-006), LOG-011 (CODE-118), DEL-009 (CODE-031), MNT-003 (UND-002), TLS-006 (CODE-125), OPL-007 (CODE-040), ADO-006
+  (UND-074), BSK-005 (UND-086), OPE-006 (UND-089), EML-007 (CODE-123), NTF-006 (CODE-082), RPT-009 (CODE-039), GRP-006 (CODE-106).
+- **Not defects, so dropped:** the superadmin creator has no right rows (a superadmin holds every right), rejected recipients
+  are kept and retried, the date picker is a text field, and the basket debt is written only on coordinator changes
+  (characterised in `order-operations.api`).
+- Phase 0 list (2026-11-02 entry below) triaged too: CODE-174 (`/api/*` errors rolled back out of the error log), CODE-175
+  (anonymous `subscriptionAbsences` → 500), CODE-176 (`/cron/minute?json=1` logs an error every call); "Observed" lines on
+  CODE-117 (`http://` host gives an invalid cookie domain) and CODE-015 (server clock printed by every `/cron/*` URL).
+
 ## 2026-11-06: Nest-only REST routes reachable (ADM-TLS-002/003, CAT-DOC-011)
 
 Decision with the user: publish the Nest test port (production serves Nest and hx on separate hostnames too).
@@ -22,7 +67,7 @@ Decision with the user: publish the Nest test port (production serves Nest and h
   (`mailTemplates`, `mailPreview`, `storedImage`, `compressImage`, `compressImagePage`). Login cookies set on :8180 are sent to :3180.
 - New `08-administration/maintenance-tools.api.spec.ts` (13 tests, green twice in a row). **Coverage: 685 / 709, 1688 tests.**
 - Deviation added: **UND-106** (templates no flow sends are still listed), targets `hx` and `ts`; marked
-  before the migration by the user (item 8 of [PRE-MIGRATION-TASKS.md](PRE-MIGRATION-TASKS.md)).
+  before the migration by the user (item 8 of [TS-FIXES-FIRST.md](TS-FIXES-FIRST.md)).
 - Findings: `/files/compressAll/:page` never answers when the first file of the page is not an image (the images are still
   recompressed; `file.controller.ts:90-150`); the template list includes the layouts `_base`, `_layout-*`; its preview links are
   built on `FRONT_URL`, not on the API origin that serves them; anonymous calls get 403, not 401.
@@ -33,7 +78,7 @@ Decision with the user: publish the Nest test port (production serves Nest and h
 
 The 9 decided fixes missing from both apps (deviations with targets `hx` and `ts`) were put to the user one by one.
 - **Before the migration** (7): UND-062, UND-061, UND-120, UND-121, UND-098, UND-110, UND-015 (CODE-056). Listed in the new
-  [PRE-MIGRATION-TASKS.md](PRE-MIGRATION-TASKS.md), with code pointers and the test that turns green.
+  [TS-FIXES-FIRST.md](TS-FIXES-FIRST.md), with code pointers and the test that turns green.
 - **At the port** (2): UND-101 (white-label theme in TS), UND-088 (subscription balance formula). Recorded in
   [TS-ONLY-STEP.md](TS-ONLY-STEP.md) §1; their deviations now target `hx` only.
 - The two findings of the remainder pass got UND entries: `FINDING-MSG-RIGHT` → **UND-120** (COM-MSG-010),
@@ -168,7 +213,7 @@ Nothing is committed yet.
 
 ### Findings (not yet in docs/inconsistencies-code.md)
 
-These are candidate CODE entries. They have no IDs; add them when the doc is next revised.
+Triaged 2026-11-06: 1 → CODE-174, 2 → CODE-175, 3 → CODE-176, 4 → "Observed" line on CODE-117, 5 → "Observed" line on CODE-015.
 
 1. **API errors never reach the `Error` table.** `controller/Main.hx` `doApi` calls `logError()` and then `app.rollback()`, which removes the row. Errors raised under `/api/*` leave no trace in the DB. The test `00-stack/smoke.spec.ts` pins this.
 2. **An anonymous call to `/api/catalog/subscriptionAbsences/:id` returns 500.** `app.user.canManageContract` is dereferenced without a login check (`controller/api/Catalog.hx:77-80`). This is related to CODE-016 (unauthenticated `/api/catalog`).
@@ -634,4 +679,4 @@ README: new "The Mapbox stub" section. Stale comments updated (group-selection, 
 proxied (ADM-TLS-002/003, CAT-DOC-011), no implementation to test (GRP-DSB-005, CAT-VEN-009, CAT-VEN-011, CAT-PPR-003,
 PAY-TYP-005, PAY-RPT-008), browser/cookie/deployment (ACC-SES-007/009, CAT-PLC-008), deadlock (ADM-ERR-008).
 Open decision for the user: proxy Nest-only REST routes (or publish the nest-test port) to reach ADM-TLS-002/003, CAT-DOC-011. → Decided 2026-11-06: port published, see the entry at the top.
-Next: commit the harness and tests (user pushes); triage the findings into docs/inconsistencies-code.md / UNDECIDED.md.
+Next: commit the harness and tests (user pushes); triage the findings into docs/inconsistencies-code.md / UNDECIDED.md. → Findings triaged 2026-11-06, see the entry at the top.

@@ -12,7 +12,7 @@ Actors: member.
 
 - **ORD-AMT-003** As a member, the balance of a subscription is the sum of its payments minus its total, rounded to cents, and the subscription is paid when the balance is 0 or more. <!-- 03-features/orders-subscriptions.md R34; camap-hx/src/db/Subscription.hx:23-59 -->
   - **ERRATUM** TS computes this balance two other ways: the API field sums all operations, the service subtracts without rounding. Source: `camap-ts/packages/api-core/src/groups/resolvers/csa-subscriptions.resolver.ts:22-30, camap-ts/packages/api-core/src/groups/services/csa-subscriptions.service.ts:109-135` (CODE-102).
-  - **DECISION (UND-088, 2026-11-02)** Use the Haxe formula everywhere: payments minus subscription total, rounded to 2 decimals. This changes nothing in the current Haxe + TS system: it is applied when Haxe is ported to TS, see [TS-ONLY-STEP.md](../../TS-ONLY-STEP.md).
+  - **DECISION (UND-088, 2026-11-02)** Use the Haxe formula everywhere: payments minus subscription total, rounded to 2 decimals. Fixed in camap-ts at the start of the migration ([TS-FIXES-FIRST.md](../../TS-FIXES-FIRST.md)).
 - **ORD-AMT-004** As a member, the subscription total is recorded as a negative operation, rewritten only when the amount changes. <!-- 03-features/orders-subscriptions.md R34; camap-hx/src/service/SubscriptionService.hx:1059-1091 -->
 
 - **ORD-AMT-005** As a member, the price of an order is the price saved with the order. <!-- 03-features/orders-subscriptions.md R34; camap-hx/src/db/Subscription.hx:94-129; camap-hx/src/service/OrderService.hx:77 -->

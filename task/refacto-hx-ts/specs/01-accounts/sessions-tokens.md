@@ -4,6 +4,7 @@ Actors: visitor, logged-in user, the system.
 
 - **ACC-SES-001** As a visitor, I get an anonymous session when I open any page. <!-- 03-features/users-auth.md S2 sid; camap-hx/src/App.hx:160-171 -->
   - The session remembers the group I selected.
+  - **ERRATUM** Today a session id given in the address (`?sid=`) is adopted and set as my session cookie, the id is not renewed when I log in, and ids come from a non-cryptographic generator. Source: `sugoi/src/sugoi/BaseApp.hx:203-217`, `sugoi/src/sugoi/db/Session.hx:41-48,107-115`, `camap-ts/packages/api-core/src/auth/auth.service.ts:71-78` (CODE-178, CODE-179). Fixed when Haxe is ported to TS, not in the current system: see [TS-ONLY-STEP.md](../../TS-ONLY-STEP.md).
 
 - **ACC-SES-002** As a logged-in user, I stay logged in for about 30 days of activity on the site. <!-- 03-features/users-auth.md R13; camap-hx/src/controller/Cron.hx:378-382 -->
   - The system deletes logged-in sessions older than 30 days.
@@ -24,6 +25,7 @@ Actors: visitor, logged-in user, the system.
 
 - **ACC-SES-007** As a logged-in user, my login cookies cannot be read by scripts running in the page. <!-- 03-features/users-auth.md R11; camap-ts/packages/api-core/src/auth/auth.service.ts:348-357 -->
   - This protection is relaxed in development environments.
+  - **ERRATUM** Today the platform session cookie `sid` set by Haxe has no `HttpOnly`, `Secure` or `SameSite` flag. Source: `sugoi/src/sugoi/BaseApp.hx:205` (CODE-179). Fixed when Haxe is ported to TS, not in the current system: see [TS-ONLY-STEP.md](../../TS-ONLY-STEP.md).
 
 - **ACC-SES-008** As the system, I do not refuse requests on the sender's IP address or user agent: there is no IP or user-agent blacklist. <!-- 03-features/users-auth.md R18; camap-ts/packages/api-core/src/common/guards/black-list.guard.ts:11-50 -->
   - The login ban is the only protection against abusive sign-ins; the IP blacklist setting is removed too (see ADM-TLS-006, UND-115).

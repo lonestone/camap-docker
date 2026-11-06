@@ -6,7 +6,7 @@ Actors: superadmin.
 
 - **ADM-TLS-002** As a superadmin, I can preview any email template with sample data and list all templates. <!-- 03-features/admin-superadmin.md S3; camap-ts/packages/api-core/src/mails/controllers/mails.controller.ts:36-86 -->
   - The removed templates with no sender (UND-106) no longer appear in the list.
-  - **DECISION (UND-106, 2026-11-06)** The template list shows only templates that a flow can send. Fixed before the migration ([PRE-MIGRATION-TASKS.md](../../PRE-MIGRATION-TASKS.md)).
+  - **DECISION (UND-106, 2026-11-06)** The template list shows only templates that a flow can send. Fixed in camap-ts at the start of the migration ([TS-FIXES-FIRST.md](../../TS-FIXES-FIRST.md)).
 - **ADM-TLS-003** As a superadmin, I can view a stored image and recompress one image or a page of 500 images. <!-- 03-features/admin-superadmin.md S3; camap-ts/packages/api-core/src/files/file.controller.ts:33-150 -->
   - Compression overwrites the image.
   - A non-image gives "Not an image".
