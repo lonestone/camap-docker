@@ -11,9 +11,51 @@
 | Specs (user statements) | ✅ 709 statements in [specs/](specs/README.md); UND decisions ongoing ([UNDECIDED.md](specs/UNDECIDED.md)) |
 | 0. Test tooling | ✅ Harness delivered in `camap-docker/tests`, against camap-hx (entry 2026-11-02) |
 | 1. Characterisation tests | ✅ 685 / 709 statements covered by 1688 tests; the 24 left are not observable on this stack (entries 2026-11-06) |
-| 2–5 | ⬜ Not started |
+| 2–5 | ⬜ Not started. Detailed plan: [MIGRATION-PLAN.md](MIGRATION-PLAN.md) (2026-11-06), about 193–301 person-days remaining |
 
 ---
+
+## 2026-11-07: plan decisions
+
+- P6 reopened by the user: TypeORM 1.x instead of 0.3. Facts and cost written in [docs/09-camap-ts-upgrade.md](docs/09-camap-ts-upgrade.md) §7:
+  - TypeORM 1.1.2 is `latest`; `typeorm-transactional` has been unmaintained since 2023;
+  - 1.x has no context or decorator transactions;
+  - proposed: `@nestjs-cls/transactional`, about +2–4 days now, with no second migration later;
+  - Nest 12 is ESM-only, which needs a short check.
+- **P6 decided** (user): stay on TypeORM 0.3 now, upgrade the stack later; use `nestjs-cls` + `@nestjs-cls/transactional` (with an `@InjectTxRepository` proxy helper, and `@UseCls()` on jobs).
+  - Set `invalidWhereValuesBehavior: throw` (available in 0.3.31).
+  - 2A goes to 15–22 days; total 193–301.
+
+- The user decided P1 (SPA served by Nest), P2/P3 (test-only Haxe patches), P4 (no problem: TS is aligned on Haxe first) and P5 (deadlock policy from first principles).
+- **Production switches in one go** after every domain is ported. [MIGRATION-PLAN.md](MIGRATION-PLAN.md) was rewritten around that:
+  - the mixed state is on the test stack only;
+  - no per-domain production cut-overs;
+  - Phase 5 becomes the production switch (readiness, sessions and passwords, rollback window, decommission);
+  - total 191–299 person-days.
+- Deadlock policy written in [docs/09-camap-ts-upgrade.md](docs/09-camap-ts-upgrade.md) §3.3:
+  - retry the outermost transaction on 1213/1205 only, 3 attempts with jittered backoff;
+  - no external side effect inside the transaction;
+  - a distinct transient error at the end.
+
+## 2026-11-06: E1/E2 inventory, other camap-ts fixes sorted, detailed plan
+
+- **E1/E2** (read-only, camap-ts api-core and front-core): [docs/09-camap-ts-upgrade.md](docs/09-camap-ts-upgrade.md).
+  - No custom repository.
+  - Calls to convert: 108 `findOne(id)`, 29 calls with conditions but no `where`, 13 `findByIds`.
+  - 85 `@Transactional()` in 28 files. Replacement: `typeorm-transactional`.
+  - GraphQL already runs on Apollo Server 4. `apollo-server-*` 3 and `graphql-upload` are unused.
+  - Estimate: 13–20 person-days.
+  - New findings: **CODE-184** (the deadlock retry ends without the error once its budget is spent) and **CODE-185** (unused multipart upload middleware).
+- **Other decided camap-ts fixes** sorted with the TS-FIXES-FIRST rule, in [TS-FIXES-FIRST.md](TS-FIXES-FIRST.md):
+  - items 11–19 (rights, done on the policy layer) and 20–39 (accounts, groups, catalogs, dates, payments, mail);
+  - a "sorted to the port" table with the reason for each. Examples: UND-014 needs a write to the Neko-serialized `sdata`; UND-046's labels are in Haxe; the UND-017 invitation lookup needs the Haxe invite page.
+- **[MIGRATION-PLAN.md](MIGRATION-PLAN.md)** written.
+  - Rules; the app shell (SPA served by Nest on the web host, Haxe URLs kept); cut-over mechanics (routing table, ingress path rules, test proxy and `mixed` target, rollback).
+  - Steps 1R → 5 with estimates; definition of done for a domain; the 8 domains with their table boundaries, cron jobs and `/api` routes; what waits for the production dump.
+  - Six decisions for the user (P1–P6). Two of them propose small Haxe plumbing changes for the transition:
+    - mirror the current group into a cookie, because TS can't read the Neko-serialized session;
+    - a per-job skip list for `Cron.hx`, because `/cron/hour` runs every job in one call.
+- Nothing committed.
 
 ## 2026-11-06: camap-ts fixes first (D2 revised)
 

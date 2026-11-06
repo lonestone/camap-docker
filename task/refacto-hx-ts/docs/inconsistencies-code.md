@@ -196,6 +196,8 @@ Conventions
 | CODE-181 | Bug/crash (null deref, un-awaited async) | Low | CSV export does not escape quotes; `Csv.escape` is partly a no-op |
 | CODE-182 | Config/build | Low | Last-resort error handler re-initialises the database schema |
 | CODE-183 | Data integrity | Low | IPv4-sized `ip` columns truncate IPv6 addresses |
+| CODE-184 | Bug/crash (null deref, un-awaited async) | Low | Deadlock retry ends without the error once its budget is spent |
+| CODE-185 | Dead code/unused | Low | GraphQL multipart upload middleware mounted, no resolver takes an upload |
 
 ### Counts
 
@@ -1047,6 +1049,14 @@ Conventions
 
 ---
 
+### CODE-184 - Deadlock retry ends without the error once its budget is spent
+- Category: Bug/crash (null deref, un-awaited async)
+- Severity: Low
+- Description: The global `DeadlockInterceptor` re-runs the whole handler on `ER_LOCK_DEADLOCK` with `retryWhen(errors => errors.pipe(tap(...), take(5)))`. When `take(5)` completes the notifier, `retryWhen` completes the result stream without a value instead of re-throwing the deadlock, so after the last retry the caller gets an empty result (Nest then reports a generic "no elements in sequence" error) and the deadlock is not logged as such. There is no delay between retries, and `retryWhen` is deprecated in RxJS 7.
+- Evidence: camap-ts/packages/api-core/src/common/interceptors/dealock.interceptor.ts:10-23; registered globally in camap-ts/packages/api-core/src/app.module.ts (`APP_INTERCEPTOR`)
+- Verdict: PLAUSIBLE (by reading the RxJS semantics; no test provokes a deadlock)
+- Refs: E1 inventory ([09-camap-ts-upgrade.md](09-camap-ts-upgrade.md) §3)
+
 ## HX↔TS divergence
 
 ### CODE-089 - `Vendor.companyNumber` nullability vs migration
@@ -1473,6 +1483,14 @@ Conventions
 
 
 ---
+
+### CODE-185 - GraphQL multipart upload middleware mounted, no resolver takes an upload
+- Category: Dead code/unused
+- Severity: Low
+- Description: `main.ts` mounts `graphqlUploadExpress` (1 GB, 10 files) on every request, but no resolver declares an `Upload` argument and the generated schema has no `Upload` scalar; files go through the REST file controller and Haxe. The middleware only widens the accepted request formats (multipart GraphQL requests are a known CSRF vector), and `graphql-upload` 14+ is ESM-only, which blocks the dependency upgrade.
+- Evidence: camap-ts/packages/api-core/src/main.ts:8,27; camap-ts/packages/api-core/src/schema.gql (no `Upload`); camap-ts/packages/api-core/src/app.module.ts (`uploads: false`)
+- Verdict: CONFIRMED (by reading)
+- Refs: E1 inventory ([09-camap-ts-upgrade.md](09-camap-ts-upgrade.md) §4)
 
 ## Config/build
 

@@ -2,7 +2,7 @@
 
 > A short, rough analysis built from the reference documentation in [docs/](docs/README.md).
 > The numbers are orders of magnitude, meant for scoping. They are not a committed plan.
-> The detailed plan (roadblocks, ordering, estimates per task) comes next.
+> The detailed plan (ordering, cut-over boundaries, estimates per step) is [MIGRATION-PLAN.md](MIGRATION-PLAN.md). Its estimates replace §6 and its steps replace §7.
 
 ## 1. What the job is
 
@@ -41,7 +41,7 @@ Business rules documented across the 10 feature docs: **about 315** numbered rul
 3. **One rights and policy layer.** Rights checks are scattered and inconsistent on both sides: 34 security/rights issues, 17 of them High (`loginAs` impersonation, an unauthenticated `/cron/*`, missing ownership checks, un-awaited async guards). The port has to centralise them (guards and policies per resource), and must **not** copy the existing holes. This is the one place where "isomorphic" deliberately does not apply.
 4. **Take ownership of the schema.** Haxe never migrates the schema, and TypeORM has 12 migrations but no baseline. The port needs a baseline migration taken from production. The legacy naming (PascalCase tables, legacy FK names, JSON/CSV text columns, Paris-time DATETIMEs) must be kept while both apps run side by side.
 5. **Auth and session take-over.** TS already does login. Still to move: password reset (Haxe-only today, and broken), group selection, invite links, the rights editor and superadmin. The two-hash scheme (md5 `pass` from Haxe vs bcrypt `pass2` from TS) needs consolidating. The sugoi `Session`/sid coupling goes once Haxe is gone.
-6. **Strangler routing during the transition.** Both apps must run in parallel and be migrated page by page. The reverse proxy (Traefik/Apache) routes each migrated path to the TS front, and neo modules disappear as their host pages move. The shared DB makes this possible, but it means every intermediate state must stay consistent across both writers.
+6. **Strangler routing during the transition.** *(Revised 2026-11-07: production switches to TS in one go after every domain is ported; the page-by-page routing below only exists on the test stack. See [MIGRATION-PLAN.md](MIGRATION-PLAN.md) §1, §3.)* Both apps must run in parallel and be migrated page by page. The reverse proxy (Traefik/Apache) routes each migrated path to the TS front, and neo modules disappear as their host pages move. The shared DB makes this possible, but it means every intermediate state must stay consistent across both writers.
 7. **Crons, mail and notifications.** Move the `Cron.hx` jobs into Nest. Remove the HTTP trigger. Move the digest notifications (`NotificationMail`, read and written only by Haxe today).
 8. **Files, exports, i18n.** Move the `/file/*` serving and sugoi `File` blobs, and server-side CSV and print views (no PDF/XLS in Haxe; TS already does client-side CSV/XLSX). Move gettext `.po` strings into i18next JSON. Move email templates.
 9. **Upgrade camap-ts first.** NestJS 9→11, `@nestjs/graphql` 12 and Apollo Server 3 (end of life) → Apollo 4+, **TypeORM 0.2→0.3** (breaking: DataSource, find options, repositories), MUI 5→latest, and Node 20→22. Doing this before porting avoids writing about 15k lines of new code against APIs that are about to be replaced.
@@ -83,6 +83,8 @@ About 243 routes and about 315 rules collapse into **≈ 100–120 user stories*
 
 ## 6. Effort (rough order of magnitude)
 
+> Superseded on 2026-11-06 by [MIGRATION-PLAN.md](MIGRATION-PLAN.md) §4: about 193–301 person-days remain after Phases 0 and 1. The table below is the original scoping estimate.
+
 These are person-days for one experienced TS developer familiar with the domain. The range is about ±30%. AI-assisted porting may compress the mechanical parts (templates→React, Haxe→TS services), but not the analysis, the rights redesign or the verification.
 
 | Phase | Content | Person-days |
@@ -98,6 +100,8 @@ These are person-days for one experienced TS developer familiar with the domain.
 Phase 4 is where the risk is. Orders/subscriptions is the densest area: SubscriptionService and OrderService together hold about 2,000 lines of rules about absences, minimum orders, balances and stock, plus the order window, which is not enforced server-side.
 
 ## 7. What will happen, in sequence (outline only)
+
+> The detailed sequence is in [MIGRATION-PLAN.md](MIGRATION-PLAN.md) §4–§6.
 
 1. Write stories and characterisation tests against **today's** behaviour, and record the known bugs as known.
 2. Upgrade camap-ts so new code targets current APIs, and fix the decided bugs of the camap-ts code the port keeps ([TS-FIXES-FIRST.md](TS-FIXES-FIRST.md)).

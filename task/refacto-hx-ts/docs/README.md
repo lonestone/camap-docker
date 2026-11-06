@@ -32,6 +32,7 @@ both directions. See [01-architecture.md](01-architecture.md) and
 | [06-existing-tests.md](06-existing-tests.md) | Existing Haxe utest and TS Jest/e2e/Storybook suites, whether they can run, fixtures, CI |
 | [07-production-deployment.md](07-production-deployment.md) | Production Helm chart (minikube-camap): topology, ingress routing, what it means for the cut-over; production schema vs the test baseline |
 | [08-sugoi.md](08-sugoi.md) | The sugoi framework (pinned `c3b8db8`): request lifecycle, sessions, files, cache, CSRF, forms, mail, i18n; each mechanism labelled Match or Reimplement for the port |
+| [09-camap-ts-upgrade.md](09-camap-ts-upgrade.md) | camap-ts upgrade inventory (E1, E2): TypeORM 0.3 call sites, transaction library replacement and deadlock policy, Nest 11 / GraphQL / front-core versions, estimate |
 | [inconsistencies-documentation.md](inconsistencies-documentation.md) | Where the existing docs (`camap-ts/docs`, READMEs…) contradict the code |
 | [inconsistencies-code.md](inconsistencies-code.md) | Contradictions inside the code: rights/security gaps, bugs, Haxe↔TS divergences, dead code, config, tests |
 | [_drafts/](_drafts/) | Working drafts per area (verified, tagged). They are kept for traceability; the files above are the reference. |

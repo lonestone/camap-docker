@@ -45,7 +45,7 @@ Each entry lists:
     - (b) normalise only at display
     - (c) drop normalisation
   - **Suggestion**: Lower-case email on write in TS; upper-case last name at display only. Confidence: medium.
-  - **Decision** (2026-11-06): Haxe behaviour kept (option a, normalise in TS too). Email lower-cased and last name upper-cased on every save, stored; this differs from the suggestion, which upper-cased the last name only at display.
+  - **Decision** (2026-11-06): Haxe behaviour kept (option a, normalise in TS too). Email lower-cased and last name upper-cased on every save, stored; this differs from the suggestion, which upper-cased the last name only at display. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 20).
 
 - **UND-003** Phone/address required by group enforced client-side only — **DECIDED**
   - **Statements**: [ACC-REG-003](01-accounts/registration.md)
@@ -55,7 +55,7 @@ Each entry lists:
     - (a) server enforcement
     - (b) client only
   - **Suggestion**: Enforce phone/address server-side from the group flags at registration. Confidence: medium.
-  - **Decision** (2026-11-06): Suggestion accepted (option a). The server enforces the group's phone and address requirement at registration.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). The server enforces the group's phone and address requirement at registration. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 21).
 
 - **UND-004** Empty password accepted by register API — **DECIDED**
   - **Statements**: [ACC-REG-009](01-accounts/registration.md)
@@ -65,7 +65,7 @@ Each entry lists:
     - (a) validate server side
     - (b) leave to client
   - **Suggestion**: Keep min 8 in API schema; never accept empty password; import gets no usable hash. Confidence: high.
-  - **Decision** (2026-11-06): Suggestion accepted (option a): the API validates the password server side (min 8, never empty); imported accounts get no usable hash.
+  - **Decision** (2026-11-06): Suggestion accepted (option a): the API validates the password server side (min 8, never empty); imported accounts get no usable hash. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 22).
 
 - **UND-005** Password trimming differs between Haxe and TS — **DECIDED**
   - **Statements**: [ACC-REG-010](01-accounts/registration.md)
@@ -85,7 +85,7 @@ Each entry lists:
     - (a) require a valid signed invitation or an open group
     - (b) keep
   - **Suggestion**: Join group only if open or a valid invitation exists for the email. Confidence: high.
-  - **Decision** (2026-11-06): Suggestion accepted (option a). Registration joins the group only if it is open or a valid invitation exists for the email.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). Registration joins the group only if it is open or a valid invitation exists for the email. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 23).
 
 - **UND-007** Old password still works after Haxe reset — **DECIDED**
   - **Statements**: [ACC-PWD-009](01-accounts/password-reset.md), [ACC-LOG-003](01-accounts/login.md)
@@ -105,7 +105,7 @@ Each entry lists:
     - (a) count in login
     - (b) keep client-driven
   - **Suggestion**: Count failures inside login, committed outside the rolled-back transaction; fix lower-case IP header. Confidence: medium.
-  - **Decision** (2026-11-06): Suggestion accepted (option a). The server counts failed logins inside login, committed outside the rolled-back transaction, and reads the IP header in lower case.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). The server counts failed logins inside login, committed outside the rolled-back transaction, and reads the IP header in lower case. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 24).
 
 - **UND-009** Password reset does not verify the token on submit — **DECIDED**
   - **Statements**: [ACC-PWD-006](01-accounts/password-reset.md)
@@ -125,7 +125,7 @@ Each entry lists:
     - (a) superadmin or group admin of the target's group (Haxe rule)
     - (b) superadmin only
   - **Suggestion**: Haxe rule, awaited: superadmin, or group manager of a single-group non-admin member. Confidence: high.
-  - **Decision** (2026-11-06): Keep the Haxe behaviour (option a). Superadmin, or group manager of a single-group non-admin member, with the check awaited in TS.
+  - **Decision** (2026-11-06): Keep the Haxe behaviour (option a). Superadmin, or group manager of a single-group non-admin member, with the check awaited in TS. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 11).
 
 - **UND-011** Reset link scheme and lifetime — **DECIDED**
   - **Statements**: [ACC-PWD-012](01-accounts/password-reset.md), [ACC-PWD-002](01-accounts/password-reset.md)
@@ -147,7 +147,7 @@ Each entry lists:
     - (b) verification mail
     - (c) keep
   - **Suggestion**: Ask current password before login email change. Confidence: medium.
-  - **Decision** (2026-11-06): Suggestion accepted (option a). The current password is required before a login email change; no verification mail for now.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). The current password is required before a login email change; no verification mail for now. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 25).
 
 - **UND-013** Birth date >= 18 rule only in Haxe — **DECIDED**
   - **Statements**: [ACC-PRO-007](01-accounts/profile.md)
@@ -198,7 +198,7 @@ Each entry lists:
     - (a) restrict to group managers
     - (b) keep
   - **Suggestion**: Restrict reads to managers; drop unused user(id); invitation lookup by hash. Confidence: medium.
-  - **Decision** (2026-11-06): Suggestion accepted (option a). User reads restricted to group managers, `user(id)` dropped, invitation lookup by hash.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). User reads restricted to group managers, `user(id)` dropped, invitation lookup by hash. Timing (2026-11-06): the camap-ts part is fixed at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 12). The invitation lookup by hash waits for the port.
 
 - **UND-018** Invitation link hash covers only the email — **DECIDED**
   - **Statements**: [ACC-INV-005](01-accounts/invitations.md), [ACC-INV-003](01-accounts/invitations.md)
@@ -228,7 +228,7 @@ Each entry lists:
     - (a) apply it
     - (b) remove it
   - **Suggestion**: Drop the blacklist guard; no caller and not in Haxe. Confidence: medium.
-  - **Decision** (2026-11-06): Suggestion accepted (option b). The blacklist guard is dropped, consistent with UND-115.
+  - **Decision** (2026-11-06): Suggestion accepted (option b). The blacklist guard is dropped, consistent with UND-115. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 27).
   - **Impact of UND-115**: the unused IP blacklist setting is removed (UND-115), which points to option (b), dropping the guard too; confirm to close this point.
 
 - **UND-021** TS login requires an existing Haxe session row — **DECIDED**
@@ -239,7 +239,7 @@ Each entry lists:
     - (a) create it
     - (b) keep dependency on Haxe session
   - **Suggestion**: Create the session row at login when missing. Confidence: medium.
-  - **Decision** (2026-11-06): Suggestion accepted (option a). TS login creates the session row when it is missing.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). TS login creates the session row when it is missing. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 26).
 
 - **UND-022** Superadmin deletion swallows errors — **DECIDED**
   - **Statements**: [ACC-DEL-009](01-accounts/account-deletion.md), [ADM-TLS-005](08-administration/maintenance-tools.md)
@@ -305,7 +305,7 @@ Each entry lists:
     - (b) TS rule
     - (c) drop the special group
   - **Suggestion**: Use the Haxe distribution-based recent-orders rule; drop hard-coded group 16936. Confidence: medium.
-  - **Decision** (2026-11-06): Haxe rule (option a) for recent orders, but the hard-coded group 16936 exception is kept (not option c).
+  - **Decision** (2026-11-06): Haxe rule (option a) for recent orders, but the hard-coded group 16936 exception is kept (not option c). Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 28).
 
 - **UND-028** Member removal checks differ — **DECIDED**
   - **Statements**: [GRP-MEM-006](02-groups/members.md), [GRP-MEM-007](02-groups/members.md), [GRP-MEM-005](02-groups/members.md)
@@ -316,7 +316,7 @@ Each entry lists:
     - (b) block
     - (c) keep
   - **Suggestion**: Apply the Haxe confirmation for members with orders; fix batch removal loop. Confidence: medium.
-  - **Decision** (2026-11-06): Suggestion accepted (option a). The Haxe confirmation for members with orders applies in TS, and the batch removal loop is fixed.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). The Haxe confirmation for members with orders applies in TS, and the batch removal loop is fixed. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 29).
 
 - **UND-029** TS member and waiting lists lack per-group rights checks — **DECIDED**
   - **Statements**: [GRP-MEM-002](02-groups/members.md), [GRP-WAI-004](02-groups/waiting-list.md)
@@ -326,7 +326,7 @@ Each entry lists:
     - (a) membership right (or group admin) only
     - (b) keep
   - **Suggestion**: Require the membership right on the requested group for member and waiting lists. Confidence: high.
-  - **Decision** (2026-11-06): Suggestion accepted (option a). Member and waiting lists require the membership right (or group admin, or superadmin) on the requested group.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). Member and waiting lists require the membership right (or group admin, or superadmin) on the requested group. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 13).
 
 - **UND-030** Rights editor edge cases — **DECIDED**
   - **Statements**: [GRP-RIG-009](02-groups/rights.md), [GRP-RIG-010](02-groups/rights.md), [GRP-RIG-008](02-groups/rights.md)
@@ -346,7 +346,7 @@ Each entry lists:
     - (a) Haxe semantics
     - (b) TS semantics
   - **Suggestion**: Keep Haxe semantics: no-list coordinator right = all catalogs; superadmin not a member. Confidence: medium.
-  - **Decision** (2026-11-06): Mixed. Haxe semantics for catalogs (no-list coordinator right = all catalogs; vendor auto rights per claimed catalog); TS behaviour for superadmin (treated as a member of every group, Haxe aligned).
+  - **Decision** (2026-11-06): Mixed. Haxe semantics for catalogs (no-list coordinator right = all catalogs; vendor auto rights per claimed catalog); TS behaviour for superadmin (treated as a member of every group, Haxe aligned). Timing (2026-11-06): the camap-ts part is fixed at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 14). The superadmin part (Haxe) is done at the port.
 
 - **UND-032** Membership fee range — **DECIDED**
   - **Statements**: [GRP-COT-002](02-groups/membership.md), [GRP-COT-006](02-groups/membership.md)
@@ -366,7 +366,7 @@ Each entry lists:
     - (a) fix both
     - (b) keep cash only
   - **Suggestion**: Honour the payment type and check the user belongs to the group. Confidence: high.
-  - **Decision** (2026-11-06): Suggestion accepted (option a). Honour the payment type, check the user belongs to the group, and map batch results on user id.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). Honour the payment type, check the user belongs to the group, and map batch results on user id. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 30).
 
 - **UND-034** Move member back to waiting list — **DECIDED**
   - **Statements**: [GRP-WAI-007](02-groups/waiting-list.md), [GRP-WAI-011](02-groups/waiting-list.md)
@@ -376,7 +376,7 @@ Each entry lists:
     - (a) Haxe duplicate check and CSRF + right in both
     - (b) keep
   - **Suggestion**: Reject users already on the waiting list; require the membership right; fix splice. Confidence: medium.
-  - **Decision** (2026-11-06): Suggestion accepted (option a). Reject users already on the waiting list, require the membership right and the token in both stacks, keep the Haxe self and admin checks, fix the splice.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). Reject users already on the waiting list, require the membership right and the token in both stacks, keep the Haxe self and admin checks, fix the splice. Timing (2026-11-06): the camap-ts part is fixed at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 19). The Haxe part is done at the port.
 
 - **UND-035** "Valid membership" ignores the enabled flag — **DECIDED**
   - **Statements**: [GRP-COT-005](02-groups/membership.md)
@@ -386,7 +386,7 @@ Each entry lists:
     - (a) yes
     - (b) no
   - **Suggestion**: Gate membership validity on memberships being enabled. Confidence: medium.
-  - **Decision** (2026-11-06): Suggestion accepted (option a). Membership validity is gated on memberships being enabled.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). Membership validity is gated on memberships being enabled. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 31).
 
 - **UND-036** "New member" detection differs — **DECIDED**
   - **Statements**: [GRP-MEM-010](02-groups/members.md)
@@ -409,7 +409,7 @@ Each entry lists:
     - (a) removed everywhere
     - (b) kept everywhere
   - **Suggestion**: Remove percentage fees everywhere; keep the Haxe "no fee" rule. Confidence: high.
-  - **Decision** (2026-11-06): Percentage fees are deactivated everywhere without being removed from the data model (variant of option a: no field, no fee applied, stored flag and percentage ignored). Existing order lines with a non-zero fee rate are still honoured.
+  - **Decision** (2026-11-06): Percentage fees are deactivated everywhere without being removed from the data model (variant of option a: no field, no fee applied, stored flag and percentage ignored). Existing order lines with a non-zero fee rate are still honoured. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 32).
 
 - **UND-038** Product edit rewrites stock rows before validation — **DECIDED**
   - **Statements**: [CAT-PRD-015](03-catalogs/products.md)
@@ -449,7 +449,7 @@ Each entry lists:
     - (a) honour flags (managers always see)
     - (b) always public
   - **Suggestion**: Honour show-email and show-phone; await the rights check. Confidence: high.
-  - **Decision** (2026-11-06): Suggestion accepted (option a). Honour show-email and show-phone; await the rights check.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). Honour show-email and show-phone; await the rights check. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 15).
 
 - **UND-042** Catalog and vendor documents leak through un-awaited checks — **DECIDED**
   - **Statements**: [CAT-DOC-005](03-catalogs/documents-files.md)
@@ -459,7 +459,7 @@ Each entry lists:
     - (a) apply Haxe visibility rules
     - (b) keep
   - **Suggestion**: Apply Haxe document visibility in TS; await check, fix swapped args. Confidence: high.
-  - **Decision** (2026-11-06): Suggestion accepted (option a). Apply the Haxe document visibility rules in TS; await the check and fix the swapped arguments.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). Apply the Haxe document visibility rules in TS; await the check and fix the swapped arguments. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 16).
 
 - **UND-043** TS queries without guard or rights check — **DECIDED**
   - **Statements**: [CAT-CLV-010](03-catalogs/catalog-list-view.md), [CAT-PRD-018](03-catalogs/products.md), [CAT-VEN-012](03-catalogs/vendors.md), [CAT-PLC-010](03-catalogs/places.md), [CAT-PLC-009](03-catalogs/places.md)
@@ -469,7 +469,7 @@ Each entry lists:
     - (a) require login or right
     - (b) keep public
   - **Suggestion**: Require login; restrict subscriptions to managers, products to members, place to its group. Confidence: medium.
-  - **Decision** (2026-11-06): Suggestion accepted (option a). Login required on all these queries; subscriptions restricted to managers and the subscriber, products to group members or managers, place to members of its group.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). Login required on all these queries; subscriptions restricted to managers and the subscriber, products to group members or managers, place to members of its group. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 17).
 
 - **UND-044** Geocoding differs between Haxe and TS — **DECIDED**
   - **Statements**: [CAT-VEN-004](03-catalogs/vendors.md), [CAT-PLC-004](03-catalogs/places.md), [CAT-VDB-004](03-catalogs/vendor-pages.md)
@@ -520,7 +520,7 @@ Each entry lists:
     - (a) fix
     - (b) none
   - **Suggestion**: Fix the crash: null-safe email2 comparison. Confidence: high.
-  - **Decision** (2026-11-06): Suggestion accepted (option a). Null-safe comparison of the secondary email.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). Null-safe comparison of the secondary email. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 33).
 
 - **UND-049** Multi-weight without variable price — **DECIDED**
   - **Statements**: [CAT-PRD-011](03-catalogs/products.md)
@@ -593,7 +593,7 @@ Each entry lists:
     - (a) store UTC, display in group zone
     - (b) keep Paris wall-clock
   - **Suggestion**: Keep Paris wall-clock storage; wrap raw-column comparisons with utcToZonedTime. Confidence: high.
-  - **Decision** (2026-11-04): Suggestion accepted. Paris wall-clock storage is kept and raw-column comparisons are wrapped with `utcToZonedTime` (option b).
+  - **Decision** (2026-11-04): Suggestion accepted. Paris wall-clock storage is kept and raw-column comparisons are wrapped with `utcToZonedTime` (option b). Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 34).
 
 - **UND-056** Daylight-saving boundaries hard-coded — **DECIDED**
   - **Statements**: [DIS-MDS-013](04-distributions/multidistrib-schedule.md)
@@ -942,7 +942,7 @@ Each entry lists:
     - (a) Haxe rules in TS
     - (b) redefine
   - **Suggestion**: Round to 2 decimals on save; lock, round and await on payment update. Confidence: medium.
-  - **Decision** (2026-11-06): Suggestion accepted (option a, Haxe rules in TS). Round to 2 decimals on save; lock, round and await on payment update; reuse only pending on-the-spot payments.
+  - **Decision** (2026-11-06): Suggestion accepted (option a, Haxe rules in TS). Round to 2 decimals on save; lock, round and await on payment update; reuse only pending on-the-spot payments. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 35).
 
 - **UND-090** Edit/delete payment crashes on missing subscription — **DECIDED**
   - **Statements**: [PAY-ENT-010](06-payments/payment-entry.md)
@@ -1013,7 +1013,7 @@ Each entry lists:
     - (b) all-catalogs coordinator
     - (c) drop
   - **Suggestion**: Keep validate/delete mutations with membership right (canManageMembers), or drop if unused. Confidence: medium.
-  - **Decision** (2026-11-06): Suggestion accepted (option a). The validate and delete mutations are kept and require the membership right (canManageMembers).
+  - **Decision** (2026-11-06): Suggestion accepted (option a). The validate and delete mutations are kept and require the membership right (canManageMembers). Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 18).
 
 
 ## Communication (COM)
@@ -1027,7 +1027,7 @@ Each entry lists:
     - (b) network-level restriction
     - (c) keep
   - **Suggestion**: Re-enable key check on job endpoints; parse HX_TRIGGER_CRONS as boolean. Confidence: high.
-  - **Decision** (2026-11-02): Suggestion accepted (option a). The job endpoints require the shared key again, and HX_TRIGGER_CRONS is read as a boolean.
+  - **Decision** (2026-11-02): Suggestion accepted (option a). The job endpoints require the shared key again, and HX_TRIGGER_CRONS is read as a boolean. Timing (2026-11-06): the camap-ts part is fixed at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 39). The key check (Haxe) comes back at the port.
 
 - **UND-098** Message read rights and null handling — **DECIDED**
   - **Statements**: [COM-MSG-007](07-communication/group-messages.md), [COM-MSG-008](07-communication/group-messages.md)
@@ -1047,7 +1047,7 @@ Each entry lists:
     - (a) error to the sender
     - (b) store message anyway
   - **Suggestion**: Return an error and store no message when no valid recipient. Confidence: high.
-  - **Decision** (2026-11-02): Suggestion accepted (option a). The sender gets an error and no message is stored when no recipient is valid.
+  - **Decision** (2026-11-02): Suggestion accepted (option a). The sender gets an error and no message is stored when no recipient is valid. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 36).
 
 - **UND-100** Sender address of emails differs between Haxe and TS — **DECIDED**
   - **Statements**: [COM-EML-007](07-communication/emails.md)
@@ -1057,7 +1057,7 @@ Each entry lists:
     - (a) platform address with group name, reply to group contact
     - (b) group contact address
   - **Suggestion**: Platform address with sender name, Reply-To to the sender. Confidence: medium.
-  - **Decision** (2026-11-06): Suggestion accepted (option a). Platform address with the sender name; Reply-To set to the sender.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). Platform address with the sender name; Reply-To set to the sender. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 37).
 
 - **UND-101** TS email theme ignores the white-label setting — **DECIDED**
   - **Statements**: [COM-EML-008](07-communication/emails.md), [ADM-THM-003](08-administration/theme.md), [NAV-THM-002](09-navigation/theme-layout.md)
@@ -1077,7 +1077,7 @@ Each entry lists:
     - (a) fix
     - (b) none
   - **Suggestion**: Await every deletion in purge jobs. Confidence: high.
-  - **Decision** (2026-11-02): Suggestion accepted (option a). Every deletion in purge jobs is awaited.
+  - **Decision** (2026-11-02): Suggestion accepted (option a). Every deletion in purge jobs is awaited. Timing (2026-11-06): the camap-ts part is fixed at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 38). The Haxe part is done at the port.
 
 - **UND-103** Daily job time — **DECIDED**
   - **Statements**: [COM-JOB-011](07-communication/scheduled-jobs.md)
@@ -1087,7 +1087,7 @@ Each entry lists:
     - (a) stagger them
     - (b) keep
   - **Suggestion**: Daily job at 00:15 as documented; move message purge off midnight. Confidence: medium.
-  - **Decision** (2026-11-06): Keep the current behaviour (option b). Jobs stay at midnight; the comment (and old docs) saying 00:15 are corrected.
+  - **Decision** (2026-11-06): Keep the current behaviour (option b). Jobs stay at midnight; the comment (and old docs) saying 00:15 are corrected. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 39).
 
 - **UND-104** Hard-coded French in automatic emails — **DECIDED**
   - **Statements**: [COM-NTF-006](07-communication/order-notifications.md)
@@ -1232,7 +1232,7 @@ Each entry lists:
     - (a) remove dead ones, fix the service
     - (b) keep
   - **Suggestion**: Keep platformtermsofservice; remove dead settings; fix getInt and set; drop unused IP blacklist. Confidence: medium.
-  - **Decision** (2026-11-06): Suggestion accepted (option a). Keep platformtermsofservice; remove dead settings and the unused IP blacklist; fix getInt and set.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). Keep platformtermsofservice; remove dead settings and the unused IP blacklist; fix getInt and set. Timing (2026-11-06): fixed in camap-ts at the start of the migration, on the migration branch ([TS-FIXES-FIRST.md](../TS-FIXES-FIRST.md) item 27).
 
 - **UND-116** Stack traces returned to API clients — **DECIDED**
   - **Statements**: [ADM-ERR-006](08-administration/error-log.md)
