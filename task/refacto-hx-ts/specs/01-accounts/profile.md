@@ -14,14 +14,20 @@ Actors: logged-in user.
 - **ACC-PRO-004** As a logged-in user, I cannot save an email already used by another account. <!-- 03-features/users-auth.md R2, R20; camap-ts/packages/api-core/src/users/users.service.ts:137-145 -->
   - The check covers primary and secondary emails.
 
-- **ACC-PRO-005** *Undecided (UND-012)*: As a logged-in user, I confirm my identity before my login email changes. <!-- 03-features/users-auth.md R20; camap-ts/packages/api-core/src/users/users.service.ts:124-147 -->
-  - **SUGGESTION** Ask for the current password before a login email change. Add no verification mail for now. Based on: `camap-ts/packages/api-core/src/users/users.resolver.ts:200-212` (`deleteAccount` already requires the password via `isValidPassword`), `camap-ts/packages/api-core/src/users/users.resolver.ts:158-176` (`updateUser` changes email freely). Confidence: medium.
+- **ACC-PRO-005** As a logged-in user, I confirm my identity with my current password before my login email changes. <!-- 03-features/users-auth.md R20; camap-ts/packages/api-core/src/users/users.service.ts:124-147 -->
+  - No verification email is sent for now.
+  - The same password check already protects account deletion (`isValidPassword`).
+  - **ERRATUM** Today `updateUser` changes the login email freely, with no password and no verification email. Source: `camap-ts/packages/api-core/src/users/users.service.ts:124-147`, `camap-ts/packages/api-core/src/users/users.resolver.ts:158-176`.
+  - **DECISION (UND-012, 2026-11-06)** Ask for the current password before a login email change; no verification mail for now.
 
 - **ACC-PRO-006** As a logged-in user, I cannot choose a language on my account page: the interface is in French only. <!-- 03-features/users-auth.md R21; camap-hx/src/controller/Account.hx:46-51 -->
-  - **DECISION (UND-118, 2026-11-02)** When porting Haxe to TS, export every hard-coded string to the translation files, and remove the language selection.
+  - See NAV-LNG-003.
+  - **DECISION (UND-118, 2026-11-02)** French only. This changes nothing in the current Haxe + TS system: exporting the hard-coded Haxe strings and dropping the language parameter happen when Haxe is ported to TS, see [TS-ONLY-STEP.md](../../TS-ONLY-STEP.md).
 
-- **ACC-PRO-007** *Undecided (UND-013)*: As a logged-in user, I can only save a birth date that makes me at least 18 years old. <!-- 03-features/users-auth.md R21; camap-hx/src/service/UserService.hx:55-59 -->
-  - **SUGGESTION** Drop this rule: no caller in Haxe. Keep birth date as an optional field. Based on: `camap-hx/src/service/UserService.hx:55-59` (`isBirthdayValid` defined, never called anywhere in `camap-hx/src`), `camap-ts/packages/front-core/src/modules/users/UserAccountModule/components/UserInfosForm.tsx:185` (optional date field). Confidence: medium.
+- **ACC-PRO-007** As a logged-in user, I can save any birth date, or none: there is no minimum age. <!-- 03-features/users-auth.md R21; camap-hx/src/service/UserService.hx:55-59 -->
+  - The birth date stays an optional field.
+  - **ERRATUM** Today the Haxe service defines an "at least 18 years old" check (`isBirthdayValid`) that nothing calls, and TS does not apply it. Source: `camap-hx/src/service/UserService.hx:55-59`.
+  - **DECISION (UND-013, 2026-11-06)** Drop the 18-year rule; the birth date stays optional.
 
 - **ACC-PRO-008** As a logged-in user, I can update my address and phone number from the ordering widgets. <!-- 03-features/users-auth.md S3.1; camap-hx/src/controller/api/User.hx:18-39 -->
 

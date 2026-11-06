@@ -10,13 +10,18 @@ Actors: member, group admin.
 - **DIS-VOL-003** As a member, I can register for a vacant volunteer role from the calendar. <!-- 03-features/distributions-volunteers.md R28, F-C; camap-hx/src/service/VolunteerService.hx:86-111 -->
   - A role already filled cannot be taken.
   - I can take several roles in the same session.
+  - **DECISION (UND-064, 2026-11-06)** Several roles in the same session stay allowed (the one-role rule stays commented out).
 
-- **DIS-VOL-004** *Undecided (UND-064)*: As a member, I can register only for a role that belongs to the session, within the opening period, as a member of the group. <!-- 03-features/distributions-volunteers.md R28, R29; camap-hx/src/service/VolunteerService.hx:86-111; camap-hx/src/db/MultiDistrib.hx:463-466 -->
+- **DIS-VOL-004** As a member, I can register only for a role that belongs to the session, within the opening period, as a member of the group. <!-- 03-features/distributions-volunteers.md R28, R29; camap-hx/src/service/VolunteerService.hx:86-111; camap-hx/src/db/MultiDistrib.hx:463-466 -->
   - Duties open "days before" the distribution as set by the group admin.
-  - **SUGGESTION** Register by POST with the token. Check that the role belongs to the session, that registration is open (`canVolunteersJoin`), and that the user is a member of the group. Keep several roles per user allowed. Based on: `camap-hx/src/controller/Distribution.hx:993-1002` (GET with side effect), `camap-hx/src/db/MultiDistrib.hx:463-466` (open-period check exists, unused here), `camap-hx/src/service/VolunteerService.hx:86-111` (one-role rule commented out), `camap-ts/packages/front-core/src/modules/volunteersCalendar/components/VolunteersCalendarDistributionRole.tsx:117` (link). Confidence: medium.
+  - The server checks all three conditions: the role belongs to the session, registration is open (`canVolunteersJoin`), and the user is a member of the group.
+  - **ERRATUM** Today the only server check is that the role is not filled; the opening period (check exists but is unused here), the role belonging to the session and the group membership are not checked. Source: `camap-hx/src/service/VolunteerService.hx:86-111`, `camap-hx/src/db/MultiDistrib.hx:463-466`.
+  - **DECISION (UND-064, 2026-11-06)** Register by POST with a security token and all checks (role in the session, registration open, user in the group); several roles per user stay allowed.
 
-- **DIS-VOL-005** *Undecided (UND-064)*: As a member, registering for a role is an explicit action and not a link that acts when opened. <!-- 03-features/distributions-volunteers.md S3.1; camap-hx/src/controller/Distribution.hx:993-1002 -->
-  - **SUGGESTION** Register by POST with the token. Check that the role belongs to the session, that registration is open (`canVolunteersJoin`), and that the user is a member of the group. Keep several roles per user allowed. Based on: `camap-hx/src/controller/Distribution.hx:993-1002` (GET with side effect), `camap-hx/src/db/MultiDistrib.hx:463-466` (open-period check exists, unused here), `camap-hx/src/service/VolunteerService.hx:86-111` (one-role rule commented out), `camap-ts/packages/front-core/src/modules/volunteersCalendar/components/VolunteersCalendarDistributionRole.tsx:117` (link). Confidence: medium.
+- **DIS-VOL-005** As a member, registering for a role is an explicit action and not a link that acts when opened. <!-- 03-features/distributions-volunteers.md S3.1; camap-hx/src/controller/Distribution.hx:993-1002 -->
+  - Registering is a POST with a security token, not a GET on the calendar page.
+  - **ERRATUM** Today registering is a GET with parameters on the calendar page, so opening a link registers. Source: `camap-hx/src/controller/Distribution.hx:993-1002`, `camap-ts/packages/front-core/src/modules/volunteersCalendar/components/VolunteersCalendarDistributionRole.tsx:117`.
+  - **DECISION (UND-064, 2026-11-06)** Register by POST with a security token and all checks (role in the session, registration open, user in the group); several roles per user stay allowed.
 
 - **DIS-VOL-006** As a member, I can unregister from a role I hold. <!-- 03-features/distributions-volunteers.md R30; camap-hx/src/controller/api/Distributions.hx:21-31 -->
   - Only the volunteer himself can unregister.

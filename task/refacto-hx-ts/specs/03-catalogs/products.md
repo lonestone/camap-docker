@@ -23,10 +23,14 @@ Actors: catalog coordinator, member.
   - Deletion needs a valid security token.
 
 - **CAT-PRD-007** As a catalog coordinator, I can enable or disable several products at once. <!-- 03-features/catalogs-products-vendors-places.md R22; camap-hx/src/service/ProductService.hx:14-48 -->
-  - **ERRATUM** The rights check uses the catalog of the page, but the products sent can belong to another catalog. Source: `camap-hx/src/service/ProductService.hx:14,35, camap-hx/src/controller/ContractAdmin.hx:258-259` (CODE-017).
+  - Only products of the catalog of the page are affected, see CAT-PRD-008.
+  - **ERRATUM** Today the rights check uses the catalog of the page, but the products sent can belong to another catalog. Source: `camap-hx/src/service/ProductService.hx:14,35, camap-hx/src/controller/ContractAdmin.hx:258-259` (CODE-017).
+  - **DECISION (UND-040, 2026-11-06)** Bind the batch to the catalog of the page, see CAT-PRD-008.
 
-- **CAT-PRD-008** *Undecided (UND-040)*: As a catalog coordinator, a batch enable or disable only affects products of the catalog I manage. <!-- 03-features/catalogs-products-vendors-places.md R22; camap-hx/src/service/ProductService.hx:14-27,35-48; camap-hx/src/controller/ContractAdmin.hx:275-285 -->
-  - **SUGGESTION** Bind the batch to the catalog in the URL. Pass that catalog to the service and reject any product id that is not in it, before firing the event. Based on: `camap-hx/src/controller/ContractAdmin.hx:258-285` (rights checked on the URL catalog only), `camap-hx/src/service/ProductService.hx:14-48` (catalog taken from the first id). Confidence: high.
+- **CAT-PRD-008**: As a catalog coordinator, a batch enable or disable only affects products of the catalog I manage. <!-- 03-features/catalogs-products-vendors-places.md R22; camap-hx/src/service/ProductService.hx:14-27,35-48; camap-hx/src/controller/ContractAdmin.hx:275-285 -->
+  - The batch is bound to the catalog of the page: that catalog is passed to the service, which rejects any product id not in it before the event is fired.
+  - **ERRATUM** Today the service takes the catalog from the first product id while rights are checked on the catalog of the URL, so a coordinator can act on another catalog's products. Source: `camap-hx/src/service/ProductService.hx:14-48`, `camap-hx/src/controller/ContractAdmin.hx:258-285` (CODE-017).
+  - **DECISION (UND-040, 2026-11-06)** Bind the batch enable/disable to the catalog in the URL and reject foreign product ids.
 
 - **CAT-PRD-009** As a catalog coordinator of a constant catalog, I do not see the bulk and variable-price options. <!-- 03-features/catalogs-products-vendors-places.md R21; camap-hx/src/service/ProductService.hx:105-108 -->
 
@@ -53,5 +57,6 @@ Actors: catalog coordinator, member.
 
 - **CAT-PRD-017** As a vendor, I can see a sample of products of my vendor record, with similar names merged. <!-- 03-features/catalogs-products-vendors-places.md S3.3; camap-ts/packages/api-core/src/vendors/resolvers/products.resolver.ts:179-198 -->
 
-- **CAT-PRD-018** *Undecided (UND-043)*: As a logged-in user, I can see a sample of a vendor's products. <!-- 03-features/catalogs-products-vendors-places.md S3.3, S7; camap-ts/packages/api-core/src/vendors/resolvers/products.resolver.ts:179 -->
-  - **SUGGESTION** Require login on all of them. Restrict catalog `subscriptions` to catalog managers and the subscriber, catalog `products` to group members or managers, and `place` to members of its group. Keep vendor professions and company-number search for logged-in users. Based on: `camap-ts/packages/api-core/src/vendors/resolvers/vendors.resolver.ts:66-68,83-85` (sibling queries use `GqlAuthGuard`), `camap-ts/packages/api-core/src/vendors/resolvers/catalogs.resolver.ts:52-65` (the `catalog` query checks `canManageCatalog`), `camap-ts/packages/api-core/src/vendors/resolvers/catalogs.resolver.ts:141-149` (subscription field has no check). Confidence: medium. Needs product input on public vendor pages.
+- **CAT-PRD-018** As a logged-in user, I can see a sample of a vendor's products; a visitor cannot. <!-- 03-features/catalogs-products-vendors-places.md S3.3, S7; camap-ts/packages/api-core/src/vendors/resolvers/products.resolver.ts:179 -->
+  - **ERRATUM** Today `vendorProductsSample` has no guard. Source: `camap-ts/packages/api-core/src/vendors/resolvers/products.resolver.ts:179` (CODE-022).
+  - **DECISION (UND-043, 2026-11-06)** Require login on all these TS queries; restrict catalog `subscriptions` to catalog managers and the subscriber, catalog `products` to group members or managers, and `place` to members of its group.

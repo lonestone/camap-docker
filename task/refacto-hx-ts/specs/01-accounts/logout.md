@@ -10,5 +10,7 @@ Actors: logged-in user.
   - My renewal token is invalidated.
   - All three login cookies are removed from my browser.
 
-- **ACC-OUT-003** *Undecided (UND-019)*: As a logged-in user, logging out removes my login cookies whichever application handles the logout. <!-- 03-features/users-auth.md R12, R33; camap-hx/src/controller/User.hx:84-88; camap-ts/packages/api-core/src/auth/auth.service.ts:348-357 -->
-  - **SUGGESTION** Use one shared rule in TS: cookie domain is the host without scheme and without a leading `app.`. Make logout a single step that clears all three cookies, as TS already does. Based on: `camap-hx/src/controller/User.hx:84-88` (strips `app.`), `camap-ts/packages/api-core/src/auth/auth.service.ts:183-188,348-357` (one response with three cookies; strips only `https://`). Confidence: medium.
+- **ACC-OUT-003** As a logged-in user, logging out removes my login cookies whichever application handles the logout, in a single step. <!-- 03-features/users-auth.md R12, R33; camap-hx/src/controller/User.hx:84-88; camap-ts/packages/api-core/src/auth/auth.service.ts:348-357 -->
+  - One response clears all three cookies, as TS already does, with the same cookie-domain rule as at login.
+  - **ERRATUM** Today the logout clears the cookies through a chain of 3 redirects. Source: `camap-hx/src/controller/User.hx:84-88`, `camap-ts/packages/api-core/src/auth/auth.service.ts:183-188` (CODE-117).
+  - **DECISION (UND-019, 2026-11-06)** Use one cookie-domain rule in both stacks (host without scheme and without a leading `app.`) and make logout a single step that clears all three cookies.

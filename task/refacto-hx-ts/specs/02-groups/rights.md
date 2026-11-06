@@ -10,20 +10,28 @@ Actors: group admin, membership manager, catalog coordinator, messages manager, 
 
 - **GRP-RIG-002** As a member, a right never grants another one. <!-- 03-features/users-auth.md R29; camap-hx/src/db/UserGroup.hx:151-176 -->
   - A group admin does not automatically manage memberships, messages or catalogs.
-  - **ERRATUM** In TS, a coordinator of one catalog is treated as coordinator of all catalogs, and a superadmin is treated as a member of every group. Source: `camap-ts/packages/api-core/src/groups/services/user-groups.service.ts:102-105,138-140` (CODE-028).
+  - **ERRATUM** Today, in TS, a coordinator of one catalog is treated as coordinator of all catalogs. Source: `camap-ts/packages/api-core/src/groups/services/user-groups.service.ts:102-105,138-140` (CODE-028).
+  - A superadmin is treated as a member of every group. This is intended: see GRP-RIG-004.
+  - **DECISION (UND-031, 2026-11-06)** A right never grants another; "all catalogs" means a coordinator right with no catalog list.
 
 - **GRP-RIG-003** As a superadmin, I hold every right in every group. <!-- 03-features/users-auth.md R28-R29; camap-hx/src/db/UserGroup.hx:151-153 -->
 
-- **GRP-RIG-004** *Undecided (UND-031)*: As a superadmin, I am treated as a member of any group. <!-- 03-features/users-auth.md R28; camap-ts/packages/api-core/src/groups/services/user-groups.service.ts:102-105; camap-hx/src/db/User.hx:342-344 -->
-  - **SUGGESTION** Keep the Haxe semantics: "all catalogs" means a coordinator right with no catalog list; superadmin passes rights checks but is not a group member; vendor auto rights are per claimed catalog. Based on: `camap-hx/src/db/UserGroup.hx:151-168` (null params = all, otherwise listed ids), `camap-hx/src/db/User.hx:342-344` (`isMemberOf` ignores superadmin), `camap-ts/packages/api-core/src/groups/services/user-groups.service.ts:112-114` (TS treats any catalog right as "all"). Confidence: medium.
+- **GRP-RIG-004** As a superadmin, I am treated as a member of any group. <!-- 03-features/users-auth.md R28; camap-ts/packages/api-core/src/groups/services/user-groups.service.ts:102-105; camap-hx/src/db/User.hx:342-344 -->
+  - This is the TS behaviour and it becomes the rule in both stacks, so the superadmin also passes member checks everywhere.
+  - **ERRATUM** Today Haxe does not treat a superadmin as a member (`isMemberOf` ignores superadmin), and the superadmin test is written in two different ways in TS. Source: `camap-hx/src/db/User.hx:342-344`, `camap-ts/packages/api-core/src/groups/services/user-groups.service.ts:102-105` (CODE-028).
+  - **DECISION (UND-031, 2026-11-06)** A superadmin is treated as a member of every group (TS behaviour kept, Haxe aligned).
 
-- **GRP-RIG-005** *Undecided (UND-031)*: As a catalog coordinator for all catalogs, I can manage every catalog of the group. <!-- 03-features/users-auth.md R30; camap-hx/src/db/User.hx:191-195; camap-ts/packages/api-core/src/groups/services/user-groups.service.ts:112-114 -->
+- **GRP-RIG-005** As a catalog coordinator for all catalogs, I can manage every catalog of the group. <!-- 03-features/users-auth.md R30; camap-hx/src/db/User.hx:191-195; camap-ts/packages/api-core/src/groups/services/user-groups.service.ts:112-114 -->
   - A coordinator for only some catalogs manages those catalogs only.
-  - **SUGGESTION** Keep the Haxe semantics: "all catalogs" means a coordinator right with no catalog list; superadmin passes rights checks but is not a group member; vendor auto rights are per claimed catalog. Based on: `camap-hx/src/db/UserGroup.hx:151-168` (null params = all, otherwise listed ids), `camap-hx/src/db/User.hx:342-344` (`isMemberOf` ignores superadmin), `camap-ts/packages/api-core/src/groups/services/user-groups.service.ts:112-114` (TS treats any catalog right as "all"). Confidence: medium.
+  - "All catalogs" means a coordinator right with no catalog list (Haxe semantics).
+  - **ERRATUM** Today TS treats any catalog-coordinator right, including a right limited to some catalogs, as "all catalogs". Source: `camap-ts/packages/api-core/src/groups/services/user-groups.service.ts:112-114`, `camap-hx/src/db/UserGroup.hx:151-168` (CODE-028).
+  - **DECISION (UND-031, 2026-11-06)** Keep the Haxe meaning for catalogs: no-list coordinator right = all catalogs, listed catalogs only otherwise.
 
-- **GRP-RIG-006** *Undecided (UND-031)*: As a vendor who claimed my vendor record, I automatically manage the catalogs of that vendor. <!-- 03-features/users-auth.md R25-R30; camap-hx/src/db/UserGroup.hx:72-79; camap-ts/packages/api-core/src/groups/services/user-groups.service.ts:139-140 -->
+- **GRP-RIG-006** As a vendor who claimed my vendor record, I automatically manage the catalogs of that vendor. <!-- 03-features/users-auth.md R25-R30; camap-hx/src/db/UserGroup.hx:72-79; camap-ts/packages/api-core/src/groups/services/user-groups.service.ts:139-140 -->
   - These automatic rights are shown read-only in the rights editor.
-  - **SUGGESTION** Keep the Haxe semantics: "all catalogs" means a coordinator right with no catalog list; superadmin passes rights checks but is not a group member; vendor auto rights are per claimed catalog. Based on: `camap-hx/src/db/UserGroup.hx:151-168` (null params = all, otherwise listed ids), `camap-hx/src/db/User.hx:342-344` (`isMemberOf` ignores superadmin), `camap-ts/packages/api-core/src/groups/services/user-groups.service.ts:112-114` (TS treats any catalog right as "all"). Confidence: medium.
+  - The automatic right is given per claimed catalog.
+  - **ERRATUM** Today TS applies the vendor automatic rights only when the vendor manages a single catalog. Source: `camap-ts/packages/api-core/src/groups/services/user-groups.service.ts:139-140`, `camap-hx/src/db/UserGroup.hx:72-79` (CODE-028).
+  - **DECISION (UND-031, 2026-11-06)** Keep the Haxe meaning: vendor automatic rights are per claimed catalog.
 
 - **GRP-RIG-007** As a group admin, I can see the list of members holding rights. <!-- 03-features/groups-membership.md S3.1; camap-hx/src/controller/AmapAdmin.hx:83-90 -->
 

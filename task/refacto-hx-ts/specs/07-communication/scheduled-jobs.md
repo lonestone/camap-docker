@@ -42,12 +42,17 @@ Actors: the system.
   - **ERRATUM** Today these jobs start deletions without waiting for them. Source: `camap-ts/packages/api-core/src/messages/messages.service.ts:83`, `camap-ts/packages/api-core/src/tools/cache.service.ts:58` (CODE-059, CODE-067).
   - **DECISION (UND-102, 2026-11-02)** Await every deletion in purge jobs.
 
-- **COM-JOB-011** *Undecided (UND-103)*: As the system, the daily job runs at a documented time that does not collide with the message purge. <!-- 03-features/crons-scheduled-jobs.md S3, S4.2; camap-ts/packages/api-core/src/tools/crontab.service.ts:11,43; camap-ts/packages/api-core/src/messages/messages.service.ts:79 -->
-  - The comment says 00:15, the code says midnight, and the message purge also runs at midnight.
-  - **SUGGESTION** Run the daily job at 00:15 as documented, and move the message purge off midnight (for example 00:30). Based on: `camap-ts/packages/api-core/src/tools/crontab.service.ts:5-7,43` (comment says 15 0 * * *, code runs at midnight), `camap-ts/packages/api-core/src/messages/messages.service.ts:79` (purge also at midnight), `camap-ts/packages/api-core/src/tools/cache.service.ts:55` and `users/users.service.ts:442` (two jobs both at 01:00). Confidence: medium.
+- **COM-JOB-011** As the system, the daily job runs at midnight (00:00), and the message purge also runs at midnight. <!-- 03-features/crons-scheduled-jobs.md S3, S4.2; camap-ts/packages/api-core/src/tools/crontab.service.ts:11,43; camap-ts/packages/api-core/src/messages/messages.service.ts:79 -->
+  - The two jobs are not staggered. This is intended.
+  - The comment above the cron triggers in `crontab.service.ts`, which still says 00:15 (copied from the old system crontab), is corrected to say midnight, and so are the old docs that mention 00:15.
+  - The cache purge and the inactive-account check both run at 01:00 (see COM-JOB-009, ACC-PUR-001); they are not staggered either.
+  - **DECISION (UND-103, 2026-11-06)** Keep the current behaviour (option b): the daily job and the message purge stay at midnight; only the misleading 00:15 comment and docs are corrected.
 
-- **COM-JOB-012** *Undecided (UND-105)*: As the system, one daily job runs once even with several application replicas. <!-- 03-features/crons-scheduled-jobs.md S4.2; camap-ts/packages/api-core/src/tools/crontab.service.ts:15-55 -->
-  - Currently each replica calls the job endpoints, with no lock.
-  - **SUGGESTION** Fix all three: use WHERE in the recap query (same shape as `Cron.hx:232-236`), use the faked clock `now` in the errors email, and take a lock per daily job so only one replica runs it (for example a row in the cache table, or run jobs from one replica only). Based on: `camap-hx/src/controller/Cron.hx:716-724` (join on AND), `camap-hx/src/controller/Cron.hx:353-357` (errors email uses Date.now), `camap-ts/packages/api-core/src/tools/crontab.service.ts:15-55` (every replica fires jobs, no lock). Confidence: medium. Note: with an INNER JOIN the AND form returns the same rows, so that fix is cosmetic.
+- **COM-JOB-012** As the system, one daily job runs once even with several application replicas. <!-- 03-features/crons-scheduled-jobs.md S4.2; camap-ts/packages/api-core/src/tools/crontab.service.ts:15-55 -->
+  - Each daily job takes a lock before it runs, so only one replica runs it (for example a row in the cache table, or jobs triggered from one replica only).
+  - **ERRATUM** Today each replica calls the job endpoints, with no lock. Source: `camap-ts/packages/api-core/src/tools/crontab.service.ts:15-55` (CODE-082).
+  - **DECISION (UND-105, 2026-11-06)** Use WHERE in the recap query, the faked clock in the errors email, and a per-job lock across replicas.
 
-- **COM-JOB-013** As the system, the daily errors mail uses the real current time. <!-- 03-features/crons-scheduled-jobs.md S4.1; camap-hx/src/controller/Cron.hx:353-377 -->
+- **COM-JOB-013** As the system, the daily errors mail uses the same clock as the other jobs, the faked clock when one is set. <!-- 03-features/crons-scheduled-jobs.md S4.1; camap-hx/src/controller/Cron.hx:353-377 -->
+  - **ERRATUM** Today the errors email uses the real clock (`Date.now`) instead of the faked one. Source: `camap-hx/src/controller/Cron.hx:353-377` (CODE-082).
+  - **DECISION (UND-105, 2026-11-06)** Use WHERE in the recap query, the faked clock in the errors email, and a per-job lock across replicas.

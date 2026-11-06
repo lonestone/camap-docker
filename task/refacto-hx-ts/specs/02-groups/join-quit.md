@@ -21,12 +21,15 @@ Actors: logged-in user, member, visitor holding an email link.
 
 - **GRP-JOI-007** As a member, I cannot quit a group while my balance in it is negative. <!-- 03-features/groups-membership.md R11; camap-ts/packages/api-core/src/groups/resolvers/groups.resolver.ts:130-147 -->
 
-- **GRP-JOI-008** *Undecided (UND-027)*: As a member, I cannot quit a group while I have recent orders in it. <!-- 03-features/groups-membership.md R11; camap-hx/src/controller/User.hx:272-302; camap-ts/packages/api-core/src/groups/resolvers/groups.resolver.ts:141-147 -->
+- **GRP-JOI-008** As a member, I cannot quit a group while I have recent orders in it. <!-- 03-features/groups-membership.md R11; camap-hx/src/controller/User.hx:272-302; camap-ts/packages/api-core/src/groups/resolvers/groups.resolver.ts:141-147 -->
   - Recent means an order in an active catalog or in a catalog ended less than one month ago.
-  - **SUGGESTION** Use the Haxe rule: refuse when orders exist in active catalogs, or ended less than a month ago, based on distributions. Drop the hard-coded group 16936. Based on: `camap-hx/src/controller/User.hx:272-302` (rule uses active catalogs and their distributions), `camap-ts/packages/api-core/src/payments/services/orders.service.ts:79-95` (TS tests only the order creation date), `camap-ts/packages/api-core/src/groups/resolvers/groups.resolver.ts:124-128` (hard-coded id, no explanation; added in an InterAMAP44 merge). Confidence: medium.
+  - The rule is the Haxe one, based on distributions: quitting is refused when orders exist in active catalogs, or in catalogs ended less than a month ago.
+  - **ERRATUM** Today TS refuses on any user order created less than one month ago, without looking at the catalog or its distributions. Source: `camap-ts/packages/api-core/src/payments/services/orders.service.ts:79-95`, `camap-ts/packages/api-core/src/groups/resolvers/groups.resolver.ts:141-147`, `camap-hx/src/controller/User.hx:272-302` (CODE-100).
+  - **DECISION (UND-027, 2026-11-06)** Use the Haxe recent-orders rule in both stacks.
 
 - **GRP-JOI-009** As a member who quit, I am no longer a member of the group. <!-- 03-features/groups-membership.md R11; camap-ts/packages/api-core/src/groups/resolvers/groups.resolver.ts:94-150 -->
   - If the quit group was my selected group, my selection is cleared.
 
-- **GRP-JOI-010** *Undecided (UND-027)*: As a member of any group, I can quit it whatever its identity. <!-- 03-features/groups-membership.md R11; camap-ts/packages/api-core/src/groups/resolvers/groups.resolver.ts:124-128 -->
-  - **SUGGESTION** Use the Haxe rule: refuse when orders exist in active catalogs, or ended less than a month ago, based on distributions. Drop the hard-coded group 16936. Based on: `camap-hx/src/controller/User.hx:272-302` (rule uses active catalogs and their distributions), `camap-ts/packages/api-core/src/payments/services/orders.service.ts:79-95` (TS tests only the order creation date), `camap-ts/packages/api-core/src/groups/resolvers/groups.resolver.ts:124-128` (hard-coded id, no explanation; added in an InterAMAP44 merge). Confidence: medium.
+- **GRP-JOI-010** As a member of a group, I can quit it, except group 16936, which nobody can quit. <!-- 03-features/groups-membership.md R11; camap-ts/packages/api-core/src/groups/resolvers/groups.resolver.ts:124-128 -->
+  - The group id 16936 is a hard-coded exception in TS, added in an InterAMAP44 merge without explanation (`camap-ts/packages/api-core/src/groups/resolvers/groups.resolver.ts:124-128`). This is intended: the exception is kept.
+  - **DECISION (UND-027, 2026-11-06)** Keep the 16936 exception.

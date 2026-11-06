@@ -4,8 +4,11 @@ Actors: group admin, membership manager, member, the system.
 
 - **GRP-COT-001** As a group admin, I can enable yearly memberships for my group, set a fee and set a renewal date. <!-- 03-features/groups-membership.md R14; camap-hx/src/controller/AmapAdmin.hx:39-72 -->
 
-- **GRP-COT-002** *Undecided (UND-032)*: As a group admin, I can set any membership fee, including 0 and amounts above 127. <!-- 03-features/groups-membership.md R14, R17; camap-ts/packages/api-core/src/groups/entities/group.entity.ts:54-58 -->
-  - **SUGGESTION** Widen the fee column to a larger integer, let the fee be empty (variable) or at least 0, and treat an explicit 0 as a free membership. Based on: `camap-ts/packages/api-core/src/groups/entities/group.entity.ts:57-58` (tinyint, max 127), `camap-hx/src/controller/AmapAdmin.hx:48` (label says empty means variable), `camap-ts/packages/api-core/src/groups/services/memberships.service.ts:106` (`!fee` turns 0 into the group fee). Confidence: medium. Product input needed: free memberships allowed?
+- **GRP-COT-002** As a group admin, I can set a membership fee of any non-zero amount, including amounts above 127; zero is not a valid fee. <!-- 03-features/groups-membership.md R14, R17; camap-ts/packages/api-core/src/groups/entities/group.entity.ts:54-58 -->
+  - The fee is stored in a larger integer type, on both sides.
+  - A fee of 0 is not accepted as a fee: for a membership it keeps meaning "use the group fee" (see GRP-COT-006). A free or variable group cotisation is not expressed with a 0 fee: it is managed another way, to be specified.
+  - **ERRATUM** Today the fee is a tiny integer (maximum 127) on both sides. Source: `camap-ts/packages/api-core/src/groups/entities/group.entity.ts:54-58`, `camap-hx/src/controller/AmapAdmin.hx:48` (CODE-051).
+  - **DECISION (UND-032, 2026-11-06)** Widen the fee type and accept any non-zero value; 0 stays "not a fee", and the group cotisation is managed another way.
 
 - **GRP-COT-003** As a member, the membership year of my group runs from the renewal date. <!-- 03-features/groups-membership.md R15; camap-hx/src/db/Group.hx:312-330 -->
   - If today is before this year's renewal date, the membership year is the previous year.
@@ -13,8 +16,11 @@ Actors: group admin, membership manager, member, the system.
 
 - **GRP-COT-004** As a member, the membership period is named with one year when renewal is in January or February, otherwise with two years (for example 2025-2026). <!-- 03-features/groups-membership.md R15; camap-hx/src/db/Group.hx:350-356 -->
 
-- **GRP-COT-005** *Undecided (UND-035)*: As a member, my membership is valid when it exists for the current membership year of a group that has memberships enabled. <!-- 03-features/groups-membership.md R16; camap-ts/packages/api-core/src/groups/services/memberships.service.ts:198-212 -->
-  - **SUGGESTION** Gate validity on the group having memberships enabled, in addition to the renewal date and current-year row. Based on: `camap-ts/packages/api-core/src/groups/resolvers/memberships.resolver.ts:175-176` (creation refused when memberships are off), `camap-ts/packages/api-core/src/groups/resolvers/userLists.resolver.ts:52` (lists empty when off), `camap-ts/packages/api-core/src/groups/services/memberships.service.ts:198-212` (validity ignores the flag). Confidence: medium.
+- **GRP-COT-005** As a member, my membership is valid when it exists for the current membership year of a group that has memberships enabled. <!-- 03-features/groups-membership.md R16; camap-ts/packages/api-core/src/groups/services/memberships.service.ts:198-212 -->
+  - Validity needs all three: memberships enabled in the group, a renewal date, and a membership row for the current year.
+  - When the group has memberships disabled, no membership is valid, which matches the empty membership lists and the refusal to create memberships.
+  - **ERRATUM** Today validity needs only a renewal date and a row for the current year; the "memberships enabled" flag is not consulted. Source: `camap-ts/packages/api-core/src/groups/services/memberships.service.ts:198-212`.
+  - **DECISION (UND-035, 2026-11-06)** Gate membership validity on the group having memberships enabled.
 
 - **GRP-COT-006** As a membership manager, I can record a membership for a member of my group. <!-- 03-features/groups-membership.md R17; camap-ts/packages/api-core/src/groups/resolvers/memberships.resolver.ts:147-191 -->
   - The group must have memberships enabled.
@@ -22,7 +28,8 @@ Actors: group admin, membership manager, member, the system.
   - I can enter a fee, otherwise the group fee is used.
   - Without any fee an error asks me to define one.
   - The payment type is chosen as in GRP-COT-008 and the member must belong to the group as in GRP-COT-009.
-  - **ERRATUM** Today a fee of 0 is replaced by the group fee (see UND-032). Source: `camap-ts/packages/api-core/src/groups/services/memberships.service.ts:106` (CODE-038).
+  - A fee of 0 given to a membership is replaced by the group fee. This is intended: see GRP-COT-002. Source: `camap-ts/packages/api-core/src/groups/services/memberships.service.ts:106` (CODE-038).
+  - **DECISION (UND-032, 2026-11-06)** A 0 fee is not a valid value; it keeps meaning "use the group fee".
   - **DECISION (UND-033, 2026-11-06)** The payment type and the group membership check are handled in GRP-COT-008 and GRP-COT-009.
 
 - **GRP-COT-007** As a membership manager, recording a membership adds the fee as a debt for the member and an immediate payment of the same amount, with the payment type I chose. <!-- 03-features/groups-membership.md R17; camap-ts/packages/api-core/src/groups/services/memberships.service.ts:96-152 -->

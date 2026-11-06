@@ -7,7 +7,8 @@ Actors: member, coordinator.
   - A disabled vendor's products cannot be ordered.
   - A quantity of 0 creates no order.
   - The price is saved with the order.
-  - **ERRATUM** When an existing order is edited, the stock limit is computed differently (multiplied by the product quantity) than when it is created. Source: `camap-hx/src/service/OrderService.hx:130,216` (CODE-040).
+  - **ERRATUM** Today, when an existing order is edited, the stock limit is computed differently (multiplied by the product quantity) than when it is created. Source: `camap-hx/src/service/OrderService.hx:130,216` (CODE-040).
+  - **DECISION (UND-072, 2026-11-06)** Editing uses the creation stock limit (see ORD-OPL-007).
 
 - **ORD-OPL-002** As a member, I can order a decimal quantity only for products sold by weight or at a variable price. <!-- 03-features/orders-subscriptions.md R23; camap-hx/src/service/OrderService.hx:19-21,44-48 -->
   - Other products need whole quantities.
@@ -21,11 +22,14 @@ Actors: member, coordinator.
 
 - **ORD-OPL-006** As a member, an order is attached to my basket for that distribution session. <!-- 03-features/orders-subscriptions.md R23; camap-hx/src/service/OrderService.hx:100-103 -->
 
-- **ORD-OPL-007** *Undecided (UND-072)*: As a member, when the stock is insufficient my order is limited to the available quantity and I see an error. <!-- 03-features/orders-subscriptions.md R24, R25; camap-hx/src/service/OrderService.hx:116-135,199-222 -->
+- **ORD-OPL-007** As a member, when the stock is insufficient my order is limited to the available quantity and I see an error, the same way when I create an order and when I edit it. <!-- 03-features/orders-subscriptions.md R24, R25; camap-hx/src/service/OrderService.hx:116-135,199-222 -->
   - When stock is 0 the quantity becomes 0.
   - Stock counts only when the catalog manages stock.
   - A multi-weight line counts as 1.
-  - **SUGGESTION** Apply the creation rule everywhere: clamp to the available stock in order units, test multi-weight on the new quantity. Based on: `camap-hx/src/service/OrderService.hx:130` (clamp to availableStock), `camap-hx/src/db/Product.hx:168-172` (stock counts order.quantity as units, so no times qt as in `OrderService.hx:216`), `camap-hx/src/service/OrderService.hx:207` (edit tests old quantity). Confidence: medium.
+  - The available stock is counted in order units, so there is no multiplication by the product quantity when editing.
+  - For a multi-weight product the check uses the new quantity, not the old one.
+  - **ERRATUM** Today creation clamps to the available stock, while edit writes the available stock times the product quantity and tests multi-weight with the old quantity. Source: `camap-hx/src/service/OrderService.hx:116-135,199-222` (CODE-040).
+  - **DECISION (UND-072, 2026-11-06)** Apply the creation clamp rule everywhere: the available stock in order units.
 
 - **ORD-OPL-008** As a member, I can edit the quantity of an order. <!-- 03-features/orders-subscriptions.md R25; camap-hx/src/service/OrderService.hx:166-240 -->
   - Negative quantities are refused, and so are decimals for products that do not allow them.
@@ -35,9 +39,11 @@ Actors: member, coordinator.
 - **ORD-OPL-009** As a member or coordinator, an order line can be deleted only when its quantity is 0, or when forced by the system. <!-- 03-features/orders-subscriptions.md R25; camap-hx/src/service/OrderService.hx:298-325 -->
   - The subscription total is refreshed afterwards.
 
-- **ORD-OPL-010** *Undecided (UND-073)*: As a member, I cannot place or change an order outside the order window of its distribution. <!-- 03-features/orders-subscriptions.md R27; camap-hx/src/service/OrderService.hx:30-240; camap-hx/src/controller/api/Subscription.hx:70-73 -->
-  - The ordering screen enforces it. The server checks only that the catalog has some open distribution for non-managers.
-  - **SUGGESTION** Enforce the order window in the service for non-managers; managers may bypass it. Based on: `camap-hx/src/db/Distribution.hx:154-162` (canOrderNow tests the window), `camap-hx/src/controller/Contract.hx:229` (legacy page enforces it), `camap-hx/src/controller/api/Subscription.hx:70-73` (REST update tests only catalog open). Confidence: medium.
+- **ORD-OPL-010** As a member, I cannot place or change an order outside the order window of its distribution, whatever the screen I use. <!-- 03-features/orders-subscriptions.md R27; camap-hx/src/service/OrderService.hx:30-240; camap-hx/src/controller/api/Subscription.hx:70-73 -->
+  - The server (the order service) refuses the order, for non-managers; the ordering screen also enforces it.
+  - Managers (coordinators and admins) can still edit orders after the window closed.
+  - **ERRATUM** Today `make`, `edit` and the subscription order update do not test the order window; the server checks only that the catalog has some open distribution for non-managers, and only the TS screen and a legacy page test the window. Source: `camap-hx/src/service/OrderService.hx:30-240`, `camap-hx/src/controller/api/Subscription.hx:70-73`, `camap-hx/src/controller/Contract.hx:229`.
+  - **DECISION (UND-073, 2026-11-06)** Enforce the order window in the service for non-managers; managers may bypass it.
 
 - **ORD-OPL-011** As a member, the ordering screen shows each distribution as open, not yet open, closed or absent. <!-- 03-features/orders-subscriptions.md R27; camap-ts/packages/front-core/src/modules/csaCatalog/interfaces.ts:77-100 -->
 

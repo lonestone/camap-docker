@@ -12,9 +12,10 @@ Actors: catalog coordinator.
   - The number of days cannot be 0.
   - Empty means the default of the distribution cycle.
 
-- **CAT-CED-004** *Undecided (UND-054)*: As a coordinator, changing the opening delay or the closing delay updates the order window of all future distributions of the catalog. <!-- 03-features/catalogs-products-vendors-places.md R8; camap-hx/src/service/CatalogService.hx:238-269; camap-hx/src/controller/ContractAdmin.hx:122-126 -->
-  - Customised order dates of those distributions are replaced.
-  - **SUGGESTION** Keep the overwrite, but only when a delay really changed, and keep the warning. There is no per-distribution flag to detect custom dates. Based on: `camap-hx/src/service/CatalogService.hx:238-269` (deliberate overwrite, message says customisations are overwritten), `camap-hx/src/controller/ContractAdmin.hx:122-126` (only changed delays are passed), `camap-hx/src/db/Distribution.hx:24-25` (no customised marker). Confidence: medium.
+- **CAT-CED-004** As a coordinator, changing the opening delay or the closing delay updates the order window of all future distributions of the catalog. <!-- 03-features/catalogs-products-vendors-places.md R8; camap-hx/src/service/CatalogService.hx:238-269; camap-hx/src/controller/ContractAdmin.hx:122-126 -->
+  - Customised order dates of those distributions are replaced. This is intended: there is no marker of customised dates on a distribution (`camap-hx/src/db/Distribution.hx:24-25`).
+  - Only a delay that really changed is passed on and rewrites the dates (`camap-hx/src/controller/ContractAdmin.hx:122-126`), and the coordinator is warned that customisations are overwritten (`camap-hx/src/service/CatalogService.hx:238-269`).
+  - **DECISION (UND-054, 2026-11-06)** Keep the current behaviour (option b): the overwrite and its warning stay as they are.
 
 - **CAT-CED-005** As a coordinator of a variable-orders catalog, I can set a minimum order total per distribution and a minimum order total for the whole catalog. <!-- 03-features/catalogs-products-vendors-places.md R9; camap-hx/src/db/Catalog.hx:141-143 -->
   - Amounts are in the group currency.
@@ -38,7 +39,10 @@ Actors: catalog coordinator.
   - The catalog then disappears from the shop.
 
 - **CAT-CED-012** As a coordinator, I can refresh the price on the existing orders of a catalog with the current product prices. <!-- 03-features/catalogs-products-vendors-places.md S3.1; camap-hx/src/controller/ContractAdmin.hx:753-774 -->
-  - **ERRATUM** For a constant-orders catalog the page fails with an error after the prices are updated; the action has no security token. Source: `camap-hx/src/controller/ContractAdmin.hx:753-776` (CODE-063).
+  - **ERRATUM** Today, for a constant-orders catalog the page fails with an error after the prices are updated; the action has no security token. Source: `camap-hx/src/controller/ContractAdmin.hx:753-776` (CODE-063).
+  - **DECISION (UND-050, 2026-11-06)** The page failure is fixed (see CAT-CED-013); the missing security token is not part of this decision.
 
-- **CAT-CED-013** *Undecided (UND-050)*: As a coordinator of a constant-orders catalog, refreshing prices works without error. <!-- 03-features/catalogs-products-vendors-places.md R11; camap-hx/src/controller/ContractAdmin.hx:758-775 -->
-  - **SUGGESTION** Fix it. For a constant catalog, skip the distribution argument and redirect to the orders page without `?d=`. Based on: `camap-hx/src/controller/ContractAdmin.hx:758-775` (`args.d.id` dereferenced for every type; the action is flagged "hidden feature"). Confidence: medium. Needs product input on whether to keep the feature.
+- **CAT-CED-013** As a coordinator of a constant-orders catalog, refreshing prices works without error. <!-- 03-features/catalogs-products-vendors-places.md R11; camap-hx/src/controller/ContractAdmin.hx:758-775 -->
+  - For a constant catalog the action does not use the distribution argument and redirects to the orders page without `?d=`.
+  - **ERRATUM** Today the refresh dereferences `args.d.id`, a distribution argument set only for variable catalogs, so it crashes on a constant catalog. The action is flagged "hidden feature". Source: `camap-hx/src/controller/ContractAdmin.hx:758-775` (CODE-063).
+  - **DECISION (UND-050, 2026-11-06)** Fix the crash: skip the distribution argument and redirect without `?d` for constant catalogs.

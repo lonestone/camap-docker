@@ -7,7 +7,9 @@ Actors: visitor, logged-in user, member created by a manager.
   - If no account has this email, I see "This E-mail is not linked to a known account".
 
 - **ACC-PWD-002** As a visitor, I receive an email with a personal link to choose a new password. <!-- 03-features/users-auth.md F5.3 step 2; camap-hx/src/controller/User.hx:146-172 -->
-  - The link is valid for 30 days.
+  - The link is valid for 24 hours (see ACC-PWD-012).
+  - **ERRATUM** Today the link is valid for 30 days. Source: `camap-hx/src/controller/User.hx:163,170` (CODE-032).
+  - **DECISION (UND-011, 2026-11-06)** The reset link lifetime is 24 hours.
 
 - **ACC-PWD-003** As a visitor opening a valid reset link, I see a form with two fields for the new password. <!-- 03-features/users-auth.md F5.3 step 3; camap-hx/src/controller/User.hx:174-183 -->
 
@@ -39,5 +41,7 @@ Actors: visitor, logged-in user, member created by a manager.
 - **ACC-PWD-011** As a logged-in user, I can change my password by asking for a reset link. <!-- 03-features/users-auth.md R21; camap-hx/src/controller/User.hx:120-226 -->
   - The account page does not offer a direct password change.
 
-- **ACC-PWD-012** *Undecided (UND-011)*: As a visitor, the reset link in my email uses a secure address and a lifetime consistent with the other email links. <!-- 03-features/inconsistencies-code.md CODE-032; camap-hx/src/controller/User.hx:163,170 -->
-  - **SUGGESTION** Use `https://` for the reset link. Shorten the lifetime to 24 hours and keep the token single-use. Based on: `camap-hx/src/controller/User.hx:163,170` (30 days, `http://`), `camap-ts/packages/api-core/src/groups/resolvers/group-previews-members.resolver.ts:295` (other links last 2 weeks). Confidence: low. Needs product input: acceptable reset lifetime.
+- **ACC-PWD-012** As a visitor, the reset link in my email uses a secure address (https) and is valid for 24 hours, for a single use. <!-- 03-features/inconsistencies-code.md CODE-032; camap-hx/src/controller/User.hx:163,170 -->
+  - The reset token is single-use (see ACC-PWD-007).
+  - **ERRATUM** Today the reset link uses `http://` and lasts 30 days, while other email links use `https://` and TS tokens last 2 weeks. Source: `camap-hx/src/controller/User.hx:163,170`, `camap-ts/packages/api-core/src/groups/resolvers/group-previews-members.resolver.ts:295` (CODE-032).
+  - **DECISION (UND-011, 2026-11-06)** Use an https reset link with a 24-hour, single-use lifetime.

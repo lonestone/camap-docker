@@ -50,9 +50,10 @@ Actors: member, catalog coordinator, group admin. A subscription is a member's c
 
 - **ORD-SUB-013** As a member, I see my current or coming subscription for a catalog: the one with an end date after the next open distribution (or now). <!-- 03-features/orders-subscriptions.md R18; camap-hx/src/service/SubscriptionService.hx:176-180 -->
 
-- **ORD-SUB-014** *Undecided (UND-083)*: As a member, when a season ends, I can renew my subscription for the next catalog. <!-- 03-features/orders-subscriptions.md S2 Renewal; camap-hx/src/controller/ContractAdmin.hx:782-900 -->
-  - No renewal feature exists. A new season is a new catalog and new subscriptions.
-  - **SUGGESTION** Keep the manual process (new catalog, new subscriptions) for now; renewal is out of scope. Based on: `camap-hx/src/controller/ContractAdmin.hx:782-900` (duplicate catalog copies no subscriptions); no renewal code or text in either stack. Confidence: low. Needs product decision on renewal.
+- **ORD-SUB-014** As a member, when a season ends, I subscribe again to the next catalog myself: there is no subscription renewal. <!-- 03-features/orders-subscriptions.md S2 Renewal; camap-hx/src/controller/ContractAdmin.hx:782-900 -->
+  - A new season is a new catalog, and members create new subscriptions to it.
+  - Duplicating a catalog does not copy its subscriptions (`camap-hx/src/controller/ContractAdmin.hx:782-900`). This is intended.
+  - **DECISION (UND-083, 2026-11-06)** Keep the manual new-catalog process; subscription renewal stays out of scope (option b).
 
 - **ORD-SUB-015** As a member, I can read the data of my subscription. <!-- 03-features/orders-subscriptions.md S3.1; camap-hx/src/controller/api/Subscription.hx:149-203 -->
   - It shows the distributions with their orders, the constraints, the total ordered, the balance and the minimum required.

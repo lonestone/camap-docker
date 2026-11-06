@@ -25,5 +25,9 @@ Actors: membership manager, visitor, logged-in user. Bulk member import and crea
   - The session group is set before the key is validated.
   - **DECISION (UND-018, 2026-11-06)** Keep the current behaviour: the invitation key covers the email only (option b).
 
-- **ACC-INV-006** *Undecided (UND-017)*: As a visitor, I can look up the invitation data only for my own invitation. <!-- 03-features/users-auth.md S3.2; camap-ts/packages/api-core/src/users/users.resolver.ts:129-140 -->
-  - **SUGGESTION** Restrict reads. Drop `user(id)`, which has no front caller. Limit `getUsersFromEmails` to group managers with a group id. Make `getInvitedUserToRegister` take the invitation hash from the link, not the email. Based on: `camap-ts/packages/api-core/src/users/users.resolver.ts:99-112` (`getEmailRecipientsByUserIds` checks `canManageMessages`), `camap-ts/packages/front-core/src/modules/members/containers/ImportOneMember.tsx:242` (only manager caller), `camap-ts/packages/api-core/src/users/users.resolver.ts:129-140` (public lookup by email). Confidence: medium.
+- **ACC-INV-006** As a visitor, I can look up the invitation data only for my own invitation, with the invitation hash from my link. <!-- 03-features/users-auth.md S3.2; camap-ts/packages/api-core/src/users/users.resolver.ts:129-140 -->
+  - `getInvitedUserToRegister` takes the invitation hash from the link, not the email.
+  - `getUsersFromEmails` is limited to group managers and needs a group id.
+  - The single-user query `user(id)`, which no front component calls, is removed.
+  - **ERRATUM** Today `user(id)` and `getUsersFromEmails` need only a login, and `getInvitedUserToRegister(email)` is public and returns the name, phone and address stored in the cache for any email. Source: `camap-ts/packages/api-core/src/users/users.resolver.ts:62-66,121-140` (CODE-006).
+  - **DECISION (UND-017, 2026-11-06)** Restrict user reads to group managers, drop the unused `user(id)` query, and look up an invitation by its hash.

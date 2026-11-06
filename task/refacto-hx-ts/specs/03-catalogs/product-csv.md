@@ -8,7 +8,9 @@ Actors: catalog coordinator.
   - Imported products are active and have no stock tracking.
   - The file is limited to 4 MB.
 
-- **CAT-PCS-002** *Undecided (UND-039)*: As a catalog coordinator, I can export the products of a catalog I manage as CSV. <!-- 03-features/catalogs-products-vendors-places.md S3.1, R24; camap-hx/src/controller/Product.hx:286-322 -->
+- **CAT-PCS-002** As a catalog coordinator, I can export the products of a catalog I manage as CSV, and nobody else can. <!-- 03-features/catalogs-products-vendors-places.md S3.1, R24; camap-hx/src/controller/Product.hx:286-322 -->
   - Columns: name, price, reference, description, VAT, quantity, unit, organic, bulk, variable price.
   - Active status and image are not exported.
-  - **SUGGESTION** Restrict both. Product export needs `canManageContract(catalog)`. REST catalog and product reads need a logged-in member of the catalog's group, and the product list hides inactive products. Based on: `camap-hx/src/controller/Product.hx:34` (edit mirrors this check), `camap-hx/src/controller/Product.hx:286-290` (export has no check), `camap-hx/js/react/order/redux/actions/thunk/OrderBoxThunk.hx:150` (only caller is the logged-in order box). Confidence: medium.
+  - The export requires the right to manage that catalog (`canManageContract`).
+  - **ERRATUM** Today `/product/export` checks no right. Source: `camap-hx/src/controller/Product.hx:286-290` (CODE-016).
+  - **DECISION (UND-039, 2026-11-06)** Product export requires the right to manage the catalog; the REST catalog and product reads require a logged-in member of the catalog's group, and the product list hides inactive products.

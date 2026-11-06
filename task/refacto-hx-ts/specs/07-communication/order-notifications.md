@@ -19,14 +19,17 @@ Actors: the system, member, vendor, catalog contact.
 
 - **COM-NTF-005** As a catalog contact, I receive a recap of orders when orders close, if the catalog notifies the contact. <!-- 03-features/crons-scheduled-jobs.md S4.1; camap-hx/src/controller/Cron.hx:716-816 -->
 
-- **COM-NTF-006** *Undecided (UND-104)*: As a member, automatic emails are written in my language. <!-- 03-features/crons-scheduled-jobs.md S4.1; camap-hx/src/controller/Cron.hx:197,200 -->
-  - Some texts and the date format of volunteer alerts are hard-coded in French.
-  - **SUGGESTION** Write automatic emails in the recipient language: switch locale to the user lang and translate subject and date text. Keep the group-authored body as is. Based on: `camap-hx/src/controller/Cron.hx:567,665` (sibling jobs call Locale.init(user.lang)), `camap-hx/src/controller/Cron.hx:197,200` (volunteer alert subject and date hard-coded French), `camap-hx/src/db/User.hx:24` (user lang field). Confidence: medium. The token in use is [ROLES_MANQUANTS] (`Cron.hx:204`, `amapadmin/Volunteers.hx:46`).
-  - **IMPACT OF UND-118** With no language selection, automatic emails are in French; their hard-coded subjects and dates are exported to the translation files like every other string.
+- **COM-NTF-006** As a member, automatic emails are written in French, like the rest of the platform. <!-- 03-features/crons-scheduled-jobs.md S4.1; camap-hx/src/controller/Cron.hx:197,200 -->
+  - There is no per-user language: the interface and the emails are French only (see UND-118).
+  - The subject and the date format of the volunteer alerts are hard-coded French in the code. This is kept in the current system.
+  - The volunteer-alert token in use is `[ROLES_MANQUANTS]` (`camap-hx/src/controller/Cron.hx:204`, `camap-hx/src/controller/amapadmin/Volunteers.hx:46`); the `[ROLES_MISSING]` found at `Cron.hx:197,200` and in an older description is not the one to document.
+  - When the cron emails are ported to TS, their subjects and dates go into the translation files: see `task/refacto-hx-ts/TS-ONLY-STEP.md`.
+  - **DECISION (UND-104, 2026-11-06)** Automatic emails are French only (UND-118) instead of following the user language; the subject and date texts move to the translation files at the port.
 
-- **COM-NTF-007** *Undecided (UND-105)*: As a vendor or catalog contact, the order recap covers exactly the distributions that just closed. <!-- 03-features/crons-scheduled-jobs.md S4.1; camap-hx/src/controller/Cron.hx:716-724 -->
-  - The query joins with AND instead of WHERE.
-  - **SUGGESTION** Fix all three: use WHERE in the recap query (same shape as `Cron.hx:232-236`), use the faked clock `now` in the errors email, and take a lock per daily job so only one replica runs it (for example a row in the cache table, or run jobs from one replica only). Based on: `camap-hx/src/controller/Cron.hx:716-724` (join on AND), `camap-hx/src/controller/Cron.hx:353-357` (errors email uses Date.now), `camap-ts/packages/api-core/src/tools/crontab.service.ts:15-55` (every replica fires jobs, no lock). Confidence: medium. Note: with an INNER JOIN the AND form returns the same rows, so that fix is cosmetic.
+- **COM-NTF-007** As a vendor or catalog contact, the order recap covers exactly the distributions that just closed. <!-- 03-features/crons-scheduled-jobs.md S4.1; camap-hx/src/controller/Cron.hx:716-724 -->
+  - The recap query selects the distributions with a WHERE clause (same shape as `camap-hx/src/controller/Cron.hx:232-236`).
+  - **ERRATUM** Today the query joins with AND instead of WHERE; with an inner join the rows are the same, so this fix is cosmetic. Source: `camap-hx/src/controller/Cron.hx:716-724` (CODE-082).
+  - **DECISION (UND-105, 2026-11-06)** Use WHERE in the recap query, the faked clock in the errors email, and a per-job lock across replicas.
 
 - **COM-NTF-008** As a member, the in-app and email notification options are my own preferences. <!-- 03-features/messaging-mails.md R10; camap-hx/src/db/User.hx:8-10 -->
   - See 01-accounts/notifications.md.

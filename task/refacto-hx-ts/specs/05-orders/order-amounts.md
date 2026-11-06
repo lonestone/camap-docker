@@ -16,8 +16,9 @@ Actors: member.
 
 - **ORD-AMT-004** As a member, the subscription total is recorded as a negative operation, rewritten only when the amount changes. <!-- 03-features/orders-subscriptions.md R34; camap-hx/src/service/SubscriptionService.hx:1059-1091 -->
 
-- **ORD-AMT-005** *Undecided (UND-079)*: As a member, the price of an order is the price saved with the order. <!-- 03-features/orders-subscriptions.md R34; camap-hx/src/db/Subscription.hx:94-129; camap-hx/src/service/OrderService.hx:77 -->
-  - Currently totals and recreated orders use the current product price although default orders store a price.
-  - **SUGGESTION** Preserve past orders and manual edits: on saving a default order, rewrite only unclosed distributions (constant catalogs too) and keep each existing order saved price; only new lines take the current price. Based on: `camap-hx/src/service/SubscriptionService.hx:908-912,921-925` (variable branch skips closed distributions), `camap-hx/src/service/SubscriptionService.hx:988-991` (past orders must not be modified), `camap-hx/src/service/OrderService.hx:77,362` (price saved at creation, prepare uses it). Confidence: medium. Needs product input on manual edits.
+- **ORD-AMT-005** As a member, the price of an order is the price saved with the order. <!-- 03-features/orders-subscriptions.md R34; camap-hx/src/db/Subscription.hx:94-129; camap-hx/src/service/OrderService.hx:77 -->
+  - Saving a default order keeps the saved price of each existing order; only new lines take the current product price.
+  - **ERRATUM** Today totals and recreated orders use the current product price, although default orders store a price that is never used. Source: `camap-hx/src/service/SubscriptionService.hx:909,989-993`, `camap-hx/src/service/OrderService.hx:77` (CODE-048).
+  - **DECISION (UND-079, 2026-11-06)** Preserve past orders, manual edits and saved prices when saving a default order: rewrite only unclosed distributions (constant catalogs too), keep each existing order's saved price, and give only new lines the current price.
 
 - **ORD-AMT-006** As a member, the "paid" mark of an order can be set by a coordinator and blocks changes. <!-- 03-features/orders-subscriptions.md R35; camap-hx/src/service/OrderService.hx:183-187,227; camap-hx/src/db/UserOrder.hx:105-106 -->

@@ -105,6 +105,8 @@ Phase 4 is where the risk is. Orders/subscriptions is the densest area: Subscrip
 4. Port domain by domain, starting with the least coupled (messaging/crons, admin), then catalogs → distributions → orders/subscriptions → payments. Each domain is "done" when its characterisation suite passes on TS and its pages are routed to TS.
 5. Switch the last routes, then delete camap-hx.
 
+The functional specs ([specs/](specs/README.md)) describe the current Haxe + TS system. What applies only once Haxe is ported and removed is in [TS-ONLY-STEP.md](TS-ONLY-STEP.md).
+
 ## 8. Main risks to examine in the planning step
 - Hidden behaviour in Sugoi (outside the repo): sessions, `Variable`, `File`, templo macros, and the mailer.
 - Two writers on one DB during the transition, combined with float rounding and Paris-time dates, which are handled differently on each side.

@@ -10,9 +10,10 @@ Actors: member, catalog coordinator. A constant catalog repeats the same basket 
 - **ORD-CST-002** As a member, I can change my default order of a constant catalog while I have no past orders. <!-- 03-features/orders-subscriptions.md R6; camap-hx/src/service/SubscriptionService.hx:989-993 -->
   - A coordinator or admin can change it even with past orders.
 
-- **ORD-CST-003** *Undecided (UND-079)*: As a coordinator, changing the default order of a constant catalog only affects distributions not yet closed. <!-- 03-features/orders-subscriptions.md R6, R34; camap-hx/src/service/SubscriptionService.hx:909; camap-hx/src/service/OrderService.hx:77 -->
-  - Currently all orders including past ones are deleted and recreated at the current product price.
-  - **SUGGESTION** Preserve past orders and manual edits: on saving a default order, rewrite only unclosed distributions (constant catalogs too) and keep each existing order saved price; only new lines take the current price. Based on: `camap-hx/src/service/SubscriptionService.hx:908-912,921-925` (variable branch skips closed distributions), `camap-hx/src/service/SubscriptionService.hx:988-991` (past orders must not be modified), `camap-hx/src/service/OrderService.hx:77,362` (price saved at creation, prepare uses it). Confidence: medium. Needs product input on manual edits.
+- **ORD-CST-003** As a coordinator, changing the default order of a constant catalog only affects distributions not yet closed. <!-- 03-features/orders-subscriptions.md R6, R34; camap-hx/src/service/SubscriptionService.hx:909; camap-hx/src/service/OrderService.hx:77 -->
+  - Past (closed) distributions are never rewritten, for constant catalogs too.
+  - **ERRATUM** Today saving a default order deletes and recreates all orders of a constant catalog, past ones included, at the current product price. Source: `camap-hx/src/service/SubscriptionService.hx:906-916,989-993`, `camap-hx/src/service/OrderService.hx:77` (CODE-048).
+  - **DECISION (UND-079, 2026-11-06)** Preserve past orders, manual edits and saved prices when saving a default order: rewrite only unclosed distributions (constant catalogs too), keep each existing order's saved price, and give only new lines the current price.
 
 - **ORD-CST-004** As a coordinator, saving a constant subscription from the admin form always recreates its orders. <!-- 03-features/orders-subscriptions.md R6; camap-hx/src/controller/SubscriptionAdmin.hx:223-272; camap-hx/src/service/SubscriptionService.hx:802-804 -->
 

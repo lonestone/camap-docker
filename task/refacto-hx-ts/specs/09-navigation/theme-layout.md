@@ -20,10 +20,11 @@ Actors: visitor, user.
 
 - **NAV-THM-006** As a coordinator, long text fields offer a rich-text editor. <!-- 03-features/frontend-templates-i18n.md S8; camap-hx/src/form/CamapForm.hx:23-41 -->
 
-- **NAV-THM-007** As a user, pages do not depend on a separate service providing a list of widget bundles. <!-- 03-features/frontend-templates-i18n.md R5; camap-hx/src/service/BridgeService.hx:44-72; camap-hx/lang/master/tpl/base.mtt:118 -->
-  - Void for the target system: the Haxe page-embedded widgets disappear with the migration, so there is no widget bundle list to load, cache or degrade.
-  - Until the migration, a Haxe page fails to render with "Unable to load ressources from CAMAP-ts." when the list cannot be loaded; the list is cached per process without invalidation. This is not fixed. Source: `camap-hx/src/service/BridgeService.hx:10-72`, `camap-hx/lang/master/tpl/base.mtt:118` (CODE-146).
-  - **DECISION (UND-119, 2026-11-06)** Point declared void: no graceful degradation is built because the widgets disappear with the migration (option b).
+- **NAV-THM-007** As a user, a Haxe page cannot be shown when the TS side does not give it the list of widget bundles. <!-- 03-features/frontend-templates-i18n.md R5; camap-hx/src/service/BridgeService.hx:44-72; camap-hx/lang/master/tpl/base.mtt:118 -->
+  - The page fails with "Unable to load ressources from CAMAP-ts." when the list cannot be loaded.
+  - The list is cached per process without invalidation.
+  - This is not fixed in the current system. Source: `camap-hx/src/service/BridgeService.hx:10-72`, `camap-hx/lang/master/tpl/base.mtt:118` (CODE-146).
+  - **DECISION (UND-119, 2026-11-06)** Keep the current behaviour (option b): no graceful degradation is built. The dependency disappears with the Haxe pages, see [TS-ONLY-STEP.md](../../TS-ONLY-STEP.md).
 
 - **NAV-THM-008** As a user, interactive screens are embedded inside the pages of the site. <!-- 03-features/frontend-templates-i18n.md S1; camap-ts/packages/front-core/src/neo.tsx:149-195 -->
   - Pages like the members list, vendor dashboard and vendor profile have their own address handling inside the page.

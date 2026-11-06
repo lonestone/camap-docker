@@ -25,10 +25,13 @@ Actors: catalog coordinator, group admin.
 
 - **PAY-RPT-008** As a group admin, I can see the turnover by VAT rate. <!-- 03-features/payments-operations-reports.md S3.2; camap-hx/src/service/ReportService.hx:167-174 -->
 
-- **PAY-RPT-009** *Undecided (UND-094)*: As a catalog coordinator, report totals without VAT are correct when the same product appears in several distributions of a session. <!-- 03-features/payments-operations-reports.md S3.2; camap-hx/src/service/ReportService.hx:125-174; 03-features/inconsistencies-code.md CODE-039,053,054 -->
-  - Currently merged lines add quantity and total with VAT but not the total without VAT.
-  - The VAT-exclusive amounts are not rounded and the invoice repeats the logic.
-  - **SUGGESTION** Fix the sums: add the VAT-exclusive total when merging distributions, round each line VAT-exclusive amount to 2 decimals before summing, group by saved price instead of AVG, and reuse getOrdersByVAT in the invoice. Based on: `camap-hx/src/service/ReportService.hx:149-155` (merge adds quantity and totalTTC only), `camap-hx/src/service/ReportService.hx:23-37` (AVG of saved price), `camap-hx/src/controller/Member.hx:186-193` (invoice duplicates the VAT loop). Confidence: medium.
+- **PAY-RPT-009** As a catalog coordinator, report totals without VAT are correct when the same product appears in several distributions of a session. <!-- 03-features/payments-operations-reports.md S3.2; camap-hx/src/service/ReportService.hx:125-174; 03-features/inconsistencies-code.md CODE-039,053,054 -->
+  - Merging the lines of several distributions adds the quantity, the total with VAT and the total without VAT.
+  - Each line's amount without VAT is rounded to 2 decimals before summing.
+  - The report groups lines by the saved price, not by an average of it.
+  - The invoice (PAY-RPT-013) reuses the shared VAT helper (`getOrdersByVAT`) instead of repeating its logic.
+  - **ERRATUM** Today merged lines add quantity and total with VAT but not the total without VAT, amounts without VAT are not rounded, one query groups by price but averages the saved price, and the invoice duplicates the VAT loop. Source: `camap-hx/src/service/ReportService.hx:23-37,125-174`, `camap-hx/src/controller/Member.hx:177-200` (CODE-039, CODE-053, CODE-054).
+  - **DECISION (UND-094, 2026-11-06)** Fix the merged VAT-exclusive total, round each line, group by saved price, and reuse the VAT helper in the invoice.
 
 - **PAY-RPT-010** As a coordinator, I can choose the CSV format when printing daily attendance. <!-- 03-features/payments-operations-reports.md S3.2; camap-hx/src/controller/Distribution.hx:154-159,206-229 -->
   - CSV is offered in the format form next to the other formats.
@@ -43,3 +46,5 @@ Actors: catalog coordinator, group admin.
   - The file is separated by semicolons with a UTF-8 byte-order mark, named after the vendor and the date.
 
 - **PAY-RPT-013** As a membership manager, I can print an invoice for a member and a distribution session, grouped by vendor and VAT. <!-- 03-features/payments-operations-reports.md S3.1; camap-hx/src/controller/Member.hx:177-200 -->
+  - The VAT amounts come from the shared VAT helper used by the reports (see PAY-RPT-009).
+  - **DECISION (UND-094, 2026-11-06)** The invoice reuses the shared VAT helper.

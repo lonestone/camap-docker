@@ -23,14 +23,19 @@ Actors: membership manager, group admin.
   - I cannot remove myself.
   - I cannot remove a group admin.
   - Removing a member deletes their membership of the group.
-  - **ERRATUM** In the TS member list, removing several members at once can skip or fail on some of them, and TS does not check orders or balance as Haxe does. Source: `camap-ts/packages/api-core/src/groups/resolvers/group-previews-members.resolver.ts:85-104, camap-hx/src/controller/Member.hx:121-124` (CODE-055).
+  - **ERRATUM** Today, in the TS member list, removing several members at once can skip or fail on some of them, and TS does not check orders or balance as Haxe does. Source: `camap-ts/packages/api-core/src/groups/resolvers/group-previews-members.resolver.ts:85-104, camap-hx/src/controller/Member.hx:121-124` (CODE-055).
+  - **DECISION (UND-028, 2026-11-06)** TS gets the Haxe order confirmation and a per-user batch loop (see GRP-MEM-006, GRP-MEM-007).
 
-- **GRP-MEM-006** *Undecided (UND-028)*: As a membership manager, I must confirm before removing a member who has orders in the group. <!-- 03-features/groups-membership.md R12; camap-hx/src/controller/Member.hx:116-135 -->
-  - **SUGGESTION** Apply the Haxe confirmation in TS: ask for confirmation when the member has orders, and run a per-user loop (no splice) in batch removal. Based on: `camap-hx/src/controller/Member.hx:116-135` (token, own-account check, confirmation when quantity>0), `camap-ts/packages/api-core/src/groups/resolvers/group-previews-members.resolver.ts:85-104` (no order check; splice misaligns users and flags). Confidence: medium.
+- **GRP-MEM-006** As a membership manager, I must confirm before removing a member who has orders in the group, in Haxe and in TS. <!-- 03-features/groups-membership.md R12; camap-hx/src/controller/Member.hx:116-135 -->
+  - The confirmation is asked when the member has an ordered quantity above 0.
+  - **ERRATUM** Today TS removal checks no orders or balance, while Haxe requires the token and a confirmation when the member has orders. Source: `camap-hx/src/controller/Member.hx:116-135`, `camap-ts/packages/api-core/src/groups/resolvers/group-previews-members.resolver.ts:61-108` (CODE-055).
+  - **DECISION (UND-028, 2026-11-06)** Apply the Haxe confirmation for members with orders in TS and fix the batch removal loop (one handling per user, no splice).
 
-- **GRP-MEM-007** *Undecided (UND-028)*: As a membership manager, I can remove several members at once and each one is handled correctly. <!-- 03-features/groups-membership.md R12; camap-ts/packages/api-core/src/groups/resolvers/group-previews-members.resolver.ts:85-104 -->
+- **GRP-MEM-007** As a membership manager, I can remove several members at once and each one is handled correctly. <!-- 03-features/groups-membership.md R12; camap-ts/packages/api-core/src/groups/resolvers/group-previews-members.resolver.ts:85-104 -->
   - A user who is not in the group is reported in the result.
-  - **SUGGESTION** Apply the Haxe confirmation in TS: ask for confirmation when the member has orders, and run a per-user loop (no splice) in batch removal. Based on: `camap-hx/src/controller/Member.hx:116-135` (token, own-account check, confirmation when quantity>0), `camap-ts/packages/api-core/src/groups/resolvers/group-previews-members.resolver.ts:85-104` (no order check; splice misaligns users and flags). Confidence: medium.
+  - Each user is handled in its own pass, so the results and flags line up with the users I selected.
+  - **ERRATUM** Today TS batch removal keeps null entries and splices inside the loop, which misaligns users and flags. Source: `camap-ts/packages/api-core/src/groups/resolvers/group-previews-members.resolver.ts:85-104` (CODE-055).
+  - **DECISION (UND-028, 2026-11-06)** Apply the Haxe confirmation for members with orders in TS and fix the batch removal loop (one handling per user, no splice).
 
 - **GRP-MEM-008** As a membership manager, a removal request is refused unless it carries a valid security token. <!-- 03-features/groups-membership.md R12, S3.1; camap-hx/src/controller/Member.hx:116-135 -->
 

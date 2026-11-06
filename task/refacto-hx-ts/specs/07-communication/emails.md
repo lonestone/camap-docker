@@ -17,9 +17,11 @@ Actors: the system, recipient.
 
 - **COM-EML-006** As the system, I remove an email from the queue once sent, and purge old sent entries after 10 days. <!-- 03-features/messaging-mails.md R4; camap-ts/packages/api-core/src/mails/mails.service.ts:319,340-341 -->
 
-- **COM-EML-007** *Undecided (UND-100)*: As a recipient of a group email, the sender shown is the group contact name, and replies go to the sender. <!-- 03-features/messaging-mails.md R2, R3, R4; camap-hx/src/App.hx:351-369; camap-ts/packages/api-core/src/mails/mails.service.ts:256-273 -->
-  - Currently TS sends from the platform sender address whatever the stored sender, while Haxe stores the group contact as sender.
-  - **SUGGESTION** Show the sender name with the platform address, and reply to the sender through Reply-To. Based on: `camap-ts/packages/api-core/src/mails/mails.service.ts:256-262` (from = sender name + theme senderEmail), `camap-ts/packages/api-core/src/mails/mails.service.ts:104-105,156` (Reply-To set from sender when requested), `camap-hx/src/controller/Cron.hx:594,685` (Haxe jobs set Reply-To to the group contact). Confidence: medium. Needs product input on shown address.
+- **COM-EML-007** As a recipient of a group email, I see the sender's name with the platform email address, and my replies go to the sender through Reply-To. <!-- 03-features/messaging-mails.md R2, R3, R4; camap-hx/src/App.hx:351-369; camap-ts/packages/api-core/src/mails/mails.service.ts:256-273 -->
+  - The From address is the platform address, with the sender name (the group contact name for group emails).
+  - The Reply-To is the sender (for group emails, the group contact), in Haxe and in TS.
+  - **ERRATUM** Today TS sends from the platform sender address whatever the stored sender, while Haxe stores the group contact as sender; the Reply-To rules also differ. Source: `camap-hx/src/App.hx:351-369`, `camap-ts/packages/api-core/src/mails/mails.service.ts:256-273` (CODE-123).
+  - **DECISION (UND-100, 2026-11-06)** Platform address with the sender name, and Reply-To set to the sender.
 
 - **COM-EML-008** As a recipient, emails use the branding of my platform (theme). <!-- 03-features/messaging-mails.md R13; camap-ts/packages/api-core/src/tools/variable.service.ts:61-72; camap-hx/src/App.hx:121-150 -->
   - TS emails read the white-label theme saved by the superadmin.
@@ -30,4 +32,4 @@ Actors: the system, recipient.
 - **COM-EML-009** As a recipient, emails are rendered in a shared layout for the platform or the group. <!-- 03-features/messaging-mails.md S2 Templates, R3; camap-hx/lang/fr/tpl/mail/layout-camap.mtt -->
 
 - **COM-EML-010** As a visitor, I receive emails in French. <!-- 03-features/crons-scheduled-jobs.md S4.1; camap-hx/src/controller/Cron.hx:458-622 -->
-  - **DECISION (UND-118, 2026-11-02)** When porting Haxe to TS, export every hard-coded string to the translation files, and remove the language selection.
+  - **DECISION (UND-118, 2026-11-02)** French only. This changes nothing in the current Haxe + TS system: exporting the hard-coded Haxe strings and dropping the language parameter happen when Haxe is ported to TS, see [TS-ONLY-STEP.md](../../TS-ONLY-STEP.md).

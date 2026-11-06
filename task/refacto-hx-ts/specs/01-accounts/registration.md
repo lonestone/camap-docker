@@ -12,9 +12,11 @@ Actors: visitor, logged-in user. Registration is done in the login/registration 
   - A phone number, if given, must be valid.
   - If I fill any of zip code, address or city, the address is validated.
 
-- **ACC-REG-003** *Undecided (UND-003)*: As a visitor joining a group that requires a phone number or an address, I must provide it before my account is created. <!-- 03-features/users-auth.md R5; camap-ts/packages/front-core/src/modules/loginRegistration/RegistrationBox.tsx:186-202 -->
+- **ACC-REG-003** As a visitor joining a group that requires a phone number or an address, I must provide it before my account is created, whatever client I use. <!-- 03-features/users-auth.md R5; camap-ts/packages/front-core/src/modules/loginRegistration/RegistrationBox.tsx:186-202 -->
   - The form asks for them when the group requires them.
-  - **SUGGESTION** Enforce it on the server. When `invitedGroupId` has the phone or address flag, validate with `phoneSchema` and `addressSchema` before creating the account. Based on: `camap-ts/packages/api-core/src/auth/auth.resolver.ts:73-80` (server already picks schemas by input), `camap-ts/packages/front-core/src/modules/loginRegistration/RegistrationBox.tsx:186-202` (client-only rule), `camap-hx/src/controller/Main.hx:136-146` (Haxe only nags afterwards). Confidence: medium.
+  - The server enforces it too: when the invited group has the phone or address flag, it validates with `phoneSchema` and `addressSchema` before creating the account.
+  - **ERRATUM** Today only the registration form requires them; the API accepts a registration without them, and Haxe only reminds the member afterwards. Source: `camap-ts/packages/front-core/src/modules/loginRegistration/RegistrationBox.tsx:186-202`, `camap-ts/packages/api-core/src/auth/auth.resolver.ts:73-80`, `camap-hx/src/controller/Main.hx:136-146`.
+  - **DECISION (UND-003, 2026-11-06)** Enforce the group's phone and address requirement on the server at registration.
 
 - **ACC-REG-004** As a visitor, I cannot register with an email already used by another account. <!-- 03-features/users-auth.md R2; camap-ts/packages/api-core/src/auth/auth.service.ts:98-101 -->
   - The check covers both the primary and the secondary email of existing accounts.
@@ -25,14 +27,22 @@ Actors: visitor, logged-in user. Registration is done in the login/registration 
 - **ACC-REG-006** As a new user, my account starts with French as language and the 24-hour reminder email enabled. <!-- 03-features/users-auth.md R6; camap-ts/packages/api-core/src/auth/auth.service.ts:103-120 -->
   - If my secondary email equals my primary email, the secondary email is dropped.
 
-- **ACC-REG-007** *Undecided (UND-001)*: As a visitor, I receive a confirmation email after registering. <!-- 03-features/users-auth.md F5.1 step 5; camap-ts/packages/api-core/src/auth/auth.service.ts -->
-  - **SUGGESTION** Keep as is: no email at registration. The user is logged in right away. Add no verification step. Based on: `camap-ts/packages/api-core/src/auth/auth.service.ts:124-150` (registerAndLogin logs in directly), `camap-hx/lang/master/tpl/mail` (no welcome or confirmation template on either side). Confidence: medium.
+- **ACC-REG-007**: As a visitor, I receive no confirmation email after registering and I am logged in right away. <!-- 03-features/users-auth.md F5.1 step 5; camap-ts/packages/api-core/src/auth/auth.service.ts -->
+  - My email address is not verified: no verification step is added.
+  - This is intended: no welcome or confirmation template exists on either side. Source: `camap-ts/packages/api-core/src/auth/auth.service.ts:124-150` (`registerAndLogin` logs in directly), `camap-hx/lang/master/tpl/mail`.
+  - **DECISION (UND-001, 2026-11-06)** Keep the current behaviour: no email at registration and no email verification.
 
-- **ACC-REG-008** *Undecided (UND-002)*: As a user, my email is stored in lower case and my last name in upper case. <!-- 03-features/users-auth.md R4; camap-hx/src/db/User.hx:524-535 -->
-  - **SUGGESTION** Normalise in TS too. Store email in lower case on create and update. Keep the last name upper case at display only, as TS already does. Based on: `camap-hx/src/db/User.hx:524-535` (clean() on every save), `camap-ts/packages/camap-common/src/utils/user-utils.ts:3` (formatLastName upper-cases at display), `camap-ts/packages/front-core/src/utils/fomat/index.ts:15` (same). Confidence: medium.
+- **ACC-REG-008** As a user, my email is stored in lower case and my last name in upper case, whichever application saves my account. <!-- 03-features/users-auth.md R4; camap-hx/src/db/User.hx:524-535 -->
+  - The normalisation runs on every save, on creation and on update, in Haxe (`clean()`) and in TS.
+  - **ERRATUM** Today TS does not normalise, so users registered or edited in TS keep their casing. Source: `camap-hx/src/db/User.hx:524-535` (Haxe `clean()` on every save).
+  - **DECISION (UND-002, 2026-11-06)** Keep the Haxe behaviour: lower-case email and upper-case last name stored on every save, and apply it in TS too.
 
-- **ACC-REG-009** *Undecided (UND-004)*: As a visitor, I cannot create an account with an empty password. <!-- 03-features/users-auth.md F5.1 step 5; camap-ts/packages/api-core/src/auth/auth.service.ts:103-120 -->
-  - **SUGGESTION** Keep the public rule: password of at least 8 characters, enforced by the API schema. Never store or accept an empty password. For manager imports, create the account with no usable hash and reject an empty password in `isValidPassword`. Based on: `camap-ts/packages/api-core/src/auth/auth.resolver.ts:73-80` (register validates `userRegistrationSchema`), `camap-ts/packages/camap-common/src/validators/registrationSchema/userRegistrationSchema.ts:6` (min 8), `camap-ts/packages/api-core/src/groups/resolvers/group-previews-members.resolver.ts:142` (import passes an empty password on purpose). Confidence: high.
+- **ACC-REG-009**: As a visitor, I cannot create an account with an empty password; my password has at least 8 characters. <!-- 03-features/users-auth.md F5.1 step 5; camap-ts/packages/api-core/src/auth/auth.service.ts:103-120 -->
+  - The API enforces the 8-character minimum itself (registration schema), not only the form.
+  - An empty password is never stored or accepted, at registration or in `isValidPassword`.
+  - Accounts created by a manager import get no usable password hash: their owner sets one through a password reset.
+  - **ERRATUM** Today `register` stores `md5(KEY+'')` and `bcrypt('')` for an empty password, while the login schema refuses an empty one. Source: `camap-ts/packages/api-core/src/auth/auth.service.ts:103-120` (CODE-052).
+  - **DECISION (UND-004, 2026-11-06)** Validate the password server side (min 8, never empty); imports get no usable hash.
 
 - **ACC-REG-010** As a visitor, my password is stored exactly as typed, so it works identically whether I later log in or reset it; leading and trailing spaces are part of the password. <!-- 03-features/users-auth.md R7; camap-hx/src/db/User.hx:274-281; camap-ts/packages/api-core/src/tools/crypto.service.ts:22-24 -->
   - Passwords are never trimmed, at registration, login or reset, in TS and in Haxe.

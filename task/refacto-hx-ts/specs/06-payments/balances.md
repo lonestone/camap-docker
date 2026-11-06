@@ -2,16 +2,18 @@
 
 Actors: member, membership manager, the system.
 
-- **PAY-BAL-001** *Undecided (UND-087)*: As a member, my balance in a group is the sum of all my operations in that group. <!-- 03-features/payments-operations-reports.md R2; camap-hx/src/service/PaymentService.hx:343-354; camap-ts/packages/api-core/src/payments/services/payments.service.ts:280-296 -->
-  - Currently only operations linked to a subscription starting after 2022 count.
-  - Order operations, memberships and manual payments are left out.
-  - **SUGGESTION** Sum all non-pending operations of the member in the group, rounded to cents; drop the 2022 cut-off once old data is settled. Based on: `camap-hx/src/service/PaymentService.hx:342` (commented original query sums all operations, ignoring pending payments), `camap-hx/src/service/PaymentService.hx:343-345` (cut-off is a one-off rectification; its comment says 2021), `camap-ts/packages/api-core/src/payments/services/payments.service.ts:280-296` (same cut-off). Confidence: low. Needs product input on pre-2023 history.
+- **PAY-BAL-001**: As a member, my balance in a group is the sum of my operations linked to a subscription that starts after 2022. <!-- 03-features/payments-operations-reports.md R2; camap-hx/src/service/PaymentService.hx:343-354; camap-ts/packages/api-core/src/payments/services/payments.service.ts:280-296 -->
+  - Order operations, memberships and manual payments without a subscription are not counted.
+  - The 2022 cut-off is kept for legacy compatibility: it rectified old data, and its comment (1 Jan 2021) does not match the code.
+  - This is intended: see PAY-BAL-002 for the rounding. Source: `camap-hx/src/service/PaymentService.hx:343-354`, `camap-ts/packages/api-core/src/payments/services/payments.service.ts:280-296` (CODE-037).
+  - **DECISION (UND-087, 2026-11-06)** Keep the current behaviour for legacy compatibility: the balance counts only subscription operations of subscriptions starting after 2022.
 
 - **PAY-BAL-002** As a member, my balance is rounded to 2 decimals. <!-- 03-features/payments-operations-reports.md R2; camap-hx/src/service/PaymentService.hx:351 -->
 
 - **PAY-BAL-003** As a member, my balance updates after every creation, change or deletion of one of my operations. <!-- 03-features/payments-operations-reports.md R3; camap-hx/src/service/PaymentService.hx:62,74,128,165 -->
   - Opening my history or the payments page also refreshes it.
-  - **ERRATUM** In TS, the balance update after a payment change is not awaited and the payment amount is not rounded. Source: `camap-ts/packages/api-core/src/payments/services/payments.service.ts:377-380` (CODE-061).
+  - **ERRATUM** Today in TS, the balance update after a payment change is not awaited and the payment amount is not rounded. Source: `camap-ts/packages/api-core/src/payments/services/payments.service.ts:377-380` (CODE-061).
+  - **DECISION (UND-089, 2026-11-06)** TS awaits the balance update and rounds the payment amount (see PAY-ENT-013).
 
 - **PAY-BAL-004** As a membership manager, I can see a member's operations, newest first, 10 per page. <!-- 03-features/payments-operations-reports.md S3.1; camap-hx/src/controller/Member.hx:140-157 -->
   - Opening the page refreshes the balance.

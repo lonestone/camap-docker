@@ -19,10 +19,13 @@ Actors: member, coordinator, the system. An operation is a money movement of a u
 
 - **PAY-OPE-005** As a member, every operation amount is rounded to 2 decimals. <!-- 03-features/payments-operations-reports.md R11; camap-hx/src/db/Operation.hx:170 -->
   - A subscription total operation needs a subscription and an order operation needs a basket.
-  - **ERRATUM** Only Haxe rounds; operations written by TS are not rounded. Source: `camap-hx/src/db/Operation.hx:170` (CODE-103).
+  - **ERRATUM** Today only Haxe rounds; operations written by TS are not rounded. Source: `camap-hx/src/db/Operation.hx:170` (CODE-103).
+  - **DECISION (UND-089, 2026-11-06)** TS rounds every operation amount to 2 decimals on save (see PAY-OPE-006).
 
-- **PAY-OPE-006** *Undecided (UND-089)*: As a member, amounts created by the new interface are rounded the same way as by the old one. <!-- 03-features/payments-operations-reports.md R11; camap-ts/packages/api-core/src/payments/entities/operation.entity.ts:51 -->
-  - **SUGGESTION** Round every operation amount to 2 decimals on save, as Haxe does. When adding to an existing payment, lock the row, round the sum, await the balance update. Reuse only pending on-the-spot payments. Based on: `camap-hx/src/db/Operation.hx:170` (amount rounded in check), `camap-hx/src/service/PaymentService.hx:70-76` (update locks the operation), `camap-ts/packages/api-core/src/payments/services/payments.service.ts:377-380` (no lock, no rounding, balance update not awaited). Confidence: medium.
+- **PAY-OPE-006** As a member, amounts created by the new interface are rounded the same way as by the old one. <!-- 03-features/payments-operations-reports.md R11; camap-ts/packages/api-core/src/payments/entities/operation.entity.ts:51 -->
+  - Every operation amount written by TS is rounded to 2 decimals on save, as Haxe does.
+  - **ERRATUM** Today TS operations have no 2-decimal rounding on save. Source: `camap-ts/packages/api-core/src/payments/entities/operation.entity.ts:51`, `camap-hx/src/db/Operation.hx:170` (CODE-103).
+  - **DECISION (UND-089, 2026-11-06)** Round every operation amount to 2 decimals on save; when adding to an existing payment, lock the row, round the sum and await the balance update; reuse only pending on-the-spot payments.
 
 - **PAY-OPE-007** As a membership manager, a membership creates a debt and an immediate payment, see GRP-COT-007. <!-- 03-features/payments-operations-reports.md R9; camap-ts/packages/api-core/src/groups/services/memberships.service.ts:94-150 -->
 

@@ -11,12 +11,13 @@ Actors: member, catalog coordinator. Absences are distributions a subscriber wil
   - A coordinator can have another number on an existing subscription.
   - Absences are stored in date order.
 
-- **ORD-ABS-004** *Undecided (UND-078)*: As a member, I can change my absences until the order window of each distribution closes. <!-- 03-features/distributions-volunteers.md R40; camap-hx/src/controller/api/Catalog.hx:86-90; camap-hx/src/service/AbsencesService.hx:121,131 -->
-  - The member interface locks a distribution by its order closing date. The service locks it by its date.
-  - **SUGGESTION** Lock each distribution by its order closing date, in the service as well as the REST layer. Based on: `camap-hx/src/controller/api/Catalog.hx:86-90` (REST filters by orderEndDate), `camap-hx/src/controller/SubscriptionAdmin.hx:179-180` (admin also uses orderEndDate), `camap-hx/src/service/AbsencesService.hx:122,133` (service uses distribution date). Confidence: medium.
+- **ORD-ABS-004**: As a member, I can change my absences until the order window of each distribution closes. <!-- 03-features/distributions-volunteers.md R40; camap-hx/src/controller/api/Catalog.hx:86-90; camap-hx/src/service/AbsencesService.hx:121,131 -->
+  - A distribution is locked from its order closing date, in the service as well as in the REST layer, and in the admin screens.
+  - **ERRATUM** Today the member interface locks a distribution by its order closing date, but the service locks it by the distribution date. Source: `camap-hx/src/controller/api/Catalog.hx:86-90`, `camap-hx/src/controller/SubscriptionAdmin.hx:179-180`, `camap-hx/src/service/AbsencesService.hx:122,133` (CODE-049).
+  - **DECISION (UND-078, 2026-11-06)** Lock each distribution's absences by its order closing date, in the service too.
 
 - **ORD-ABS-005** As a member, I can change the dates of my absences later, but not the number. <!-- 03-features/distributions-volunteers.md R39-R40; camap-hx/src/service/AbsencesService.hx:94-109,114-194 -->
-  - Past distributions cannot be added or removed.
+  - Distributions whose order window has closed cannot be added or removed, see ORD-ABS-004.
 
 - **ORD-ABS-006** As a member, when an absence changes, my orders follow. <!-- 03-features/distributions-volunteers.md R40; camap-hx/src/service/AbsencesService.hx:114-194 -->
   - Constant catalog: the recurrent orders are regenerated.
@@ -32,6 +33,7 @@ Actors: member, catalog coordinator. Absences are distributions a subscriber wil
 
 - **ORD-ABS-010** As a coordinator, I can see the absences of subscribers in the attendance sheet of a constant catalog. <!-- 03-features/distributions-volunteers.md R42; camap-ts/packages/front-core/src/modules/csaAttendanceSheet/ClassicContractAttendanceModule.tsx:236 -->
 
-- **ORD-ABS-011** *Undecided (UND-078)*: As a coordinator creating a subscription for a member, the absence rules of admin mode apply. <!-- 03-features/orders-subscriptions.md R12; camap-hx/src/service/SubscriptionService.hx:675-682 -->
-  - Currently absences are always applied in non-admin mode.
-  - **SUGGESTION** Pass the service admin mode to setAbsences when a coordinator creates the subscription. Based on: `camap-hx/src/service/SubscriptionService.hx:675,682` (setAbsences always gets false), `camap-hx/src/controller/api/Catalog.hx:96-110` (update path passes manager flag as admin mode), `camap-hx/src/service/AbsencesService.hx:39` (admin mode lifts the absence count rule). Confidence: high.
+- **ORD-ABS-011**: As a coordinator creating a subscription for a member, the absence rules of admin mode apply. <!-- 03-features/orders-subscriptions.md R12; camap-hx/src/service/SubscriptionService.hx:675-682 -->
+  - The service passes admin mode to the absence setting when a coordinator creates the subscription, which lifts the absence count rule.
+  - **ERRATUM** Today absences are always applied in non-admin mode, even when a coordinator creates the subscription. Source: `camap-hx/src/service/SubscriptionService.hx:675-682` (CODE-047), `camap-hx/src/controller/api/Catalog.hx:96-110`, `camap-hx/src/service/AbsencesService.hx:39`.
+  - **DECISION (UND-078, 2026-11-06)** Pass admin mode to the absence setting when a coordinator creates the subscription.

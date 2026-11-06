@@ -17,9 +17,9 @@ Actors: superadmin.
 
 - **ADM-GRP-005** As a superadmin, I can delete a group. <!-- 03-features/admin-superadmin.md S3, R4; camap-hx/src/controller/admin/Group.hx:104-112 -->
 
-- **ADM-GRP-006** *Undecided (UND-025)*: As a superadmin, I can disable a group. <!-- 03-features/admin-superadmin.md S3 /db; camap-hx/src/controller/Main.hx:302-306 -->
+- **ADM-GRP-006** As a superadmin, I can disable a group only by editing the database; there is no screen for it. <!-- 03-features/admin-superadmin.md S3 /db; camap-hx/src/controller/Main.hx:302-306 -->
   - See GRP-DSB-005.
-  - **SUGGESTION** Add a superadmin-only mutation to set or clear the disabled reason (blocked by admin, moved, suspended). Based on: `camap-ts/packages/front-core/src/modules/groupDisabled/GroupDisabled.module.tsx:22-34` (notice already shows these reasons), `camap-hx/src/controller/Main.hx:84-86` (disabled groups are redirected), `camap-hx/src/controller/Group.hx:25-27` (public page redirects); no code writes the field. Confidence: medium.
+  - **DECISION (UND-025, 2026-11-06)** Keep the current behaviour (option b): a group is disabled in the database only; no screen or mutation is added.
 
 - **ADM-GRP-007** As a superadmin, I can create a group. <!-- 03-features/groups-membership.md R4; camap-hx/src/controller/Group.hx:132-187 -->
   - See GRP-CRE-001.

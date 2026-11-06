@@ -13,6 +13,8 @@ Actors: visitor, member, vendor.
 
 - **CAT-VDB-004** As a vendor, I can edit my profile from the dashboard. <!-- 03-features/catalogs-products-vendors-places.md F3; camap-ts/packages/api-core/src/vendors/resolvers/vendors.resolver.ts:182 -->
   - Latitude and longitude are fields I can type.
+  - They are used as given unless the address changed or the coordinates are missing, in which case the server geocodes the address (see CAT-VEN-004).
+  - **DECISION (UND-044, 2026-11-06)** Typed coordinates are kept only when the address did not change.
 
 - **CAT-VDB-005** As a vendor, I can upload my vendor image and gallery photos. <!-- 03-features/catalogs-products-vendors-places.md S3.3; camap-ts/packages/api-core/src/vendors/resolvers/vendors.resolver.ts:283,330 -->
   - Photos are public.

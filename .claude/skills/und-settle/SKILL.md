@@ -6,7 +6,9 @@ model: sonnet
 
 # Settle an UND point
 
-Specs live in `task/refacto-hx-ts/specs/`. Args: `UND-NNN` plus the decision (free text, "accept suggestion", or "keep current behaviour"). Date = today (YYYY-MM-DD).
+Specs live in `task/refacto-hx-ts/specs/`. They describe the **current** system (Haxe + TS cooperating). A decision is a change to that system. If a decision (or part of it) only applies once Haxe is ported/removed ("when porting", "not ported", "disappears with the migration"), the spec keeps describing today's behaviour and points to `task/refacto-hx-ts/TS-ONLY-STEP.md`, where that part is recorded (section 1 decisions, section 2 removed-so-nothing-to-port, section 3 hybrid mechanisms to revisit). Never write the TS-only end state as a spec statement.
+
+Args: `UND-NNN` plus the decision (free text, "accept suggestion", or "keep current behaviour"). Date = today (YYYY-MM-DD).
 
 If the user asks to **investigate** first: spawn the agent they name (count + model; ask if not stated), read-only, citing `path:line`. Log findings to the plan file, report, and stop — do not settle until they decide.
 
@@ -38,10 +40,15 @@ For every statement marked `*Undecided (UND-NNN)*`:
 - Summary table row (end of file): replace the suggestion with `**Decided:** <standalone sentence>.` Keep the row in place (don't reorder).
 
 ## 4. UNDECIDED-suggestions.fr.md
-Same row: replace the Suggestion cell with `**Décidé :** <phrase en français>.` Keep the Contexte cell. Vocabulary: contrat AMAP classique, adhésion, coordinateur, panier, bénévoles, feuille d'émargement, cagnotte.
+Remove the row from "Points encore indécis" (and update the counts in the intro). Then, depending on what the decision does:
+- patches a security risk (missing auth/rights check, data leak, CSRF, injection, credential handling) → add the row to "Décisions qui corrigent une faille de sécurité";
+- fixes a bug (crash, wrong computation, rule not enforced server side, Haxe/TS divergence) → add it to "Décisions qui corrigent un bug";
+- otherwise (keeps current behaviour, clarifies the spec, removes dead code, small feature) → drop it.
+
+Row format in the decided tables: `| [UND-NNN](UNDECIDED.md) | <Contexte, kept> | <Décision en français, majuscule initiale> |`, kept in ID order. Vocabulary: contrat AMAP classique, adhésion, coordinateur, panier, bénévoles, feuille d'émargement, cagnotte.
 
 ## 5. Impacts
-If the decision constrains another open UND point: add `  - **Impact of UND-NNN**: …` to that entry in UNDECIDED.md, `  - **IMPACT OF UND-NNN** …` under its statements, and a parenthetical "(Since UND-NNN is decided, …)" to both summary rows. **Never close the dependent point** — tell the user and let them confirm.
+If the decision constrains another open UND point: add `  - **Impact of UND-NNN**: …` to that entry in UNDECIDED.md, `  - **IMPACT OF UND-NNN** …` under its statements, and a parenthetical "(Since UND-NNN is decided, …)" to its summary row in UNDECIDED.md and its Suggestion cell in the FR open table. **Never close the dependent point** — tell the user and let them confirm.
 
 ## 6. README + log
 - `README.md` → "## Decisions" → "Decided so far:" list, kept in ID order: `- UND-NNN (<date>): <short decision>.`
@@ -54,6 +61,6 @@ Prefer one Python heredoc doing exact `str.replace` on each file (assert each ol
 ```bash
 grep -rn "Undecided (UND-NNN)" .            # must be empty
 grep -rn "UND-NNN" . | cut -c1-160          # spec DECISION, entry DECIDED, both table rows, README
-grep -c "Décidé" UNDECIDED-suggestions.fr.md
+grep -n "UND-NNN" UNDECIDED-suggestions.fr.md  # absent from the open table; in a decided table or dropped
 ```
 Report briefly: statements rewritten (old → new), files touched, impacts on other UND points, any related issues spotted but not settled (offer to add as new UND points). No commits.

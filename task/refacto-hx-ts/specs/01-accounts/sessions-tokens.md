@@ -25,8 +25,12 @@ Actors: visitor, logged-in user, the system.
 - **ACC-SES-007** As a logged-in user, my login cookies cannot be read by scripts running in the page. <!-- 03-features/users-auth.md R11; camap-ts/packages/api-core/src/auth/auth.service.ts:348-357 -->
   - This protection is relaxed in development environments.
 
-- **ACC-SES-008** *Undecided (UND-020)*: As the system, I refuse requests coming from blacklisted IP addresses and from clients identifying as "python". <!-- 03-features/users-auth.md R18; camap-ts/packages/api-core/src/common/guards/black-list.guard.ts:11-50 -->
-  - **SUGGESTION** Drop this feature: the guard has no caller. Rely on the login ban. Based on: `camap-ts/packages/api-core/src/common/guards/black-list.guard.ts:11-50` (not referenced anywhere, from the first commit), `camap-hx/src` (no blacklist or user-agent rule in Haxe). Confidence: medium. Needs product input: are bot blocks wanted?
+- **ACC-SES-008** As the system, I do not refuse requests on the sender's IP address or user agent: there is no IP or user-agent blacklist. <!-- 03-features/users-auth.md R18; camap-ts/packages/api-core/src/common/guards/black-list.guard.ts:11-50 -->
+  - The login ban is the only protection against abusive sign-ins; the IP blacklist setting is removed too (see ADM-TLS-006, UND-115).
+  - **ERRATUM** Today a blacklist guard exists (blacklist in a stored variable, rejecting "python" user agents) but is used nowhere. Source: `camap-ts/packages/api-core/src/common/guards/black-list.guard.ts:11-50` (CODE-125).
+  - **DECISION (UND-020, 2026-11-06)** Drop the blacklist guard: it has no caller and no Haxe equivalent.
 
-- **ACC-SES-009** *Undecided (UND-019)*: As a logged-in user, my login cookies apply to the same domain whatever application issues them. <!-- 03-features/users-auth.md R33; camap-hx/src/controller/User.hx:84-88; camap-ts/packages/api-core/src/auth/auth.service.ts:348-357 -->
-  - **SUGGESTION** Use one shared rule in TS: cookie domain is the host without scheme and without a leading `app.`. Make logout a single step that clears all three cookies, as TS already does. Based on: `camap-hx/src/controller/User.hx:84-88` (strips `app.`), `camap-ts/packages/api-core/src/auth/auth.service.ts:183-188,348-357` (one response with three cookies; strips only `https://`). Confidence: medium.
+- **ACC-SES-009** As a logged-in user, my login cookies apply to the same domain whatever application issues them. <!-- 03-features/users-auth.md R33; camap-hx/src/controller/User.hx:84-88; camap-ts/packages/api-core/src/auth/auth.service.ts:348-357 -->
+  - The cookie domain is the host without the scheme and without a leading `app.`, computed by one shared rule in Haxe and in TS.
+  - **ERRATUM** Today Haxe strips a leading `app.` from HOST, while TS strips only `https://` from CAMAP_HOST. Source: `camap-hx/src/controller/User.hx:84-88`, `camap-ts/packages/api-core/src/auth/auth.service.ts:348-357` (CODE-117).
+  - **DECISION (UND-019, 2026-11-06)** Use one cookie-domain rule in both stacks (host without scheme and without a leading `app.`) and make logout a single step that clears all three cookies.
