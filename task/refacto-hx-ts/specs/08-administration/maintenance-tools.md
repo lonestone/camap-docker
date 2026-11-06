@@ -15,6 +15,8 @@ Actors: superadmin.
 
 - **ADM-TLS-005** As a superadmin, I can delete a user through the bridge from the old back-office. <!-- 03-features/users-auth.md S3.3; camap-ts/packages/api-core/src/auth/controllers/auth-bridge.controller.ts:48-60 -->
   - See ADM-USR-003.
+  - The bridge delete is a POST, and a refusal reason is shown to me (see ACC-DEL-009).
+  - **DECISION (UND-022, 2026-11-06)** The bridge delete is a POST and the refusal reason is shown.
 
 - **ADM-TLS-006** *Undecided (UND-115)*: As a platform operator, stored platform settings (terms-of-service version, IP blacklist, showcase groups) have an effect on the platform. <!-- 03-features/admin-superadmin.md S4 TS Variable keys; camap-ts/packages/api-core/src/tools/variable.service.ts:9-14 -->
   - Only the terms-of-service version is read, to stamp new vendors.

@@ -34,5 +34,8 @@ Actors: catalog coordinator with the right on all catalogs.
 
 - **CAT-CCR-013** As a coordinator, I cannot save a catalog whose period leaves existing distributions outside of it. <!-- 03-features/catalogs-products-vendors-places.md R3; camap-hx/src/service/CatalogService.hx:123-135 -->
 
-- **CAT-CCR-014** *Undecided (UND-037)*: As a coordinator, I can set a percentage fee on the orders of a catalog. <!-- 03-features/catalogs-products-vendors-places.md R5; camap-hx/src/db/Catalog.hx:128-131; camap-ts/packages/api-core/src/vendors/services/catalogs.service.ts:146-153 -->
-  - **SUGGESTION** Remove percentage fees everywhere. Drop the flag and the percentage from the TS price and fee computation, and do not offer the field. Based on: `camap-hx/src/service/CatalogService.hx:36,64` (form field removed, flag marked unused), `camap-hx/src/db/Catalog.hx:128-131` (check always false), `camap-hx/src/controller/ContractAdmin.hx:83-88` (banner announcing removal on 1 Feb 2023). Confidence: high.
+- **CAT-CCR-014** As a coordinator, I cannot set a percentage fee on the orders of a catalog: the feature is deactivated. <!-- 03-features/catalogs-products-vendors-places.md R5; camap-hx/src/db/Catalog.hx:128-131; camap-ts/packages/api-core/src/vendors/services/catalogs.service.ts:146-153 -->
+  - The catalog form does not offer the percentage fields.
+  - The flag and the percentage stay in the data model, unused, and no check treats a catalog as having a percentage fee.
+  - **ERRATUM** Today the Haxe form no longer offers the fields (banner announcing the removal on 1 Feb 2023) and its check always returns false, but TS still applies the flag and the percentage. Source: `camap-hx/src/db/Catalog.hx:128-131`, `camap-hx/src/controller/ContractAdmin.hx:83-88`, `camap-ts/packages/api-core/src/vendors/services/catalogs.service.ts:146-178` (CODE-097).
+  - **DECISION (UND-037, 2026-11-06)** Deactivate percentage fees everywhere without removing them from the data model: the field is not offered, no fee is applied, and the stored flag and percentage are ignored.

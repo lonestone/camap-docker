@@ -14,5 +14,7 @@ Actors: catalog coordinator, member.
   - A group starts with "TVA alimentaire" at 5.5% and "TVA standard" at 20%.
   - The two rates are recreated if the group's rate list is invalid.
 
-- **CAT-PPR-005** *Undecided (UND-037)*: As a member, the displayed price of a product includes the percentage fee of the catalog when there is one. <!-- 03-features/catalogs-products-vendors-places.md R5, R17; camap-ts/packages/api-core/src/vendors/resolvers/products.resolver.ts:100-112 -->
-  - **SUGGESTION** Remove percentage fees everywhere. Drop the flag and the percentage from the TS price and fee computation, and do not offer the field. Based on: `camap-hx/src/service/CatalogService.hx:36,64` (form field removed, flag marked unused), `camap-hx/src/db/Catalog.hx:128-131` (check always false), `camap-hx/src/controller/ContractAdmin.hx:83-88` (banner announcing removal on 1 Feb 2023). Confidence: high.
+- **CAT-PPR-005** As a member, the displayed price of a product never includes a percentage fee, whatever the stored catalog settings. <!-- 03-features/catalogs-products-vendors-places.md R5, R17; camap-ts/packages/api-core/src/vendors/resolvers/products.resolver.ts:100-112 -->
+  - TS no longer adds the catalog percentage to the displayed price.
+  - **ERRATUM** Today TS adds the catalog percentage fee to the displayed price when the flag is set. Source: `camap-ts/packages/api-core/src/vendors/resolvers/products.resolver.ts:100-112` (CODE-097).
+  - **DECISION (UND-037, 2026-11-06)** Deactivate percentage fees everywhere without removing them from the data model: the field is not offered, no fee is applied, and the stored flag and percentage are ignored.

@@ -9,7 +9,8 @@ Actors: logged-in user, member, visitor holding an email link.
 
 - **GRP-JOI-003** As a logged-in user, I cannot join a closed group by myself. <!-- 03-features/groups-membership.md R2; camap-hx/src/controller/User.hx:238-239 -->
   - Only a manager can add me.
-  - **ERRATUM** Registering through the API with an invited group id adds me to any group, closed or not, without an invitation check. Source: `camap-ts/packages/api-core/src/auth/auth.resolver.ts:99-104` (CODE-004).
+  - **ERRATUM** Today, registering through the API with an invited group id adds me to any group, closed or not, without an invitation check. Source: `camap-ts/packages/api-core/src/auth/auth.resolver.ts:99-104` (CODE-004).
+  - **DECISION (UND-006, 2026-11-06)** TS registration joins a closed group only with a valid invitation (see ACC-REG-012).
 
 - **GRP-JOI-004** As a member, I can quit a group from my account page. <!-- 03-features/groups-membership.md R11, F4; camap-ts/packages/front-core/src/modules/users/QuitGroup/QuitGroup.module.tsx -->
 

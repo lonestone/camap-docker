@@ -16,7 +16,7 @@ Actors: group admin, catalog coordinator.
   - If volunteers are registered on the role in future sessions, the change is refused with a warning and a "force" link, as role deletion does (DIS-ROL-005).
   - With "force", the role and its volunteers are removed from future sessions.
   - **ERRATUM** Today the role and its registered volunteers are removed from all future sessions without warning. Source: `camap-hx/src/controller/amapadmin/Volunteers.hx:136-170` (CODE-064).
-  - **DECISION (UND-065, 2026-11-02)** Refuse, or confirm with a "force" link, before removing registered volunteers; role edit and delete check the rights on the role's catalog or group.
+  - **DECISION (UND-065, 2026-11-02, amended 2026-11-04)** Refuse, or confirm with a "force" link, before removing registered volunteers. No rights checks are added (see UND-060).
 
 - **DIS-ROL-005** As a group admin, I can delete a role only when no volunteer is registered on it, unless I confirm "delete anyway". <!-- 03-features/distributions-volunteers.md R25; camap-hx/src/service/VolunteerService.hx:14-39 -->
   - Deleting a role removes it from every session of the group.
@@ -32,11 +32,10 @@ Actors: group admin, catalog coordinator.
 
 - **DIS-ROL-009** As a group admin, I can set how long catalog roles stay visible after the catalog ends, between 0 and 255 days (30 by default). <!-- 03-features/distributions-volunteers.md R31; camap-hx/src/service/VolunteerService.hx:386-409,239-244 -->
 
-- **DIS-ROL-010** As a group admin or a coordinator, I can edit or delete only the roles of my group or my catalog. <!-- 03-features/distributions-volunteers.md S3.2, R24; camap-hx/src/controller/ContractAdmin.hx:221-249; camap-hx/src/controller/amapadmin/Volunteers.hx:166 -->
-  - A catalog role needs the right to manage its catalog.
-  - A group role needs the group admin right, and the role must belong to the current group.
+- **DIS-ROL-010**: As a group admin or a coordinator, I can edit or delete a volunteer role; no explicit rights check is made on the role. <!-- 03-features/distributions-volunteers.md S3.2, R24; camap-hx/src/controller/ContractAdmin.hx:221-249; camap-hx/src/controller/amapadmin/Volunteers.hx:166 -->
+  - This is intended: the edit works on any role id with no rights check. Source: `camap-hx/src/controller/ContractAdmin.hx:221-249`, `camap-hx/src/controller/amapadmin/Volunteers.hx:121-170` (CODE-064).
   - The edit keeps the role's scope; it does not turn a catalog role into a group role.
-  - **ERRATUM** Today the edit works on any role id with no rights check and forces a group-wide role. Source: `camap-hx/src/controller/ContractAdmin.hx:221-249`, `camap-hx/src/controller/amapadmin/Volunteers.hx:121-170` (CODE-064).
-  - **DECISION (UND-065, 2026-11-02)** Refuse, or confirm with a "force" link, before removing registered volunteers; role edit and delete check the rights on the role's catalog or group.
+  - **ERRATUM** Today the edit forces a group-wide role. Source: `camap-hx/src/controller/ContractAdmin.hx:221-249` (CODE-064).
+  - **DECISION (UND-065, 2026-11-02, amended 2026-11-04)** Refuse, or confirm with a "force" link, before removing registered volunteers. No rights checks are added (see UND-060).
 
 - **DIS-ROL-011** As a group admin, I can open the volunteers settings page with the duty settings and the list of group-wide roles. <!-- 03-features/distributions-volunteers.md S3.3; camap-hx/src/controller/amapadmin/Volunteers.hx:13-84 -->

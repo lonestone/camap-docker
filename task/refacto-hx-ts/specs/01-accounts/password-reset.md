@@ -15,16 +15,22 @@ Actors: visitor, logged-in user, member created by a manager.
 
 - **ACC-PWD-005** As a visitor, I can set a new password only if the two fields match. <!-- 03-features/users-auth.md F5.3 step 4; camap-hx/src/controller/User.hx:185-213 -->
 
-- **ACC-PWD-006** *Undecided (UND-009)*: As a visitor, I can set the password of an account only with the valid reset link of that account. <!-- 03-features/users-auth.md F5.3 step 4; camap-hx/src/controller/User.hx:174-197 -->
-  - **SUGGESTION** Require the reset token on the final step. Check `Cache.get(key) == uid` on submit, as the display step does. Based on: `camap-hx/src/controller/User.hx:178` (token checked when the form is shown), `camap-hx/src/controller/User.hx:189-196` (submit uses the hidden `uid` and already holds `key` to destroy it). Confidence: high.
+- **ACC-PWD-006** As a visitor, I can set the password of an account only with the valid reset link of that account. <!-- 03-features/users-auth.md F5.3 step 4; camap-hx/src/controller/User.hx:174-197 -->
+  - The reset token and the user it was issued for are checked again when I submit the new password, not only when the form is displayed.
+  - A submission with a missing, expired or mismatching token is refused with "Invalid request" (see ACC-PWD-004).
+  - **ERRATUM** Today the final step trusts the hidden user id of the form and the token is checked only when the form is displayed, so anyone who posts the form can set any user's password. Source: `camap-hx/src/controller/User.hx:174-197` (CODE-001).
+  - **DECISION (UND-009, 2026-11-06)** Verify the reset token and the user id on submit.
 
 - **ACC-PWD-007** As a visitor, my reset link stops working once I have used it. <!-- 03-features/users-auth.md F5.3 step 4; camap-hx/src/controller/User.hx:185-213 -->
 
 - **ACC-PWD-008** As a user, I receive an email confirming my password was changed. <!-- 03-features/users-auth.md F5.3 step 4; camap-hx/lang/master/tpl/mail/newPasswordConfirmed.mtt -->
   - The email does not contain the password.
 
-- **ACC-PWD-009** *Undecided (UND-007)*: As a user, after I reset my password, only the new password lets me log in. <!-- 03-features/users-auth.md R8, F5.3; camap-hx/src/db/User.hx:274-281; camap-ts/packages/api-core/src/auth/auth.service.ts:319-346 -->
-  - **SUGGESTION** A reset must invalidate the old password at once. Clear `pass2` (set it to empty) when Haxe `setPass` writes the new legacy hash. TS then re-creates the bcrypt hash at the next login. Based on: `camap-hx/src/db/User.hx:274-281` (only `pass` written), `camap-ts/packages/api-core/src/auth/auth.service.ts:326-345` (bcrypt checked first, skipped when `pass2` is empty). Confidence: high.
+- **ACC-PWD-009** As a user, after I reset my password, only the new password lets me log in. <!-- 03-features/users-auth.md R8, F5.3; camap-hx/src/db/User.hx:274-281; camap-ts/packages/api-core/src/auth/auth.service.ts:319-346 -->
+  - A reset invalidates the old password at once: the reset clears `pass2` (sets it to empty) when it writes the new legacy hash.
+  - TS then re-creates the bcrypt hash at my next login.
+  - **ERRATUM** Today the Haxe reset writes only the legacy hash and TS checks the bcrypt hash first, so the old password keeps working until the first login with the new one. Source: `camap-hx/src/db/User.hx:274-281`, `camap-ts/packages/api-core/src/auth/auth.service.ts:320-345` (CODE-005).
+  - **DECISION (UND-007, 2026-11-06)** A password reset must clear `pass2` so the old password stops working immediately.
 
 - **ACC-PWD-010** As a member added by a manager with no password yet, I receive an email with a link to create my password. <!-- 03-features/users-auth.md F5.3 step 5; 03-features/groups-membership.md R3; camap-hx/src/controller/User.hx:225 -->
   - The page says "create your password" instead of "reset".

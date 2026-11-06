@@ -17,11 +17,15 @@ Actors: group admin, catalog coordinator, vendor, member, the system, superadmin
   - A group member sees all except those reserved to subscribers.
   - Other people see only public documents.
 
-- **CAT-DOC-005** *Undecided (UND-042)*: As a visitor, I see only the documents I am allowed to see, in every screen. <!-- 03-features/catalogs-products-vendors-places.md R15, R48; camap-ts/packages/api-core/src/vendors/resolvers/catalogs.resolver.ts:173-193; camap-ts/packages/api-core/src/vendors/resolvers/vendors.resolver.ts:438-449 -->
-  - **SUGGESTION** Apply the Haxe visibility rules in TS. Catalog documents: managers and subscribers see all, group members see all except subscribers-only, others see public only. Await `canManageCatalog(user, parent)` and fix the swapped argument. Vendor documents: show only public ones unless the user manages the vendor. Based on: `camap-hx/src/db/Catalog.hx:310-331` (rules), `camap-ts/packages/api-core/src/vendors/resolvers/catalogs.resolver.ts:173-193` (`canManageCatalog(currentUser, parent.id)` not awaited), `camap-ts/packages/api-core/src/tools/resolvers/entity-file.resolver.ts:95,110,125,129-150` (vendor documents only accept `public`). Confidence: high.
+- **CAT-DOC-005** As a visitor, I see only the documents I am allowed to see, in every screen. <!-- 03-features/catalogs-products-vendors-places.md R15, R48; camap-ts/packages/api-core/src/vendors/resolvers/catalogs.resolver.ts:173-193; camap-ts/packages/api-core/src/vendors/resolvers/vendors.resolver.ts:438-449 -->
+  - Catalog documents: managers and subscribers see all, group members see all except subscribers-only, others see public ones only.
+  - Vendor documents: I see only public ones unless I manage the vendor.
+  - **ERRATUM** Today the TS catalog `documents` field returns every document because the rights check is not awaited and its arguments are swapped, and vendor documents are returned unfiltered. Source: `camap-ts/packages/api-core/src/vendors/resolvers/catalogs.resolver.ts:173-193`, `camap-ts/packages/api-core/src/vendors/resolvers/vendors.resolver.ts:438-449` (CODE-008).
+  - **DECISION (UND-042, 2026-11-06)** Apply the Haxe document visibility rules in TS: await the rights check and fix the swapped arguments.
 
-- **CAT-DOC-006** *Undecided (UND-053)*: As a document owner, I can only upload real PDF files. <!-- 03-features/catalogs-products-vendors-places.md R48; camap-hx/src/controller/Documents.hx:148; camap-ts/packages/api-core/src/tools/resolvers/entity-file.resolver.ts:66 -->
-  - **SUGGESTION** Check the `%PDF-` file signature on upload in both stacks, on top of the `.pdf` extension. Based on: `camap-hx/src/controller/Documents.hx:148` and `camap-ts/packages/api-core/src/tools/resolvers/entity-file.resolver.ts:66` (both only test the file name extension). Confidence: high.
+- **CAT-DOC-006** As a document owner, I can only upload files whose name ends with .pdf. <!-- 03-features/catalogs-products-vendors-places.md R48; camap-hx/src/controller/Documents.hx:148; camap-ts/packages/api-core/src/tools/resolvers/entity-file.resolver.ts:66 -->
+  - The file content is not checked: a file renamed to .pdf is accepted. This is intended, in Haxe and in TS.
+  - **DECISION (UND-053, 2026-11-06)** Keep the current behaviour: only the file name extension is checked, no `%PDF-` signature check.
 
 - **CAT-DOC-007** As a document owner, I can delete my documents. <!-- 03-features/catalogs-products-vendors-places.md S3.3; camap-ts/packages/api-core/src/tools/resolvers/entity-file.resolver.ts:185 -->
 
@@ -29,8 +33,10 @@ Actors: group admin, catalog coordinator, vendor, member, the system, superadmin
   - Accepted formats: jpg, jpeg, png, bmp, gif.
   - Images are public.
 
-- **CAT-DOC-009** *Undecided (UND-046)*: As a group admin, the maximum size of an uploaded image is stated correctly. <!-- 03-features/catalogs-products-vendors-places.md S3.1; camap-hx/src/controller/Media.hx:97 -->
-  - **SUGGESTION** The limit is 3 MB. Set the server cap to 3 MB so it matches messages, labels and the TS compression. Based on: `camap-hx/src/controller/Media.hx:96-99` (comment and message say 3 Mb, cap is 4), `camap-hx/lang/master/tpl/contractadmin/addmedia.mtt:12` (label 3 Mo), `camap-ts/packages/front-core/src/modules/imageUploader/ImageUploader.tsx:189-190` (`maxSizeMB: 3`). Confidence: high.
+- **CAT-DOC-009** As a group admin, I can upload a gallery image of up to 4 MB. <!-- 03-features/catalogs-products-vendors-places.md S3.1; camap-hx/src/controller/Media.hx:97 -->
+  - The server cap is 4 MB. The TS front compresses images to 3 MB at most before sending.
+  - The comment and labels that say 3 MB ("3 Mo") do not match the cap and are corrected to state 4 MB. Source: `camap-hx/src/controller/Media.hx:96-99`, `camap-hx/lang/master/tpl/contractadmin/addmedia.mtt:12` (CODE-072).
+  - **DECISION (UND-046, 2026-11-06)** Keep the current behaviour: the real limit is the 4 MB server cap (option b) However the labels must state 3MB.
 
 - **CAT-DOC-010** As the system, I delete stored files that no product, document, group or vendor uses any more. <!-- 03-features/catalogs-products-vendors-places.md R47; camap-hx/src/controller/Cron.hx:289-316 -->
   - Each run checks a slice of 1000 files.

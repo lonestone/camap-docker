@@ -1,6 +1,7 @@
 ---
 name: und-settle
 description: Settle an Undecided point (UND-NNN) in the CAMAP Haxe→TS migration specs (task/refacto-hx-ts/specs). Use when the user says "settle UND-NNN: <decision>", "accept suggestion", "keep current behaviour", or asks to investigate an UND point before deciding.
+model: sonnet
 ---
 
 # Settle an UND point

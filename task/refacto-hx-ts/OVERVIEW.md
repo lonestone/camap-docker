@@ -62,6 +62,8 @@ The strategy needs **characterisation tests written against the current system f
 
 Today there are about 131 TS Jest cases (front-core's can't run) and 27 Haxe tests with no build target.
 
+**Progress:** the Phase 0 harness exists in `camap-docker/tests` (2026-11-02). See [PROGRESS.md](PROGRESS.md).
+
 ## 5. User stories (rough)
 
 About 243 routes and about 315 rules collapse into **≈ 100–120 user stories**. There are 6 actors: visitor, member, catalog coordinator, group admin, vendor and superadmin. Plus system stories for crons and mail.

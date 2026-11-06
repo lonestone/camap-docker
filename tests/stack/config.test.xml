@@ -1,0 +1,29 @@
+<!--
+	camap-hx config for the characterisation test stack (docker-compose.test.yml).
+	key must equal CAMAP_KEY in nest.test.env and tests/src/env.ts (md5 password salt).
+	debug="0" as in production: dispatch errors redirect to "/" and uncaught
+	errors are logged in the Error table (sugoi BaseApp.errorHandler).
+-->
+<config
+	lang="fr"
+	langs="fr"
+	langnames="Français"
+
+	host="localhost:8180"
+	name="CAMAP-TEST"
+	webmaster_email="webmaster@camap.test"
+
+	database="mysql://root:root@mysql-test/camap_test"
+	sqllog="0"
+
+	debug="0"
+	cache="0"
+	maintain="0"
+	cachetpl="0"
+	key="camap-test-key-0123456789"
+
+	camap_api="http://localhost:8180"
+	camap_bridge_api="http://nest-test:3010"
+
+	mapbox_server_token="test"
+/>

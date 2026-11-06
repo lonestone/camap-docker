@@ -63,7 +63,7 @@ Each entry lists:
     - (b) leave to client
   - **Suggestion**: Keep min 8 in API schema; never accept empty password; import gets no usable hash. Confidence: high.
 
-- **UND-005** Password trimming differs between Haxe and TS
+- **UND-005** Password trimming differs between Haxe and TS — **DECIDED**
   - **Statements**: [ACC-REG-010](01-accounts/registration.md)
   - **Current behavior**: Haxe trims the password before hashing (`camap-hx/src/db/User.hx:274-281`); TS does not (`camap-ts/packages/api-core/src/tools/crypto.service.ts:22-24`).
   - **Question**: Are leading/trailing spaces part of the password?
@@ -71,24 +71,27 @@ Each entry lists:
     - (a) never trim
     - (b) trim everywhere
   - **Suggestion**: Never trim passwords; remove trim from Haxe setPass. Confidence: high.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). Passwords are never trimmed; the trim is removed from Haxe setPass.
 
-- **UND-006** Registration with an invited group id joins any group
-  - **Statements**: [ACC-REG-012](01-accounts/registration.md), [ACC-INV-004](01-accounts/invitations.md)
+- **UND-006** Registration with an invited group id joins any group — **DECIDED**
+  - **Statements**: [ACC-REG-012](01-accounts/registration.md), [ACC-INV-004](01-accounts/invitations.md), [GRP-JOI-003](02-groups/join-quit.md)
   - **Current behavior**: TS register adds the user to the group given as `invitedGroupId` with no `regOption` and no invitation check, whereas Haxe join requires an open group (CODE-004; `camap-ts/packages/api-core/src/auth/auth.resolver.ts:99-104`; `camap-hx/src/controller/User.hx:238-239`).
   - **Question**: May a visitor join any group at registration?
   - **Options**:
     - (a) require a valid signed invitation or an open group
     - (b) keep
   - **Suggestion**: Join group only if open or a valid invitation exists for the email. Confidence: high.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). Registration joins the group only if it is open or a valid invitation exists for the email.
 
-- **UND-007** Old password still works after Haxe reset
-  - **Statements**: [ACC-PWD-009](01-accounts/password-reset.md)
+- **UND-007** Old password still works after Haxe reset — **DECIDED**
+  - **Statements**: [ACC-PWD-009](01-accounts/password-reset.md), [ACC-LOG-003](01-accounts/login.md)
   - **Current behavior**: Haxe reset writes only the legacy hash; TS checks the bcrypt hash first, so the old password keeps working until the first login with the new one (CODE-005; `camap-hx/src/db/User.hx:274-281`; `camap-ts/packages/api-core/src/auth/auth.service.ts:320-345`).
   - **Question**: Must a reset invalidate the previous password immediately?
   - **Options**:
     - (a) yes, update both hashes
     - (b) accept
   - **Suggestion**: Reset must clear pass2 so the old password stops working. Confidence: high.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). A reset clears pass2 so the old password stops working immediately.
 
 - **UND-008** Brute-force ban depends on the client
   - **Statements**: [ACC-LOG-005](01-accounts/login.md)
@@ -99,7 +102,7 @@ Each entry lists:
     - (b) keep client-driven
   - **Suggestion**: Count failures inside login, committed outside the rolled-back transaction; fix lower-case IP header. Confidence: medium.
 
-- **UND-009** Password reset does not verify the token on submit
+- **UND-009** Password reset does not verify the token on submit — **DECIDED**
   - **Statements**: [ACC-PWD-006](01-accounts/password-reset.md)
   - **Current behavior**: The final step trusts the hidden user id of the form; the token is checked only when the form is displayed (CODE-001; `camap-hx/src/controller/User.hx:174-197`). Anyone who posts the form can set any user's password.
   - **Question**: Must the token be verified on submit?
@@ -107,15 +110,17 @@ Each entry lists:
     - (a) verify token and user id on submit
     - (b) keep
   - **Suggestion**: Verify reset token and user id on submit. Confidence: high.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). The reset token and user id are verified on submit.
 
-- **UND-010** Log-in-as authorisation in GraphQL
-  - **Statements**: [ACC-IMP-004](01-accounts/impersonation.md)
+- **UND-010** Log-in-as authorisation in GraphQL — **DECIDED**
+  - **Statements**: [ACC-IMP-004](01-accounts/impersonation.md), [ACC-IMP-002](01-accounts/impersonation.md)
   - **Current behavior**: The TS `loginAs` check is not awaited and uses the target user; any logged-in user passing a group id can impersonate a non-superadmin member of at most one group (CODE-002; `camap-ts/packages/api-core/src/auth/auth.resolver.ts:126-148`). Haxe check is correct.
   - **Question**: Who may impersonate?
   - **Options**:
     - (a) superadmin or group admin of the target's group (Haxe rule)
     - (b) superadmin only
   - **Suggestion**: Haxe rule, awaited: superadmin, or group manager of a single-group non-admin member. Confidence: high.
+  - **Decision** (2026-11-06): Keep the Haxe behaviour (option a). Superadmin, or group manager of a single-group non-admin member, with the check awaited in TS.
 
 - **UND-011** Reset link scheme and lifetime
   - **Statements**: [ACC-PWD-012](01-accounts/password-reset.md)
@@ -155,14 +160,15 @@ Each entry lists:
     - (b) drop the two-person notion
   - **Suggestion**: Set which person logged in at TS login; drop session language copy. Confidence: low.
 
-- **UND-015** Account deletion continues after a null result
-  - **Statements**: [ACC-DEL-008](01-accounts/account-deletion.md)
+- **UND-015** Account deletion continues after a null result — **DECIDED**
+  - **Statements**: [ACC-DEL-008](01-accounts/account-deletion.md), [ACC-DEL-005](01-accounts/account-deletion.md), [ACC-DEL-006](01-accounts/account-deletion.md)
   - **Current behavior**: If the placeholder user is missing (or is the user itself) deletion returns null, but the logout and the admin emails still happen (CODE-056; `camap-ts/packages/api-core/src/users/users.resolver.ts:224-246`; `users.service.ts:333-340`). The placeholder `deleted@camap.tld` is not created by any code.
   - **Question**: What happens when deletion cannot proceed?
   - **Options**:
     - (a) stop with an error
     - (b) create the placeholder automatically
   - **Suggestion**: Stop with an error when deletion cannot proceed; seed placeholder user by migration. Confidence: high.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). Deletion stops with an error when it cannot proceed, with no logout and no admin email; the placeholder is seeded by migration (UND-110).
   - **Impact of UND-110**: the placeholder is now created at install and by a migration, and deletion fails loudly when it is missing. Option (a) follows from the UND-110 decision; confirm to close this point.
 
 - **UND-016** Inactive purge warning rules
@@ -183,14 +189,15 @@ Each entry lists:
     - (b) keep
   - **Suggestion**: Restrict reads to managers; drop unused user(id); invitation lookup by hash. Confidence: medium.
 
-- **UND-018** Invitation link hash covers only the email
-  - **Statements**: [ACC-INV-005](01-accounts/invitations.md)
+- **UND-018** Invitation link hash covers only the email — **DECIDED**
+  - **Statements**: [ACC-INV-005](01-accounts/invitations.md), [ACC-INV-003](01-accounts/invitations.md)
   - **Current behavior**: `/invite/<hash>/<email>/<group>/<userId>`: hash is `sha1(KEY+email)`; group and user id are unauthenticated, so a valid hash for any email lets a visitor add any user to any group; the session group is set before validation (CODE-003; `camap-hx/src/controller/Main.hx:308-318`).
   - **Question**: Must the signature cover email, group and user?
   - **Options**:
     - (a) sign all parameters
     - (b) keep
   - **Suggestion**: Sign email, group and user in the invite hash, like quit-group key. Confidence: high.
+  - **Decision** (2026-11-06): Keep the current behaviour (option b). The invitation hash keeps covering the email only.
 
 - **UND-019** Cookie domain computed differently in Haxe and TS
   - **Statements**: [ACC-OUT-003](01-accounts/logout.md), [ACC-SES-009](01-accounts/sessions-tokens.md)
@@ -219,19 +226,20 @@ Each entry lists:
     - (b) keep dependency on Haxe session
   - **Suggestion**: Create the session row at login when missing. Confidence: medium.
 
-- **UND-022** Superadmin deletion swallows errors
-  - **Statements**: [ACC-DEL-009](01-accounts/account-deletion.md)
+- **UND-022** Superadmin deletion swallows errors — **DECIDED**
+  - **Statements**: [ACC-DEL-009](01-accounts/account-deletion.md), [ADM-TLS-005](08-administration/maintenance-tools.md)
   - **Current behavior**: The admin user delete calls the TS delete through the bridge and swallows errors (users-auth R26; `camap-hx/src/controller/admin/User.hx:44-55`). The bridge route is a state-changing GET (CODE-031).
   - **Question**: Must the admin see why a deletion was refused?
   - **Options**:
     - (a) show error
     - (b) keep
   - **Suggestion**: Show the refusal reason to the admin; bridge delete as POST. Confidence: high.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). The refusal reason is shown to the superadmin and the bridge delete is a POST.
 
 
 ## Groups (GRP)
 
-- **UND-023** "Full" registration option has no behavior
+- **UND-023** "Full" registration option has no behavior — **DECIDED**
   - **Statements**: [GRP-SET-004](02-groups/group-settings.md)
   - **Current behavior**: The `Full` value exists with a label only; no code path treats it differently from Closed (groups R1; `camap-hx/src/App.hx:304`).
   - **Question**: What does a full group do?
@@ -240,6 +248,7 @@ Each entry lists:
     - (b) show "full" and take waiting-list requests
     - (c) remove option
   - **Suggestion**: Keep Full as a closed state with a "group is full" notice; no join, no waiting list. Confidence: high.
+  - **Decision** (2026-11-06): Keep the current behaviour (option a). Full acts as closed, with the existing "group is full" notice on the public page.
 
 - **UND-024** Group creation: superadmin only, page not behind login
   - **Statements**: [GRP-CRE-007](02-groups/group-creation.md)
@@ -289,7 +298,7 @@ Each entry lists:
     - (c) keep
   - **Suggestion**: Apply the Haxe confirmation for members with orders; fix batch removal loop. Confidence: medium.
 
-- **UND-029** TS member and waiting lists lack per-group rights checks
+- **UND-029** TS member and waiting lists lack per-group rights checks — **DECIDED**
   - **Statements**: [GRP-MEM-002](02-groups/members.md), [GRP-WAI-004](02-groups/waiting-list.md)
   - **Current behavior**: `getUserLists`, `getContractsUserLists`, `getDistributionsUserLists`, `getWaitingListsOfGroup` require a login only; any logged-in user can read another group's lists (CODE-006; `camap-ts/packages/api-core/src/groups/resolvers/userLists.resolver.ts`, `waitingLists.resolver.ts:40-45`).
   - **Question**: Who may read member and waiting lists?
@@ -297,15 +306,17 @@ Each entry lists:
     - (a) membership right (or group admin) only
     - (b) keep
   - **Suggestion**: Require the membership right on the requested group for member and waiting lists. Confidence: high.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). Member and waiting lists require the membership right (or group admin, or superadmin) on the requested group.
 
-- **UND-030** Rights editor edge cases
-  - **Statements**: [GRP-RIG-009](02-groups/rights.md), [GRP-RIG-010](02-groups/rights.md)
+- **UND-030** Rights editor edge cases — **DECIDED**
+  - **Statements**: [GRP-RIG-009](02-groups/rights.md), [GRP-RIG-010](02-groups/rights.md), [GRP-RIG-008](02-groups/rights.md)
   - **Current behavior**: The self-lockout test runs after each right was already saved; a selected non-member user crashes the editor; both checkbox groups share the name "rights" (CODE-029; `camap-hx/src/controller/AmapAdmin.hx:115,147,155-179`). No TS mutation edits rights.
   - **Question**: Must the editor be transactional and validate its input?
   - **Options**:
     - (a) validate before saving
     - (b) keep
   - **Suggestion**: Validate non-member and self-lockout before any write, in one transaction. Confidence: high.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). Reject a non-member and run the self-lockout test before any write, in one transaction.
 
 - **UND-031** Rights semantics differ between Haxe and TS
   - **Statements**: [GRP-RIG-004](02-groups/rights.md), [GRP-RIG-005](02-groups/rights.md), [GRP-RIG-006](02-groups/rights.md)
@@ -325,14 +336,15 @@ Each entry lists:
     - (b) keep
   - **Suggestion**: Widen the fee type; allow empty or 0 (free) explicitly. Confidence: medium.
 
-- **UND-033** Membership creation gaps
-  - **Statements**: [GRP-COT-008](02-groups/membership.md), [GRP-COT-009](02-groups/membership.md)
+- **UND-033** Membership creation gaps — **DECIDED**
+  - **Statements**: [GRP-COT-008](02-groups/membership.md), [GRP-COT-009](02-groups/membership.md), [GRP-COT-006](02-groups/membership.md), [GRP-COT-007](02-groups/membership.md), [GRP-COT-010](02-groups/membership.md)
   - **Current behavior**: The payment type input is ignored (always cash), the user is not checked to belong to the group, and batch creation relies on the database returning users in input order (CODE-038; `camap-ts/packages/api-core/src/groups/services/memberships.service.ts:97-133,224`).
   - **Question**: Must the payment type be honoured and the group membership checked?
   - **Options**:
     - (a) fix both
     - (b) keep cash only
   - **Suggestion**: Honour the payment type and check the user belongs to the group. Confidence: high.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). Honour the payment type, check the user belongs to the group, and map batch results on user id.
 
 - **UND-034** Move member back to waiting list
   - **Statements**: [GRP-WAI-007](02-groups/waiting-list.md)
@@ -352,7 +364,7 @@ Each entry lists:
     - (b) no
   - **Suggestion**: Gate membership validity on memberships being enabled. Confidence: medium.
 
-- **UND-036** "New member" detection differs
+- **UND-036** "New member" detection differs — **DECIDED**
   - **Statements**: [GRP-MEM-010](02-groups/members.md)
   - **Current behavior**: Haxe treats an empty password as new; TS uses a missing last-login date, and TS-created members never have an empty password (CODE-101; `camap-hx/src/db/User.hx:495-505`; `camap-ts/packages/api-core/src/groups/services/user-groups.service.ts:177-200`). Nothing in Haxe writes the last-login date.
   - **Question**: Which definition?
@@ -360,20 +372,22 @@ Each entry lists:
     - (a) never logged in
     - (b) no password yet
   - **Suggestion**: New member = never logged in (empty last-login date). Confidence: high.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). A new member is one who never logged in (empty last-login date).
 
 
 ## Catalogs (CAT)
 
-- **UND-037** Percentage fees on orders: disabled in Haxe, honoured in TS
-  - **Statements**: [CAT-CCR-014](03-catalogs/catalog-creation.md), [CAT-PPR-005](03-catalogs/product-pricing.md)
+- **UND-037** Percentage fees on orders: disabled in Haxe, honoured in TS — **DECIDED**
+  - **Statements**: [CAT-CCR-014](03-catalogs/catalog-creation.md), [CAT-PPR-005](03-catalogs/product-pricing.md), [ORD-OPL-015](05-orders/order-placement.md), [ORD-AMT-002](05-orders/order-amounts.md)
   - **Current behavior**: Haxe removed the percentage fields from the catalog form and the check always returns false (banner "removal 1 Feb 2023"); TS still applies the flag and the percentage in the displayed product price (CODE-097; `camap-hx/src/db/Catalog.hx:128-131`, `camap-hx/src/controller/ContractAdmin.hx:83-88`; `camap-ts/packages/api-core/src/vendors/services/catalogs.service.ts:146-178`, `products.resolver.ts:100-112`).
   - **Question**: Do percentage fees still exist?
   - **Options**:
     - (a) removed everywhere
     - (b) kept everywhere
   - **Suggestion**: Remove percentage fees everywhere; keep the Haxe "no fee" rule. Confidence: high.
+  - **Decision** (2026-11-06): Percentage fees are deactivated everywhere without being removed from the data model (variant of option a: no field, no fee applied, stored flag and percentage ignored). Existing order lines with a non-zero fee rate are still honoured.
 
-- **UND-038** Product edit rewrites stock rows before validation
+- **UND-038** Product edit rewrites stock rows before validation — **DECIDED**
   - **Statements**: [CAT-PRD-015](03-catalogs/products.md)
   - **Current behavior**: The edit action rewrites the stock rows first, then runs the frozen-field and validation checks; rollback on error is unverified (CODE-043; `camap-hx/src/controller/Product.hx:70-76`; `camap-hx/src/service/ProductService.hx:150`).
   - **Question**: Must a failed edit leave stock unchanged?
@@ -381,6 +395,7 @@ Each entry lists:
     - (a) validate first
     - (b) rely on transaction rollback
   - **Suggestion**: Validate first, then rewrite the stock rows. Confidence: high.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). Validate first, then rewrite the stock rows.
 
 - **UND-039** HX REST catalog/product reads and product export have no rights check
   - **Statements**: [CAT-CLV-009](03-catalogs/catalog-list-view.md), [CAT-PCS-002](03-catalogs/product-csv.md)
@@ -400,7 +415,7 @@ Each entry lists:
     - (b) keep
   - **Suggestion**: Bind batch enable/disable to the URL catalog and reject foreign ids. Confidence: high.
 
-- **UND-041** Vendor phone and email exposure
+- **UND-041** Vendor phone and email exposure — **DECIDED**
   - **Statements**: [CAT-VEN-010](03-catalogs/vendors.md)
   - **Current behavior**: TS field resolvers call the async rights check without awaiting it, so phone and email are exposed whatever the vendor's privacy settings (CODE-007; `camap-ts/packages/api-core/src/vendors/resolvers/vendors.resolver.ts:456-467`). Haxe honours show-email/show-phone.
   - **Question**: Must privacy flags be honoured?
@@ -408,8 +423,9 @@ Each entry lists:
     - (a) honour flags (managers always see)
     - (b) always public
   - **Suggestion**: Honour show-email and show-phone; await the rights check. Confidence: high.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). Honour show-email and show-phone; await the rights check.
 
-- **UND-042** Catalog and vendor documents leak through un-awaited checks
+- **UND-042** Catalog and vendor documents leak through un-awaited checks — **DECIDED**
   - **Statements**: [CAT-DOC-005](03-catalogs/documents-files.md)
   - **Current behavior**: The TS catalog `documents` field always returns every document because the rights check is not awaited and its arguments are swapped; vendor documents are returned unfiltered (CODE-008; `camap-ts/packages/api-core/src/vendors/resolvers/catalogs.resolver.ts:173-193`, `vendors.resolver.ts:438-449`).
   - **Question**: Must visibility apply in TS?
@@ -417,6 +433,7 @@ Each entry lists:
     - (a) apply Haxe visibility rules
     - (b) keep
   - **Suggestion**: Apply Haxe document visibility in TS; await check, fix swapped args. Confidence: high.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). Apply the Haxe document visibility rules in TS; await the check and fix the swapped arguments.
 
 - **UND-043** TS queries without guard or rights check
   - **Statements**: [CAT-CLV-010](03-catalogs/catalog-list-view.md), [CAT-PRD-018](03-catalogs/products.md), [CAT-VEN-012](03-catalogs/vendors.md), [CAT-PLC-010](03-catalogs/places.md)
@@ -446,7 +463,7 @@ Each entry lists:
     - (c) the 13 territories
   - **Suggestion**: Allow only France and Belgium; trim the form. Confidence: medium.
 
-- **UND-046** Upload size limit stated differently
+- **UND-046** Upload size limit stated differently — **DECIDED**
   - **Statements**: [CAT-DOC-009](03-catalogs/documents-files.md)
   - **Current behavior**: Upload cap is 4 MB while the comment and labels say 3 MB ("3 Mo"); the TS front compresses to max 3 MB (CODE-072; `camap-hx/src/controller/Media.hx:97`, `camap-ts/packages/front-core/src/modules/imageUploader/ImageUploader.tsx:189-190`).
   - **Question**: What is the real limit?
@@ -454,6 +471,7 @@ Each entry lists:
     - (a) 3 MB
     - (b) 4 MB
   - **Suggestion**: Limit is 3 MB; set the server cap to 3 MB. Confidence: high.
+  - **Decision** (2026-11-06): Keep the current behaviour (option b). The real limit is the 4 MB server cap; labels saying 3 MB are corrected to 4 MB.
 
 - **UND-047** Catalog delete: what is deleted with it
   - **Statements**: [CAT-CDD-006](03-catalogs/catalog-duplicate-delete.md)
@@ -464,7 +482,7 @@ Each entry lists:
     - (b) forbid deletion, only archive
   - **Suggestion**: Delete only if no order quantity; delete products, distributions and roles explicitly. Confidence: medium.
 
-- **UND-048** Vendor claim crashes without secondary email
+- **UND-048** Vendor claim crashes without secondary email — **DECIDED**
   - **Statements**: [CAT-VCL-003](03-catalogs/vendor-claim.md)
   - **Current behavior**: `email2.toLowerCase()` throws when the user has no secondary email (CODE-074; `camap-ts/packages/api-core/src/vendors/resolvers/vendors.resolver.ts:76`).
   - **Question**: Bug fix confirmation
@@ -472,8 +490,9 @@ Each entry lists:
     - (a) fix
     - (b) none
   - **Suggestion**: Fix the crash: null-safe email2 comparison. Confidence: high.
+  - **Decision** (2026-11-06): Suggestion accepted (option a). Null-safe comparison of the secondary email.
 
-- **UND-049** Multi-weight without variable price
+- **UND-049** Multi-weight without variable price — **DECIDED**
   - **Statements**: [CAT-PRD-011](03-catalogs/products.md)
   - **Current behavior**: The rule "multi-weight implies variable price" is commented out, so multi-weight alone is allowed (`camap-hx/src/db/Product.hx:285-289`).
   - **Question**: Is multi-weight allowed alone?
@@ -481,6 +500,7 @@ Each entry lists:
     - (a) require variable price
     - (b) allow
   - **Suggestion**: Allow multi-weight without variable price (rule deliberately commented out). Confidence: high.
+  - **Decision** (2026-11-06): Keep the current behaviour (option b). Multi-weight is allowed without variable price.
 
 - **UND-050** Price refresh crashes on constant catalogs
   - **Statements**: [CAT-CED-013](03-catalogs/catalog-edit.md)
@@ -491,7 +511,7 @@ Each entry lists:
     - (b) variable only
   - **Suggestion**: Fix: skip the distribution arg and redirect without ?d for constant catalogs. Confidence: medium.
 
-- **UND-051** Place actions lack explicit rights checks
+- **UND-051** Place actions lack explicit rights checks — **DECIDED**
   - **Statements**: [CAT-PLC-006](03-catalogs/places.md)
   - **Current behavior**: Only delete requires a group manager; list, create and edit have no explicit check in the controller (parent guard unverified) (`camap-hx/src/controller/Place.hx:18-93`).
   - **Question**: Who may manage places?
@@ -499,6 +519,7 @@ Each entry lists:
     - (a) group managers
     - (b) group admin and coordinators
   - **Suggestion**: Group managers only; require isAmapManager and same-group place. Confidence: high.
+  - **Decision** (2026-11-06): Keep the current behaviour. Only delete requires a group manager; list, create and edit keep no explicit check and no same-group check is added.
 
 - **UND-052** No way to disable a vendor
   - **Statements**: [CAT-VEN-009](03-catalogs/vendors.md)
@@ -509,7 +530,7 @@ Each entry lists:
     - (b) DB only
   - **Suggestion**: Add superadmin-only ban/unban mutations reusing the existing service. Confidence: medium.
 
-- **UND-053** "PDF only" checked by file name only
+- **UND-053** "PDF only" checked by file name only — **DECIDED**
   - **Statements**: [CAT-DOC-006](03-catalogs/documents-files.md)
   - **Current behavior**: Haxe and TS check only that the name ends with .pdf (CODE-033; `camap-hx/src/controller/Documents.hx:148`, `entity-file.resolver.ts:66`); visibility option lists differ (CODE-099).
   - **Question**: Is a content check needed?
@@ -517,6 +538,7 @@ Each entry lists:
     - (a) check content type
     - (b) keep
   - **Suggestion**: Check the %PDF- signature in both stacks. Confidence: high.
+  - **Decision** (2026-11-06): Keep the current behaviour (option b). Only the .pdf file name is checked, not the content.
 
 - **UND-054** Catalog edit overwrites custom order dates
   - **Statements**: [CAT-CED-004](03-catalogs/catalog-edit.md)
@@ -530,7 +552,7 @@ Each entry lists:
 
 ## Distributions (DIS)
 
-- **UND-055** Time zone handling differs between Haxe and TS
+- **UND-055** Time zone handling differs between Haxe and TS — **DECIDED**
   - **Statements**: [DIS-MDS-012](04-distributions/multidistrib-schedule.md)
   - **Current behavior**: The database stores Paris wall-clock times; TS entities convert with a zone library, but some TS finders compare raw columns with unconverted dates; the catalog dates are plain dates without conversion; tests run in UTC (CODE-096; `camap-ts/packages/api-core/src/shop/services/multi-distribs.service.ts:50-115`, `camap-ts/packages/api-core/src/vendors/entities/catalog.entity.ts:39-66`).
   - **Question**: Which time zone convention is the rule (stored, transported, displayed)?
@@ -538,8 +560,9 @@ Each entry lists:
     - (a) store UTC, display in group zone
     - (b) keep Paris wall-clock
   - **Suggestion**: Keep Paris wall-clock storage; wrap raw-column comparisons with utcToZonedTime. Confidence: high.
+  - **Decision** (2026-11-04): Suggestion accepted. Paris wall-clock storage is kept and raw-column comparisons are wrapped with `utcToZonedTime` (option b).
 
-- **UND-056** Daylight-saving boundaries hard-coded
+- **UND-056** Daylight-saving boundaries hard-coded — **DECIDED**
   - **Statements**: [DIS-MDS-013](04-distributions/multidistrib-schedule.md)
   - **Current behavior**: The Haxe JSON API appends +01:00 or +02:00 using fixed dates every year ("29 March 02:00" and "25 October 03:00"); a date tool has a table for 2019 to 2024 only and throws outside it (no call site found) (CODE-081; `camap-hx/common/Formatting.hx:226-255`, `camap-hx/src/tools/DateTool.hx:10-35,93-139`).
   - **Question**: Must DST follow the real calendar?
@@ -547,8 +570,9 @@ Each entry lists:
     - (a) use a time zone library
     - (b) keep
   - **Suggestion**: Follow the real DST calendar (last Sunday March/October) or use a tz library. Confidence: high.
+  - **Decision** (2026-11-04): Suggestion accepted (option a). Time-zone library, real DST calendar.
 
-- **UND-057** "Validated" state of a session is dead
+- **UND-057** "Validated" state of a session is dead — **DECIDED**
   - **Statements**: [DIS-OWS-005](04-distributions/order-window-state.md)
   - **Current behavior**: The session state never returns "validated" but a template branches on it, another template hard-codes dates in March 2021, and TS declares a VALIDATED status exposed by no field (`camap-hx/src/db/MultiDistrib.hx:260-280`, `camap-hx/lang/master/tpl/distribution/default.mtt:129,184`, `camap-ts/packages/api-core/src/shop/multi-distrib-status.ts:1-7`).
   - **Question**: Does a validation step exist for a session?
@@ -556,8 +580,9 @@ Each entry lists:
     - (a) remove the state
     - (b) implement validation
   - **Suggestion**: Remove the dead "validated" session/basket state. Confidence: high.
+  - **Decision** (2026-11-04): Keep the current behaviour (no validation step). The dead "validated" state stays, only for Haxe/DB compatibility; no impact on other statements.
 
-- **UND-058** Redirect to a missing validation page
+- **UND-058** Redirect to a missing validation page — **DECIDED**
   - **Statements**: [DIS-PAR-012](04-distributions/distribution-participation.md)
   - **Current behavior**: After a price change (and from several buttons of the distribution page) the user is redirected to `/distribution/validate/<id>`, which has no handler (CODE-083; `camap-hx/src/controller/Distribution.hx:1096,1144`).
   - **Question**: Where must the user land?
@@ -565,8 +590,9 @@ Each entry lists:
     - (a) back to the distributions page
     - (b) implement the validation page
   - **Suggestion**: Redirect to /distribution like sibling actions; drop validate buttons. Confidence: high.
+  - **Decision** (2026-11-04): Suggestion accepted (option a). Redirect to `/distribution` and remove the validate buttons.
 
-- **UND-059** Session edit and price change not scoped to the user's group
+- **UND-059** Session edit and price change not scoped to the user's group — **DECIDED**
   - **Statements**: [DIS-MDS-009](04-distributions/multidistrib-schedule.md)
   - **Current behavior**: `editMd` and `changePrice` check the section right but do not compare the session with the user's group, and the posted place is not checked against the group (CODE-011; `camap-hx/src/controller/Distribution.hx:614-678,1106-1151`; `camap-hx/src/service/DistributionService.hx:194-248`).
   - **Question**: Must these be limited to the current group?
@@ -574,8 +600,9 @@ Each entry lists:
     - (a) yes
     - (b) keep
   - **Suggestion**: Reject sessions and places outside the user's group. Confidence: high.
+  - **Decision** (2026-11-04): Keep the current behaviour (option b). Session edit and price change stay unscoped to the user's group.
 
-- **UND-060** Distribution handlers without explicit rights checks
+- **UND-060** Distribution handlers without explicit rights checks — **DECIDED**
   - **Statements**: [DIS-PAR-008](04-distributions/distribution-participation.md), [DIS-VOL-009](04-distributions/volunteers.md), [DIS-ATT-011](04-distributions/attendance-sheets.md)
   - **Current behavior**: `inviteFarmers`, `volunteerRoles`, `volunteers`, `listByProductUser`, `participate` and role edit/delete have no explicit right check, or do not verify that the object belongs to the group or catalog (CODE-019; `camap-hx/src/controller/Distribution.hx:78,479,873,937`, `camap-hx/src/controller/ContractAdmin.hx:221-249,1001-1011`).
   - **Question**: Which right guards each action?
@@ -583,6 +610,7 @@ Each entry lists:
     - (a) coordinator of the catalog or group admin as appropriate
     - (b) keep
   - **Suggestion**: Guard handlers with catalog or section rights plus object-belongs-to-group checks. Confidence: high.
+  - **Decision** (2026-11-04): Keep the current behaviour (option b). No explicit rights checks are added to these handlers. UND-065 is amended accordingly: role edit/delete get no new rights checks.
 
 - **UND-061** TS distribution reads without authentication or membership — **DECIDED**
   - **Statements**: [DIS-MDS-015](04-distributions/multidistrib-schedule.md)
@@ -632,8 +660,9 @@ Each entry lists:
     - (b) keep
   - **Suggestion**: Confirm/force before removing volunteers; add rights checks on role edit/delete. Confidence: high.
   - **Decision** (2026-11-02): Suggestion accepted (option a). Removing registered volunteers needs a confirmation ("force"); role edit and delete check rights on the role's catalog or group.
+  - **Decision amended** (2026-11-04): The rights checks on role edit and delete are dropped (see UND-060); only the confirmation before removing registered volunteers stays.
 
-- **UND-066** "Vacant roles" count
+- **UND-066** "Vacant roles" count — **DECIDED**
   - **Statements**: [DIS-VOL-011](04-distributions/volunteers.md)
   - **Current behavior**: "Has vacant roles" compares the number of roles with the total number of volunteer rows of the session (`camap-hx/src/db/MultiDistrib.hx:419-428`).
   - **Question**: Vacant means at least one role without volunteer?
@@ -641,6 +670,7 @@ Each entry lists:
     - (a) per role
     - (b) keep total comparison
   - **Suggestion**: Vacant when at least one role has no volunteer, per role. Confidence: high.
+  - **Decision** (2026-11-04): Suggestion accepted (option a). Vacancy is decided per role.
 
 
 ## Orders (ORD)
@@ -1159,7 +1189,7 @@ Each entry lists:
   - **Suggestion**: French only; drop the per-user language switch for now. Confidence: high.
   - **Decision** (2026-11-02): When porting Haxe to TS, export every hard-coded string to the translation files, and remove the language selection. The interface and emails are in French.
 
-- **UND-119** Page rendering depends on the widget service
+- **UND-119** Page rendering depends on the widget service — **DECIDED**
   - **Statements**: [NAV-THM-007](09-navigation/theme-layout.md)
   - **Current behavior**: Every Haxe page asks the TS side for the list of widget bundles and fails with "Unable to load ressources from CAMAP-ts." when it cannot; the list is cached per process without invalidation (CODE-146; `camap-hx/src/service/BridgeService.hx:10-72`, `camap-hx/lang/master/tpl/base.mtt:118`).
   - **Question**: Must pages degrade gracefully?
@@ -1167,6 +1197,7 @@ Each entry lists:
     - (a) degrade
     - (b) keep (disappears after migration)
   - **Suggestion**: Degrade gracefully: keep last good bundle list, render the page without widgets. Confidence: medium.
+  - **Decision** (2026-11-06): Keep (option b). The point is void: the widgets disappear with the migration, so nothing is built to degrade gracefully.
 
 ## Summary of suggestions
 
@@ -1227,41 +1258,41 @@ One line per undecided point. The suggestion is written so it can be read on its
 | UND-112 | The theme and superadmin pages should be linked in the admin sidebar, and the theme should reload automatically after saving. |
 | UND-113 | Both ping endpoints should return the same version number, set at build time. |
 | UND-115 | The platform terms-of-service version setting should be kept, dead settings and the unused IP blacklist removed, and reading or saving settings fixed. |
-| UND-119 | If the widget service is down, pages should still render without the widgets, using the last known list of bundles. |
+| UND-119 | **Decided:** Void: the widgets disappear with the migration, so no graceful degradation of the widget service is built. |
 | UND-004 | Registration should refuse passwords shorter than 8 characters and never accept an empty one; imported accounts get no usable password. |
-| UND-005 | Passwords should never be trimmed, on either side. |
-| UND-006 | Registering through an invitation should add the user to the group only if the group is open or the invitation is valid for that email. |
-| UND-007 | A password reset should invalidate the old password on both sides, so the old password stops working immediately. |
-| UND-009 | The password reset form should check the reset token and the user it was issued for when the new password is submitted. |
-| UND-010 | Logging in as another user should be allowed only to a superadmin, or to a group manager for a non-admin member who belongs to that single group. |
-| UND-015 | Account deletion should stop with an error when it cannot proceed, and the placeholder "deleted" user should be created by a migration. (Since UND-110 is decided, the placeholder is seeded; only the stop-with-error part remains.) |
-| UND-018 | Invitation links should be signed over the email, the group and the user, like the quit-group link. |
-| UND-022 | When a superadmin deletes a user and the deletion is refused, the reason should be shown, and the deletion call should be a POST. |
-| UND-023 | The "full" registration option should close the group with a "group is full" notice: no direct joining and no waiting list. |
-| UND-029 | Member lists and waiting lists in TS should require the membership right on the requested group. |
-| UND-030 | The rights editor should check that the user is a member and that the admin does not lock themselves out before saving anything, all in one transaction. |
-| UND-033 | Recording a membership should use the chosen payment type and check that the user belongs to the group. |
-| UND-036 | A member should count as new when they have never logged in. |
-| UND-037 | Percentage fees on orders should be removed everywhere, matching Haxe where they are already disabled. |
-| UND-038 | Editing a product should validate the form before rewriting its stock rows. |
+| UND-005 | **Decided:** Passwords are never trimmed of leading or trailing spaces, on either side. |
+| UND-006 | **Decided:** Registering through an invitation adds the user to the group only if the group is open or a valid invitation exists for that email. |
+| UND-007 | **Decided:** A password reset invalidates the old password immediately (the legacy-compatibility hash is cleared), so only the new password works. |
+| UND-009 | **Decided:** The password reset form checks the reset token and the user it was issued for when the new password is submitted. |
+| UND-010 | **Decided:** The Haxe rule is kept: logging in as another user is allowed only to a superadmin, or to a group manager for a non-admin member who belongs to that single group, with the check awaited in TS. |
+| UND-015 | **Decided:** Account deletion stops with an error when it cannot proceed, without logging the user out or emailing the admins; the placeholder "deleted" user is created by a migration (see UND-110). |
+| UND-018 | **Decided:** The invitation link hash keeps covering the email only; the group and user parts are not signed (current behaviour kept). |
+| UND-022 | **Decided:** When a superadmin deletes a user and the deletion is refused, the reason is shown, and the deletion call is a POST. |
+| UND-023 | **Decided:** The "full" registration option stays a closed state with a "group is full" notice: no direct joining and no waiting list (current behaviour kept). |
+| UND-029 | **Decided:** Member lists and waiting lists in TS require the membership right (or group admin, or superadmin) on the requested group. |
+| UND-030 | **Decided:** The rights editor checks that the user is a member and that the admin does not lock themselves out before saving anything, all in one transaction. |
+| UND-033 | **Decided:** Recording a membership uses the chosen payment type and checks that the user belongs to the group; batch results are mapped on user id. |
+| UND-036 | **Decided:** A member counts as new when they have never logged in. |
+| UND-037 | **Decided:** Percentage fees on orders are deactivated everywhere (no field, no fee applied) but not removed from the data model. |
+| UND-038 | **Decided:** Editing a product validates the form before rewriting its stock rows. |
 | UND-040 | Enabling or disabling several products at once should apply only to products of the catalog the coordinator manages, and reject other ids. |
-| UND-041 | A vendor's email and phone should be shown only when the vendor chose to show them, or to managers of the vendor's catalogs. |
-| UND-042 | TS should apply the same document visibility rules as Haxe for catalog and vendor documents, checking rights correctly. |
-| UND-046 | The upload size limit should be 3 MB, enforced by the server too. |
-| UND-048 | Claiming a vendor should work for users without a secondary email instead of crashing. |
-| UND-049 | A product sold by weight in several pieces should be allowed without a variable price. |
-| UND-051 | Only group managers should create, edit or delete places, and only places of their own group. |
-| UND-053 | Uploaded documents should be accepted as PDF only when the file content is a real PDF, not just when the name ends in .pdf. |
-| UND-055 | Dates should keep being stored as Paris local time, and TS should convert them correctly whenever it compares them. |
-| UND-056 | Summer and winter time changes should follow the real calendar each year, using a time-zone library instead of a fixed table. |
-| UND-057 | The unused "validated" state of distribution sessions and baskets should be removed. |
-| UND-058 | After editing a session, the user should be sent back to the distributions page, and the buttons to validate a session should be removed. |
-| UND-059 | Editing a session or changing its prices should be refused for sessions and places outside the user's group. |
-| UND-060 | Every distribution page and action should check the catalog or section right, and that the object belongs to the user's group. |
+| UND-041 | **Decided:** A vendor's email and phone are shown only when the vendor chose to show them, or to managers of the vendor's catalogs. |
+| UND-042 | **Decided:** TS applies the same document visibility rules as Haxe for catalog and vendor documents, checking rights correctly. |
+| UND-046 | **Decided:** The upload size limit stays at the 4 MB server cap; labels and messages saying 3 MB are corrected. |
+| UND-048 | **Decided:** Claiming a vendor works for users without a secondary email instead of crashing. |
+| UND-049 | **Decided:** A product sold by weight in several pieces is allowed without a variable price (current behaviour kept). |
+| UND-051 | **Decided:** Only deleting a place requires a group manager; list, create and edit keep having no explicit check (current behaviour kept). |
+| UND-053 | **Decided:** Uploaded documents are accepted as PDF by file name only (.pdf), without a content check (current behaviour kept). |
+| UND-055 | **Decided:** Dates should keep being stored as Paris local time, and TS should convert them correctly whenever it compares them. |
+| UND-056 | **Decided:** Summer and winter time changes should follow the real calendar each year, using a time-zone library instead of a fixed table. |
+| UND-057 | **Decided:** The unused "validated" state of distribution sessions and baskets stays as is, kept only for Haxe/database compatibility; no validation step exists. |
+| UND-058 | **Decided:** After editing a session, the user is sent back to the distributions page, and the buttons to validate a session are removed. |
+| UND-059 | **Decided:** Editing a session or changing its prices stays checked against the section right only, with no comparison with the user's group. |
+| UND-060 | **Decided:** The distribution and volunteer-role handlers keep their current rights checks; no new explicit checks are added. |
 | UND-061 | **Decided:** TS distribution queries require login and group membership, and a user's orders are visible only to that user and to managers. |
 | UND-062 | **Decided:** the attendance sheet of a variable-orders catalog is visible only to coordinators of all catalogs or of that catalog, and to the session's volunteers. |
-| UND-065 | **Decided:** editing or deleting a volunteer role checks rights, and asks for confirmation before removing the volunteers already registered. |
-| UND-066 | A session should count as having vacant roles when at least one of its roles has no volunteer. |
+| UND-065 | **Decided:** editing a volunteer role asks for confirmation before removing the volunteers already registered; no rights checks are added (amended 2026-11-04). |
+| UND-066 | **Decided:** A session counts as having vacant roles when at least one of its roles has no volunteer. |
 | UND-067 | **Decided:** when a member subscribes, all member checks apply; admin mode is used only by admins and catalog coordinators. |
 | UND-068 | **Decided:** a subscription is readable only by its owner, the catalog's coordinators and admins, after login. |
 | UND-069 | **Decided:** the order and payment history pages are visible only to the owner, coordinators and admins, and viewing them writes nothing. |

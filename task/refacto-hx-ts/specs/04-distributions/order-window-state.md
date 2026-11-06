@@ -12,8 +12,9 @@ Actors: member, the system.
 
 - **DIS-OWS-004** As a member, once the distribution has started the session is "distributed". <!-- 03-features/distributions-volunteers.md R15; camap-hx/src/db/MultiDistrib.hx:260-280 -->
 
-- **DIS-OWS-005** *Undecided (UND-057)*: As a member, a session whose orders are validated shows a "validated" state. <!-- 03-features/distributions-volunteers.md R15, R17; camap-hx/lang/master/tpl/distribution/default.mtt:184; camap-ts/packages/api-core/src/shop/multi-distrib-status.ts:1-7 -->
-  - **SUGGESTION** Remove the "validated" state. Delete the dead template branches and the TS `VALIDATED` value. Based on: `camap-hx/src/db/MultiDistrib.hx:260-280` (state never returns it), `camap-hx/lang/master/tpl/distribution/default.mtt:129,184` (dead branches, hard-coded March 2021 dates), `camap-ts/packages/api-core/src/shop/multi-distrib-status.ts:1-7` (no field exposes it). Confidence: high.
+- **DIS-OWS-005**: As a member, a session never shows a "validated" state: no validation step exists for a session. <!-- 03-features/distributions-volunteers.md R15, R17; camap-hx/lang/master/tpl/distribution/default.mtt:184; camap-ts/packages/api-core/src/shop/multi-distrib-status.ts:1-7 -->
+  - The state function never returns "validated"; the TS `VALIDATED` value and the template branches stay only for Haxe/database compatibility and are exposed by no field. Source: `camap-hx/src/db/MultiDistrib.hx:260-280`, `camap-hx/lang/master/tpl/distribution/default.mtt:129,184`, `camap-ts/packages/api-core/src/shop/multi-distrib-status.ts:1-7`.
+  - **DECISION (UND-057, 2026-11-04)** Keep the current behaviour: the dead "validated" state stays, kept only for Haxe/DB compatibility.
 
 - **DIS-OWS-006** As a member, I can order from a catalog distribution only strictly between its opening and closing dates, when the catalog accepts user orders. <!-- 03-features/distributions-volunteers.md R16; camap-hx/src/db/Distribution.hx:154-165; camap-ts/packages/camap-common/src/distributions/distribution.ts:1-7 -->
   - Without a closing date, the catalog's own availability applies in Haxe and ordering is closed in TS.

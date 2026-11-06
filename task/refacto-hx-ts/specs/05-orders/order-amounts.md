@@ -6,8 +6,9 @@ Actors: member.
   - The total of a subscription is the sum of rounded lines, rounded again.
   - **ERRATUM** When a coordinator changes a quantity in the orders page, the returned subtotal uses the current product price, not the saved one. Source: `camap-hx/src/service/OrderService.hx:863` (CODE-041).
 
-- **ORD-AMT-002** As a member, the amount of a basket line includes the fee rate when there is one. <!-- 03-features/orders-subscriptions.md R33; camap-ts/packages/camap-common/src/utils/index.ts:33-60 -->
+- **ORD-AMT-002** As a member, the amount of a basket line includes the fee rate of the line (always 0 for new orders, see ORD-OPL-015). <!-- 03-features/orders-subscriptions.md R33; camap-ts/packages/camap-common/src/utils/index.ts:33-60 -->
   - TS and Haxe round each line the same way.
+  - **DECISION (UND-037, 2026-11-06)** Percentage fees are deactivated, so the fee rate of new lines is 0; the fee rate of older lines is still honoured (confirmed).
 
 - **ORD-AMT-003** As a member, the balance of a subscription is the sum of its payments minus its total, rounded to cents, and the subscription is paid when the balance is 0 or more. <!-- 03-features/orders-subscriptions.md R34; camap-hx/src/db/Subscription.hx:23-59 -->
   - **ERRATUM** TS computes this balance two other ways: the API field sums all operations, the service subtracts without rounding. Source: `camap-ts/packages/api-core/src/groups/resolvers/csa-subscriptions.resolver.ts:22-30, camap-ts/packages/api-core/src/groups/services/csa-subscriptions.service.ts:109-135` (CODE-102).

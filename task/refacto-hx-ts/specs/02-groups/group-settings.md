@@ -12,9 +12,11 @@ Actors: group admin.
   - Waiting list: people request to join and a manager approves.
   - Open: anyone joins directly.
 
-- **GRP-SET-004** *Undecided (UND-023)*: As a group admin, I can mark my group as full. <!-- 03-features/groups-membership.md R1; camap-hx/src/App.hx:304 -->
-  - A full group behaves like a closed group for new joiners.
-  - **SUGGESTION** Keep `Full` as a closed state with a notice: the public page says the group is full, with no join and no waiting-list request. Based on: `camap-hx/lang/master/tpl/group/view.mtt:462` (public page shows the "group is full" message), `camap-hx/src/App.hx:304` (label "Complet : n'accepte plus de nouveaux membres"), `camap-hx/src/controller/Group.hx:89` (waiting-list request only for WaitingList). Confidence: high.
+- **GRP-SET-004** As a group admin, I can mark my group as full. <!-- 03-features/groups-membership.md R1; camap-hx/src/App.hx:304 -->
+  - A full group behaves like a closed group for new joiners: no direct joining and no waiting-list request.
+  - The public page of a full group tells visitors that the group is full and does not accept new members (`camap-hx/lang/master/tpl/group/view.mtt:462`).
+  - No other behaviour is attached to the Full value. This is intended.
+  - **DECISION (UND-023, 2026-11-06)** Keep the current behaviour: Full is a closed state with a "group is full" notice (option a).
 
 - **GRP-SET-005** As a group admin, I can switch three options of my group. <!-- 03-features/groups-membership.md R6; camap-hx/src/controller/Amap.hx:44-73 -->
   - Hide phone numbers.

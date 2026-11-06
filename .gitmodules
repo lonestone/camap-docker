@@ -1,6 +1,6 @@
 [submodule "camap-hx"]
 	path = camap-hx
-	url = https://github.com/CAMAP-APP/camap-hx.git
+	url = https://github.com/lonestone/camap-hx.git
 [submodule "camap-ts"]
 	path = camap-ts
-	url = https://github.com/CAMAP-APP/camap-ts.git
+	url = https://github.com/lonestone/camap-ts.git

@@ -6,10 +6,12 @@ Actors: membership manager, group admin.
   - A superadmin can open it too.
   - A group admin without the membership right cannot.
 
-- **GRP-MEM-002** *Undecided (UND-029)*: As a membership manager, I can see the lists of members of my group. <!-- 03-features/groups-membership.md S3.2; camap-ts/packages/api-core/src/groups/resolvers/userLists.resolver.ts:23-253 -->
+- **GRP-MEM-002** As a membership manager, I can see the lists of members of my group, and only of a group where I hold the membership right. <!-- 03-features/groups-membership.md S3.2; camap-ts/packages/api-core/src/groups/resolvers/userLists.resolver.ts:23-253 -->
   - Lists exist for the whole group, by catalog, by distribution, and with or without a valid membership.
   - The membership lists are empty when the group has no memberships.
-  - **SUGGESTION** Require the membership right (or group admin, or superadmin) on the requested group for all member and waiting lists. Mirrors `userIsAllowedToManageMembers`. Based on: `camap-ts/packages/api-core/src/groups/resolvers/group-previews-members.resolver.ts:378-391` (rights check on members mutations), `camap-ts/packages/api-core/src/groups/resolvers/waitingLists.resolver.ts:62-67` (same check in `moveBackToWaitingList`), while `waitingLists.resolver.ts:40-45` has none. Confidence: high.
+  - Group admins and superadmins can also see them; any other user is refused, even when logged in.
+  - **ERRATUM** Today `getUserLists`, `getContractsUserLists` and `getDistributionsUserLists` only require a login, so any logged-in user can read another group's lists. Source: `camap-ts/packages/api-core/src/groups/resolvers/userLists.resolver.ts` (CODE-006).
+  - **DECISION (UND-029, 2026-11-06)** Require the membership right (or group admin, or superadmin) on the requested group for all member and waiting lists.
 
 - **GRP-MEM-003** As a membership manager, I can open the sheet of a member. <!-- 03-features/groups-membership.md S3.1; camap-hx/src/controller/Member.hx:38-83 -->
   - The sheet shows the member's orders, subscriptions and notification settings.
@@ -34,5 +36,7 @@ Actors: membership manager, group admin.
 
 - **GRP-MEM-009** As a group admin, a coordinator or a membership manager, I can read the data of a member in my group. <!-- 03-features/groups-membership.md S3.2; camap-ts/packages/api-core/src/groups/resolvers/userGroups.resolver.ts:29-45 -->
 
-- **GRP-MEM-010** *Undecided (UND-036)*: As a membership manager, I can tell which members have never logged in. <!-- 03-features/users-auth.md R9; 03-features/inconsistencies-code.md CODE-101; camap-ts/packages/api-core/src/groups/services/user-groups.service.ts:177-200 -->
-  - **SUGGESTION** Define a new member as one who never logged in (empty last-login date). Based on: `camap-hx/lang/master/tpl/member/view.mtt:78-83` (Haxe UI shows "never logged in" from `ldate`), `camap-ts/packages/api-core/src/auth/auth.service.ts:64-68` (TS login writes `ldate`), `camap-ts/packages/api-core/src/groups/services/user-groups.service.ts:177-200` (TS list uses `ldate` null). Confidence: high.
+- **GRP-MEM-010** As a membership manager, I can tell which members are new, meaning they have never logged in. <!-- 03-features/users-auth.md R9; 03-features/inconsistencies-code.md CODE-101; camap-ts/packages/api-core/src/groups/services/user-groups.service.ts:177-200 -->
+  - A member is new while their last-login date is empty (see ACC-LOG-006).
+  - **ERRATUM** Today Haxe treats an empty password as new, so members created by TS are never new for Haxe; nothing in Haxe writes the last-login date. Source: `camap-hx/src/db/User.hx:495-505` (CODE-101).
+  - **DECISION (UND-036, 2026-11-06)** A new member is one who never logged in (empty last-login date).

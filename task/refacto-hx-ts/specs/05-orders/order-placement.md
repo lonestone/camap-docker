@@ -52,6 +52,7 @@ Actors: member, coordinator.
   - For products sold by weight or at a variable price, the displayed amount is the quantity times the product quantity with its unit.
   - Typing a weight divides by the product quantity.
 
-- **ORD-OPL-015** *Undecided (UND-037)*: As a member, order lines carry a fee rate. <!-- 03-features/orders-subscriptions.md R23, R35; camap-hx/src/service/OrderService.hx:78-80; camap-hx/src/db/Catalog.hx:128-131 -->
-  - Currently the rate is always 0 for new orders.
-  - **SUGGESTION** Drop percentage fees: keep the Haxe rule (always no fee) and remove the TS percentage fee. Based on: `camap-hx/src/db/Catalog.hx:128-131` (hasPercentageOnOrders returns false), `camap-hx/src/controller/ContractAdmin.hx:83-88` (banner: feature disappears 1 Feb 2023), `camap-ts/packages/api-core/src/vendors/services/catalogs.service.ts:146-178` (TS still applies it). Confidence: high.
+- **ORD-OPL-015** As a member, order lines carry a fee rate that is always 0 for new orders. <!-- 03-features/orders-subscriptions.md R23, R35; camap-hx/src/service/OrderService.hx:78-80; camap-hx/src/db/Catalog.hx:128-131 -->
+  - The rate field is kept on order lines for existing data and compatibility.
+  - **ERRATUM** Today TS can apply a non-zero percentage fee rate when computing fees. Source: `camap-ts/packages/api-core/src/vendors/services/catalogs.service.ts:146-178` (CODE-097).
+  - **DECISION (UND-037, 2026-11-06)** Deactivate percentage fees everywhere without removing them from the data model: the field is not offered, no fee is applied, and the stored flag and percentage are ignored.

@@ -30,14 +30,17 @@ Actors: member, group admin.
   - The choice lists all members of my group.
   - The volunteers of the session match what I submit.
 
-- **DIS-VOL-009** *Undecided (UND-060)*: As a group admin, I can assign volunteers only on sessions of my group. <!-- 03-features/distributions-volunteers.md S3.1, S7; camap-hx/src/controller/Distribution.hx:937,873 -->
-  - **SUGGESTION** Guard every handler. Catalog actions need `canManageContract(catalog)` and the object must belong to that catalog. Session actions need the distribution section right and a session of the current group. Based on: `camap-hx/src/controller/Distribution.hx:24-27` (section check used by siblings), `camap-hx/src/controller/Product.hx:34` (catalog check pattern), `camap-hx/src/controller/Distribution.hx:78,479,873,937` and `camap-hx/src/controller/ContractAdmin.hx:1001-1011` (no check). Confidence: high.
+- **DIS-VOL-009**: As a group admin, I can assign volunteers on a session; the action has no explicit rights check and does not verify that the session belongs to my group. <!-- 03-features/distributions-volunteers.md S3.1, S7; camap-hx/src/controller/Distribution.hx:937,873 -->
+  - This is intended: `volunteerRoles` and `volunteers` have no explicit right check. Source: `camap-hx/src/controller/Distribution.hx:873,937` (CODE-019).
+  - **DECISION (UND-060, 2026-11-04)** Keep the current behaviour: no explicit rights checks are added to these distribution handlers.
 
-- **DIS-VOL-010** As a member, I can see in the calendar that a session has vacant roles when duties are open and roles outnumber volunteers. <!-- 03-features/distributions-volunteers.md R33; camap-hx/src/db/MultiDistrib.hx:419-428 -->
+- **DIS-VOL-010** As a member, I can see in the calendar that a session has vacant roles when duties are open and at least one role has no volunteer (see DIS-VOL-011). <!-- 03-features/distributions-volunteers.md R33; camap-hx/src/db/MultiDistrib.hx:419-428 -->
+  - **DECISION (UND-066, 2026-11-04)** The vacancy test is per role, not a count comparison.
 
-- **DIS-VOL-011** *Undecided (UND-066)*: As a member, a session counts as having vacant roles when at least one role has no volunteer. <!-- 03-features/distributions-volunteers.md R33; camap-hx/src/db/MultiDistrib.hx:423 -->
-  - Currently the count compares roles with the total number of volunteer rows.
-  - **SUGGESTION** Decide vacancy per role: a session has vacant roles when at least one of its roles has no volunteer. Based on: `camap-hx/src/db/MultiDistrib.hx:419-427` (compares role count with volunteer count, so two volunteers on one role hide an empty role) vs `:430-438` (`getVacantVolunteerRoles` already works per role). Confidence: high.
+- **DIS-VOL-011**: As a member, a session counts as having vacant roles when at least one role has no volunteer. <!-- 03-features/distributions-volunteers.md R33; camap-hx/src/db/MultiDistrib.hx:423 -->
+  - Vacancy is decided per role, as `getVacantVolunteerRoles` already does.
+  - **ERRATUM** Today the count compares the number of roles with the total number of volunteer rows, so two volunteers on one role hide an empty role. Source: `camap-hx/src/db/MultiDistrib.hx:419-428`.
+  - **DECISION (UND-066, 2026-11-04)** Vacant when at least one role has no volunteer, decided per role.
 
 - **DIS-VOL-012** As a member, I can see in the calendar the generic roles always, and catalog roles until some days after the catalog ends. <!-- 03-features/distributions-volunteers.md R31; camap-hx/src/service/VolunteerService.hx:386-409 -->
 

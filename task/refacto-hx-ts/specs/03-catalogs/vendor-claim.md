@@ -6,8 +6,10 @@ Actors: logged-in user, vendor.
 
 - **CAT-VCL-002** As a logged-in user, I can claim an unclaimed vendor record whose email equals my primary or secondary email. <!-- 03-features/catalogs-products-vendors-places.md S3.3, R38; camap-ts/packages/api-core/src/vendors/services/vendor.service.ts:218-249 -->
 
-- **CAT-VCL-003** *Undecided (UND-048)*: As a logged-in user without a secondary email, I can claim a vendor with my primary email without error. <!-- 03-features/catalogs-products-vendors-places.md R38; camap-ts/packages/api-core/src/vendors/resolvers/vendors.resolver.ts:76 -->
-  - **SUGGESTION** Fix the crash. Compare with `currentUser.email2?.toLowerCase()` and skip the secondary email when it is null (same at line 100). Based on: `camap-ts/packages/api-core/src/vendors/resolvers/vendors.resolver.ts:76` (`email2.toLowerCase()`), `camap-ts/packages/api-core/src/users/models/user.entity.ts:58` (`email2: string | null`). Confidence: high.
+- **CAT-VCL-003** As a logged-in user without a secondary email, I can claim a vendor with my primary email without error. <!-- 03-features/catalogs-products-vendors-places.md R38; camap-ts/packages/api-core/src/vendors/resolvers/vendors.resolver.ts:76 -->
+  - The secondary email is compared only when it is set (null-safe comparison, also in the claim itself).
+  - **ERRATUM** Today `email2.toLowerCase()` throws when the user has no secondary email. Source: `camap-ts/packages/api-core/src/vendors/resolvers/vendors.resolver.ts:76` (CODE-074).
+  - **DECISION (UND-048, 2026-11-06)** Fix the crash with a null-safe comparison of the secondary email.
 
 - **CAT-VCL-004** As a vendor, when I claim a record, I am added to the groups of the vendor's active catalogs. <!-- 03-features/catalogs-products-vendors-places.md S3.3; camap-ts/packages/api-core/src/vendors/services/vendor.service.ts:225-234 -->
 

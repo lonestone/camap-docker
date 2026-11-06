@@ -31,8 +31,11 @@ Actors: catalog coordinator, vendor, member, visitor, superadmin. A vendor recor
   - Reasons: incomplete legal information, not compliant with the policy, banned.
   - **SUGGESTION** Add superadmin-only ban and unban mutations with the three reasons. Reuse the existing service functions. Based on: `camap-ts/packages/api-core/src/vendors/services/vendor.service.ts:196-207` (`ban` and `unban` exist, no caller), `camap-hx/src/db/Vendor.hx:8-12,181-185` (reasons and user-facing messages exist), `camap-hx/src/controller/Vendor.hx:23` (disabled vendors are blocked). Confidence: medium.
 
-- **CAT-VEN-010** *Undecided (UND-041)*: As a member or a visitor, I see the vendor's email and phone only when the vendor chose to show them. <!-- 03-features/catalogs-products-vendors-places.md R40; camap-hx/src/db/Vendor.hx:97-100; camap-ts/packages/api-core/src/vendors/resolvers/vendors.resolver.ts:456-467 -->
-  - **SUGGESTION** Honour the vendor's show-email and show-phone choices, and await the rights check so only managers of the vendor's catalogs see hidden contacts. Based on: `camap-ts/packages/api-core/src/vendors/resolvers/vendors.resolver.ts:456,465` (async `userIsAllowedToManageCatalogOfVendor` used without `await`, defined async at :548). Confidence: high.
+- **CAT-VEN-010** As a member or a visitor, I see the vendor's email and phone only when the vendor chose to show them; managers of the vendor's catalogs always see them. <!-- 03-features/catalogs-products-vendors-places.md R40; camap-hx/src/db/Vendor.hx:97-100; camap-ts/packages/api-core/src/vendors/resolvers/vendors.resolver.ts:456-467 -->
+  - The vendor's show-email and show-phone choices are honoured separately.
+  - The rights check is awaited before the contact fields are returned.
+  - **ERRATUM** Today TS field resolvers call the async rights check without awaiting it, so email and phone are exposed whatever the vendor's settings. Haxe honours them. Source: `camap-ts/packages/api-core/src/vendors/resolvers/vendors.resolver.ts:456-467` (CODE-007).
+  - **DECISION (UND-041, 2026-11-06)** Honour show-email and show-phone and await the rights check; managers always see the contacts.
 
 - **CAT-VEN-011** As a vendor creating a record, the version of the terms of service I accepted is stored. <!-- 03-features/catalogs-products-vendors-places.md R41; camap-ts/packages/api-core/src/vendors/services/vendor.service.ts:183-195 -->
   - **ERRATUM** Creating a vendor in TS fails when the terms-of-service version setting does not exist yet. Source: `camap-ts/packages/api-core/src/tools/variable.service.ts:47-48` (CODE-060).

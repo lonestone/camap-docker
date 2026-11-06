@@ -20,8 +20,10 @@ Actors: group admin, member, visitor. A place is a distribution location of a gr
 - **CAT-PLC-005** As a group admin, I cannot delete a place used by a distribution. <!-- 03-features/catalogs-products-vendors-places.md R43; camap-hx/src/controller/Place.hx:93-94 -->
   - Only a group manager can delete a place.
 
-- **CAT-PLC-006** *Undecided (UND-051)*: As a group admin, only group managers can list, create and edit places. <!-- 03-features/catalogs-products-vendors-places.md S3.1; camap-hx/src/controller/Place.hx:18-89 -->
-  - **SUGGESTION** Group managers only. Require `isAmapManager()` on list, create and edit, and check that the place belongs to the current group on edit and delete. Based on: `camap-hx/src/controller/Place.hx:90` (delete already requires `isAmapManager()`), `camap-hx/src/controller/Place.hx:18-89` (list, insert and edit have no check). Confidence: high.
+- **CAT-PLC-006** As a group admin, I can delete a place only if I am a group manager. <!-- 03-features/catalogs-products-vendors-places.md S3.1; camap-hx/src/controller/Place.hx:18-89 -->
+  - Listing, creating and editing places have no explicit rights check of their own in the place controller (whether a parent guard covers them is unverified).
+  - No same-group check is added on edit or delete.
+  - **DECISION (UND-051, 2026-11-06)** Keep the current behaviour: only delete requires a group manager (option a is not applied).
 
 - **CAT-PLC-007** As a visitor, I can see on a map the groups and their places near a position. <!-- 03-features/catalogs-products-vendors-places.md R44; camap-ts/packages/api-core/src/places/services/places.service.ts:21-56 -->
   - The map shows at most 200 places in a zone and finds the closest places within about 2 degrees.

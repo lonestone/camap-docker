@@ -19,8 +19,9 @@ Actors: coordinator, coordinator of all catalogs.
 - **DIS-PAR-007** As a coordinator of all catalogs, I can tick or untick the active catalogs taking part in a session. <!-- 03-features/distributions-volunteers.md S3.1; camap-hx/src/controller/Distribution.hx:479 -->
   - Adding the first vendor to an empty session adds the default volunteer roles.
 
-- **DIS-PAR-008** *Undecided (UND-060)*: As a coordinator, I can make a catalog take part in a session only for catalogs I manage. <!-- 03-features/distributions-volunteers.md S3.2, S7; camap-hx/src/controller/ContractAdmin.hx:1001-1011; camap-hx/src/controller/Distribution.hx:479 -->
-  - **SUGGESTION** Guard every handler. Catalog actions need `canManageContract(catalog)` and the object must belong to that catalog. Session actions need the distribution section right and a session of the current group. Based on: `camap-hx/src/controller/Distribution.hx:24-27` (section check used by siblings), `camap-hx/src/controller/Product.hx:34` (catalog check pattern), `camap-hx/src/controller/Distribution.hx:78,479,873,937` and `camap-hx/src/controller/ContractAdmin.hx:1001-1011` (no check). Confidence: high.
+- **DIS-PAR-008**: As a coordinator, I can make a catalog take part in a session; the action does not check that I manage that catalog. <!-- 03-features/distributions-volunteers.md S3.2, S7; camap-hx/src/controller/ContractAdmin.hx:1001-1011; camap-hx/src/controller/Distribution.hx:479 -->
+  - This is intended: `participate` has no explicit right check. Source: `camap-hx/src/controller/Distribution.hx:479`, `camap-hx/src/controller/ContractAdmin.hx:1001-1011` (CODE-019).
+  - **DECISION (UND-060, 2026-11-04)** Keep the current behaviour: no explicit rights checks are added to these distribution handlers.
 
 - **DIS-PAR-009** As a coordinator, I can cancel a catalog's participation in a session. <!-- 03-features/distributions-volunteers.md R12; camap-hx/src/service/DistributionService.hx:560-630 -->
   - For constant catalogs, and for variable catalogs with a per-distribution minimum, cancelling fails if any subscription is paid.
@@ -40,8 +41,11 @@ Actors: coordinator, coordinator of all catalogs.
 
 - **DIS-PAR-011** As a coordinator, I see warnings before shifting a participation. <!-- 03-features/distributions-volunteers.md R14; camap-hx/src/controller/Distribution.hx:341-349 -->
 
-- **DIS-PAR-012** *Undecided (UND-058)*: As a coordinator, after changing the price of a product on a session, I land on a confirmation page. <!-- 03-features/distributions-volunteers.md S3.1; camap-hx/src/controller/Distribution.hx:1096,1144 -->
-  - **SUGGESTION** Redirect to the distributions page, `/distribution`, as the sibling actions do. Remove the "validate" buttons. Based on: `camap-hx/src/controller/Distribution.hx:1096,1144` (redirect to a missing page), `camap-hx/src/controller/Distribution.hx:275,926,966` (siblings redirect to `/distribution`). Confidence: high.
+- **DIS-PAR-012**: As a coordinator, after changing the price of a product on a session, I land back on the distributions page. <!-- 03-features/distributions-volunteers.md S3.1; camap-hx/src/controller/Distribution.hx:1096,1144 -->
+  - The redirect goes to `/distribution`, as the sibling actions do.
+  - The "validate" buttons of the distribution page are removed.
+  - **ERRATUM** Today the user is redirected to `/distribution/validate/<id>`, which has no handler. Source: `camap-hx/src/controller/Distribution.hx:1096,1144` (CODE-083).
+  - **DECISION (UND-058, 2026-11-04)** Redirect to `/distribution` and remove the validate buttons.
 
 - **DIS-PAR-013** As a coordinator of all catalogs, I can change the price of a product of variable catalogs on one session. <!-- 03-features/distributions-volunteers.md S3.1; camap-hx/src/controller/Distribution.hx:1106-1151 -->
   - Every order of that product in the session gets the new price.

@@ -32,8 +32,9 @@ Actors: catalog coordinator, member.
 
 - **CAT-PRD-010** As a catalog coordinator, a bulk product needs a unit and a quantity and cannot be multi-weight. <!-- 03-features/catalogs-products-vendors-places.md R21; camap-hx/src/service/ProductService.hx:197-205 -->
 
-- **CAT-PRD-011** *Undecided (UND-049)*: As a catalog coordinator, a multi-weight product must also be a variable-price product. <!-- 03-features/catalogs-products-vendors-places.md R21; camap-hx/src/db/Product.hx:285-289 -->
-  - **SUGGESTION** Allow multi-weight without variable price and drop the rule from the spec. Based on: `camap-hx/src/db/Product.hx:285-289` (rule commented out under the note "Permettre la multipesée seule"). Confidence: high.
+- **CAT-PRD-011** As a catalog coordinator, I can make a product multi-weight without making it a variable-price product. <!-- 03-features/catalogs-products-vendors-places.md R21; camap-hx/src/db/Product.hx:285-289 -->
+  - The rule "multi-weight implies variable price" is deliberately not enforced (commented out in `camap-hx/src/db/Product.hx:285-289`).
+  - **DECISION (UND-049, 2026-11-06)** Keep the current behaviour: multi-weight is allowed alone.
 
 - **CAT-PRD-012** As a member, I see a default vegetable picture for a product without image. <!-- 03-features/catalogs-products-vendors-places.md R23; camap-hx/src/db/Product.hx:191-197 -->
 
@@ -43,8 +44,10 @@ Actors: catalog coordinator, member.
 
 - **CAT-PRD-014** As a member, I can order quantities in units: piece, kilogram, gram, litre, centilitre or millilitre. <!-- 03-features/catalogs-products-vendors-places.md S2; camap-hx/common/Common.hx:90-97 -->
 
-- **CAT-PRD-015** *Undecided (UND-038)*: As a catalog coordinator, a product edit that fails validation leaves its stock settings untouched. <!-- 03-features/catalogs-products-vendors-places.md R26; camap-hx/src/controller/Product.hx:70-76; camap-hx/src/service/ProductService.hx:150 -->
-  - **SUGGESTION** Validate first, then rewrite stock rows. Run the frozen-field and validation checks before `updateProductStocksConfiguration`. Based on: `camap-hx/src/controller/Product.hx:70-76` (stock rewrite precedes the checks), `camap-hx/src/service/ProductService.hx:150` (stock rows deleted unconditionally). Confidence: high.
+- **CAT-PRD-015** As a catalog coordinator, a product edit that fails validation leaves its stock settings untouched. <!-- 03-features/catalogs-products-vendors-places.md R26; camap-hx/src/controller/Product.hx:70-76; camap-hx/src/service/ProductService.hx:150 -->
+  - The frozen-field and validation checks run before the stock rows are rewritten.
+  - **ERRATUM** Today the edit action rewrites the stock rows first (`updateProductStocksConfiguration`), then runs the checks; rollback on error is unverified. Source: `camap-hx/src/controller/Product.hx:70-76`, `camap-hx/src/service/ProductService.hx:150` (CODE-043).
+  - **DECISION (UND-038, 2026-11-06)** Validate first, then rewrite the stock rows.
 
 - **CAT-PRD-016** As a member, I can see products with their unit, quantity, price and organic label in the catalog. <!-- 03-features/catalogs-products-vendors-places.md R25; camap-hx/src/db/Product.hx:224-248 -->
 

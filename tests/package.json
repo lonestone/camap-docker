@@ -1,0 +1,29 @@
+{
+  "name": "camap-characterisation-tests",
+  "private": true,
+  "description": "Black-box characterisation tests for camap-hx (and later camap-ts). See README.md.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "stack:up": "./scripts/stack.sh up",
+    "stack:down": "./scripts/stack.sh down",
+    "stack:logs": "./scripts/stack.sh logs",
+    "test": "TARGET=${TARGET:-hx} playwright test",
+    "test:ts": "TARGET=ts playwright test",
+    "test:ui": "TARGET=${TARGET:-hx} playwright test --ui",
+    "test:unit": "playwright test --project=unit",
+    "typecheck": "tsc --noEmit",
+    "coverage:spec": "tsx scripts/spec-coverage.ts",
+    "schema:baseline": "./scripts/baseline-schema.sh"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "@types/node": "^20.19.43",
+    "bcryptjs": "^3.0.3",
+    "mysql2": "^3.24.6",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3"
+  }
+}

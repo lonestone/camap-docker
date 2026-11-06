@@ -11,7 +11,8 @@ Actors: visitor, logged-in user.
 
 - **ACC-LOG-003** As a visitor who registered before the password system changed, I can log in with my existing password. <!-- 03-features/users-auth.md R8; camap-ts/packages/api-core/src/auth/auth.service.ts:319-346 -->
   - The system upgrades my stored password silently at first login.
-  - **ERRATUM** After a password reset made in the Haxe pages, my old password keeps working until I log in once with the new one. Source: `camap-hx/src/db/User.hx:274-281, camap-ts/packages/api-core/src/auth/auth.service.ts:320-345` (CODE-005).
+  - **ERRATUM** Today, after a password reset made in the Haxe pages, my old password keeps working until I log in once with the new one. Source: `camap-hx/src/db/User.hx:274-281, camap-ts/packages/api-core/src/auth/auth.service.ts:320-345` (CODE-005).
+  - **DECISION (UND-007, 2026-11-06)** A reset clears `pass2`, so the old password stops working immediately (see ACC-PWD-009).
 
 - **ACC-LOG-004** As a visitor, I see an error if my email or password is wrong. <!-- 03-features/users-auth.md F5.2; camap-ts/packages/front-core/src/modules/loginRegistration/LoginBox.tsx:65-68 -->
 

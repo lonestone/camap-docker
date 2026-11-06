@@ -41,5 +41,6 @@ Actors: catalog coordinator, coordinator of all catalogs, volunteer.
 
 - **DIS-ATT-010** As a coordinator, I can see a table of products by member for one distribution. <!-- 03-features/distributions-volunteers.md S3.1; camap-hx/src/controller/Distribution.hx:78 -->
 
-- **DIS-ATT-011** *Undecided (UND-060)*: As a coordinator, the products-by-member table is shown only to coordinators of that catalog. <!-- 03-features/distributions-volunteers.md S3.1, S7; camap-hx/src/controller/Distribution.hx:78 -->
-  - **SUGGESTION** Guard every handler. Catalog actions need `canManageContract(catalog)` and the object must belong to that catalog. Session actions need the distribution section right and a session of the current group. Based on: `camap-hx/src/controller/Distribution.hx:24-27` (section check used by siblings), `camap-hx/src/controller/Product.hx:34` (catalog check pattern), `camap-hx/src/controller/Distribution.hx:78,479,873,937` and `camap-hx/src/controller/ContractAdmin.hx:1001-1011` (no check). Confidence: high.
+- **DIS-ATT-011**: As a coordinator, I can open the products-by-member table of a distribution; no explicit catalog right is checked. <!-- 03-features/distributions-volunteers.md S3.1, S7; camap-hx/src/controller/Distribution.hx:78 -->
+  - This is intended: `listByProductUser` has no explicit catalog check. Source: `camap-hx/src/controller/Distribution.hx:78` (CODE-019).
+  - **DECISION (UND-060, 2026-11-04)** Keep the current behaviour: no explicit rights checks are added to these distribution handlers.

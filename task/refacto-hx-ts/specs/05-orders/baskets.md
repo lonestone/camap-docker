@@ -23,5 +23,6 @@ Actors: member, coordinator. A basket groups one member's order lines of all cat
   - The total is refreshed by some actions and not by subscription orders.
   - **SUGGESTION** Compute the basket total on read from its orders; do not store it. Based on: `camap-hx/src/db/Basket.hx:24` (comment: total not reliable), `camap-hx/src/db/Basket.hx:132-144` (getOrdersTotal already computes it with fees), `camap-hx/src/controller/api/Order.hx:128` (only reader is the order dialog). Confidence: high.
 
-- **ORD-BSK-006** *Undecided (UND-057)*: As a coordinator, a basket can be marked validated when the session is validated. <!-- 03-features/orders-subscriptions.md R36; camap-hx/src/db/Basket.hx:172-175 -->
-  - **SUGGESTION** Remove the validated basket state: no step validates a session. Based on: `camap-hx/src/db/MultiDistrib.hx:260-280` (getState never returns validated), `camap-hx/lang/master/tpl/distribution/default.mtt:129` (hard-coded March 2021 dates), `camap-ts/packages/api-core/src/shop/multi-distrib-status.ts:5` (VALIDATED exposed by no field). Confidence: medium.
+- **ORD-BSK-006**: As a coordinator, no step marks a basket as validated: no session validation exists. <!-- 03-features/orders-subscriptions.md R36; camap-hx/src/db/Basket.hx:172-175 -->
+  - The validated basket state stays only for Haxe/database compatibility. Source: `camap-hx/src/db/MultiDistrib.hx:260-280`, `camap-ts/packages/api-core/src/shop/multi-distrib-status.ts:5`.
+  - **DECISION (UND-057, 2026-11-04)** Keep the current behaviour: the dead validated state is kept for compatibility, see DIS-OWS-005.

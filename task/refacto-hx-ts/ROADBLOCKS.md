@@ -83,3 +83,13 @@
 4. **A2** No TS app shell → build the shell before migrating any page.
 5. **A1** Two writers on one DB → cut over whole domains, not pages.
 6. **D1** Security holes vs "isomorphic" → a fix/keep decision per finding, made up front.
+
+## Status updates
+- **2026-11-02** The characterisation harness (`camap-docker/tests`) is in place; details are in [PROGRESS.md](PROGRESS.md).
+  - **F1** lifted: the DB can be reset before every test, factories and fixtures exist, and a Playwright suite runs.
+  - **F2** lifted: a docker-compose test stack (MySQL, Neko, Nest, Mailpit) runs locally. By decision there is no CI job: the suite runs locally before merging.
+  - **F3** addressed: tests go through a `CamapApp` target interface (urls, api, pages). The hx driver is done, the ts driver is a stub that skips tests as not ported.
+  - **F4** addressed: the hx clock is faked with libfaketime, crons are triggered by tests, and mail is read synchronously from `BufferedJsonMail`.
+  - **C1** partly addressed: a TypeORM-synced baseline is committed for tests. The production-derived baseline is still needed.
+  - **C2/C3** addressed for tests: the encodings are centralised and unit-tested.
+  - **D1** mechanism in place: `deviation('UND-NNN')` makes a test an expected failure.

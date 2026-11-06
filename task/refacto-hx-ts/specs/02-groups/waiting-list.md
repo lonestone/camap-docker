@@ -10,8 +10,10 @@ Actors: logged-in user, membership manager.
 
 - **GRP-WAI-003** As a logged-in user, I can leave the waiting list of a group. <!-- 03-features/groups-membership.md S3.1; camap-hx/src/controller/Group.hx:120-127 -->
 
-- **GRP-WAI-004** *Undecided (UND-029)*: As a membership manager, I can see the waiting list of my group. <!-- 03-features/groups-membership.md S3.2; camap-ts/packages/api-core/src/groups/resolvers/waitingLists.resolver.ts:40-45 -->
-  - **SUGGESTION** Require the membership right (or group admin, or superadmin) on the requested group for all member and waiting lists. Mirrors `userIsAllowedToManageMembers`. Based on: `camap-ts/packages/api-core/src/groups/resolvers/group-previews-members.resolver.ts:378-391` (rights check on members mutations), `camap-ts/packages/api-core/src/groups/resolvers/waitingLists.resolver.ts:62-67` (same check in `moveBackToWaitingList`), while `waitingLists.resolver.ts:40-45` has none. Confidence: high.
+- **GRP-WAI-004** As a membership manager, I can see the waiting list of my group, and only of a group where I hold the membership right. <!-- 03-features/groups-membership.md S3.2; camap-ts/packages/api-core/src/groups/resolvers/waitingLists.resolver.ts:40-45 -->
+  - Group admins and superadmins can also see it; any other user is refused, even when logged in.
+  - **ERRATUM** Today `getWaitingListsOfGroup` only requires a login. Source: `camap-ts/packages/api-core/src/groups/resolvers/waitingLists.resolver.ts:40-45` (CODE-006).
+  - **DECISION (UND-029, 2026-11-06)** Require the membership right (or group admin, or superadmin) on the requested group for all member and waiting lists.
 
 - **GRP-WAI-005** As a membership manager, I can approve a waiting-list request. <!-- 03-features/groups-membership.md R2; camap-ts/packages/api-core/src/groups/resolvers/waitingLists.resolver.ts:113-221 -->
   - The person becomes a member.

@@ -30,14 +30,20 @@ Actors: group admin, membership manager, catalog coordinator, messages manager, 
 - **GRP-RIG-008** As a group admin, I can give or remove rights to a member of my group. <!-- 03-features/groups-membership.md R9; camap-hx/src/controller/AmapAdmin.hx:93-199 -->
   - I can pick group admin, membership, messages, all catalogs, or each active catalog.
   - Saving replaces the full list of rights of that member.
-  - **ERRATUM** The rights are saved before the check that stops me from removing my own admin right. Source: `camap-hx/src/controller/AmapAdmin.hx:155-158,174-179` (CODE-029).
+  - A rights update is atomic: the non-member and self-lockout checks run first, then all rights are saved in one transaction (see GRP-RIG-009, GRP-RIG-010).
+  - **ERRATUM** Today the rights are saved before the check that stops me from removing my own admin right. Source: `camap-hx/src/controller/AmapAdmin.hx:155-158,174-179` (CODE-029).
+  - **DECISION (UND-030, 2026-11-06)** Validate first, then save in one transaction.
 
-- **GRP-RIG-009** *Undecided (UND-030)*: As a group admin, I cannot remove my own group admin right. <!-- 03-features/users-auth.md R31; camap-hx/src/controller/AmapAdmin.hx:174-179 -->
+- **GRP-RIG-009** As a group admin, I cannot remove my own group admin right. <!-- 03-features/users-auth.md R31; camap-hx/src/controller/AmapAdmin.hx:174-179 -->
   - The refusal leaves my rights unchanged.
-  - **SUGGESTION** Validate before saving: reject a non-member user and run the self-lockout test before any write, in one transaction. Based on: `camap-hx/src/controller/AmapAdmin.hx:108-114` (edit path already rejects a non-member with "no user"), `camap-hx/src/controller/AmapAdmin.hx:155-179` (create path crashes on null, lockout test after saving). Confidence: high.
+  - The self-lockout test runs before anything is saved, in the same transaction as the rights update.
+  - **ERRATUM** Today the test runs after each right was already saved. Source: `camap-hx/src/controller/AmapAdmin.hx:155-158,174-179` (CODE-029).
+  - **DECISION (UND-030, 2026-11-06)** Run the self-lockout test before any write, in one transaction.
 
-- **GRP-RIG-010** *Undecided (UND-030)*: As a group admin, choosing a person who is not a member of my group gives a clear error in the rights editor. <!-- 03-features/groups-membership.md R9; camap-hx/src/controller/AmapAdmin.hx:155-158 -->
-  - **SUGGESTION** Validate before saving: reject a non-member user and run the self-lockout test before any write, in one transaction. Based on: `camap-hx/src/controller/AmapAdmin.hx:108-114` (edit path already rejects a non-member with "no user"), `camap-hx/src/controller/AmapAdmin.hx:155-179` (create path crashes on null, lockout test after saving). Confidence: high.
+- **GRP-RIG-010** As a group admin, choosing a person who is not a member of my group gives a clear error in the rights editor. <!-- 03-features/groups-membership.md R9; camap-hx/src/controller/AmapAdmin.hx:155-158 -->
+  - The error is raised before anything is saved.
+  - **ERRATUM** Today the create path crashes on a non-member user, while the edit path already refuses with "no user". Source: `camap-hx/src/controller/AmapAdmin.hx:108-114,155-158` (CODE-029).
+  - **DECISION (UND-030, 2026-11-06)** Reject a non-member user before any write.
 
 - **GRP-RIG-011** As a group manager, I am anyone who is superadmin or group admin of the current group. <!-- 03-features/users-auth.md R30; camap-hx/src/db/User.hx:120-134 -->
   - Pages of group administration are open to group managers only.

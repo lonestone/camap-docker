@@ -20,9 +20,10 @@ Actors: visitor, user.
 
 - **NAV-THM-006** As a coordinator, long text fields offer a rich-text editor. <!-- 03-features/frontend-templates-i18n.md S8; camap-hx/src/form/CamapForm.hx:23-41 -->
 
-- **NAV-THM-007** *Undecided (UND-119)*: As a user, pages open even when the service providing the interactive widgets is temporarily unavailable. <!-- 03-features/frontend-templates-i18n.md R5; camap-hx/src/service/BridgeService.hx:44-72; camap-hx/lang/master/tpl/base.mtt:118 -->
-  - Currently every page fails to render when the widget list cannot be loaded.
-  - **SUGGESTION** Degrade gracefully. Cache the last good bundle list on every success, not 1 time in 10. When no list is available, render the page without widgets and show a notice. Based on: `camap-hx/src/service/BridgeService.hx:62-72` (cache written 1 in 10, then a hard throw), `camap-hx/lang/master/tpl/base.mtt:118` (scripts at the page end, safe to omit). Confidence: medium.
+- **NAV-THM-007** As a user, pages do not depend on a separate service providing a list of widget bundles. <!-- 03-features/frontend-templates-i18n.md R5; camap-hx/src/service/BridgeService.hx:44-72; camap-hx/lang/master/tpl/base.mtt:118 -->
+  - Void for the target system: the Haxe page-embedded widgets disappear with the migration, so there is no widget bundle list to load, cache or degrade.
+  - Until the migration, a Haxe page fails to render with "Unable to load ressources from CAMAP-ts." when the list cannot be loaded; the list is cached per process without invalidation. This is not fixed. Source: `camap-hx/src/service/BridgeService.hx:10-72`, `camap-hx/lang/master/tpl/base.mtt:118` (CODE-146).
+  - **DECISION (UND-119, 2026-11-06)** Point declared void: no graceful degradation is built because the widgets disappear with the migration (option b).
 
 - **NAV-THM-008** As a user, interactive screens are embedded inside the pages of the site. <!-- 03-features/frontend-templates-i18n.md S1; camap-ts/packages/front-core/src/neo.tsx:149-195 -->
   - Pages like the members list, vendor dashboard and vendor profile have their own address handling inside the page.

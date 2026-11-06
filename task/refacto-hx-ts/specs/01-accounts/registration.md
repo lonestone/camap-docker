@@ -34,12 +34,17 @@ Actors: visitor, logged-in user. Registration is done in the login/registration 
 - **ACC-REG-009** *Undecided (UND-004)*: As a visitor, I cannot create an account with an empty password. <!-- 03-features/users-auth.md F5.1 step 5; camap-ts/packages/api-core/src/auth/auth.service.ts:103-120 -->
   - **SUGGESTION** Keep the public rule: password of at least 8 characters, enforced by the API schema. Never store or accept an empty password. For manager imports, create the account with no usable hash and reject an empty password in `isValidPassword`. Based on: `camap-ts/packages/api-core/src/auth/auth.resolver.ts:73-80` (register validates `userRegistrationSchema`), `camap-ts/packages/camap-common/src/validators/registrationSchema/userRegistrationSchema.ts:6` (min 8), `camap-ts/packages/api-core/src/groups/resolvers/group-previews-members.resolver.ts:142` (import passes an empty password on purpose). Confidence: high.
 
-- **ACC-REG-010** *Undecided (UND-005)*: As a visitor, my password is stored so that it works identically whether I later log in or reset it, with no difference caused by leading or trailing spaces. <!-- 03-features/users-auth.md R7; camap-hx/src/db/User.hx:274-281; camap-ts/packages/api-core/src/tools/crypto.service.ts:22-24 -->
-  - **SUGGESTION** Never trim passwords. Remove the trim from the Haxe `setPass`. Based on: `camap-ts/packages/api-core/src/tools/crypto.service.ts:22-24` (TS hashes the raw text, login uses it too), `camap-hx/src/db/User.hx:274-281` (trim only on reset, so a password with edge spaces can no longer log in). Confidence: high.
+- **ACC-REG-010** As a visitor, my password is stored exactly as typed, so it works identically whether I later log in or reset it; leading and trailing spaces are part of the password. <!-- 03-features/users-auth.md R7; camap-hx/src/db/User.hx:274-281; camap-ts/packages/api-core/src/tools/crypto.service.ts:22-24 -->
+  - Passwords are never trimmed, at registration, login or reset, in TS and in Haxe.
+  - **ERRATUM** Today Haxe `setPass` trims the password before hashing (on reset), so a password with edge spaces can no longer log in; TS hashes the raw text. Source: `camap-hx/src/db/User.hx:274-281`, `camap-ts/packages/api-core/src/tools/crypto.service.ts:22-24`.
+  - **DECISION (UND-005, 2026-11-06)** Never trim passwords; remove the trim from the Haxe `setPass`.
 
 - **ACC-REG-011** As a user, my household can hold up to two persons, each with a first name, last name, email and phone. <!-- 03-features/users-auth.md R1; camap-hx/src/db/User.hx:30-38 -->
   - My account shows a combined name for the household when two persons are set.
 
-- **ACC-REG-012** *Undecided (UND-006)*: As a visitor, I can only be added to a group at registration when the group accepts new members or I hold a valid invitation. <!-- 03-features/users-auth.md F5.1 step 3; camap-ts/packages/api-core/src/auth/auth.resolver.ts:99-104 -->
+- **ACC-REG-012** As a visitor, I can only be added to a group at registration when the group accepts new members or I hold a valid invitation. <!-- 03-features/users-auth.md F5.1 step 3; camap-ts/packages/api-core/src/auth/auth.resolver.ts:99-104 -->
   - See also ACC-INV-004.
-  - **SUGGESTION** Join the group only when it is open or when a valid invitation exists for this email. Check `regOption` like the Haxe join, and look up the invitation cache entry for the email. Based on: `camap-hx/src/controller/User.hx:238-239` (join refuses a non-open group), `camap-ts/packages/api-core/src/shop/resolvers/multi-distribs.resolver.ts:201` (TS already tests `RegOption.Open`), `camap-ts/packages/api-core/src/auth/auth.resolver.ts:99-104` (no check today). Confidence: high.
+  - A group that is not open and for which I hold no valid invitation is not joined; the registration itself still succeeds.
+  - The registration checks the group's registration option, like the Haxe join, and looks up the invitation cache entry for the email.
+  - **ERRATUM** Today TS registration adds the user to the group given as `invitedGroupId` with no registration-option or invitation check. Source: `camap-ts/packages/api-core/src/auth/auth.resolver.ts:99-104` (CODE-004).
+  - **DECISION (UND-006, 2026-11-06)** Join the group at registration only when it is open or when a valid invitation exists for this email.

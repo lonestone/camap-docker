@@ -21,20 +21,29 @@ Actors: group admin, membership manager, member, the system.
   - A member has only one membership per year.
   - I can enter a fee, otherwise the group fee is used.
   - Without any fee an error asks me to define one.
-  - **ERRATUM** The payment type I choose is ignored (always cash), a fee of 0 is replaced by the group fee, and the member is not checked to belong to the group. Source: `camap-ts/packages/api-core/src/groups/services/memberships.service.ts:97-114` (CODE-038).
+  - The payment type is chosen as in GRP-COT-008 and the member must belong to the group as in GRP-COT-009.
+  - **ERRATUM** Today a fee of 0 is replaced by the group fee (see UND-032). Source: `camap-ts/packages/api-core/src/groups/services/memberships.service.ts:106` (CODE-038).
+  - **DECISION (UND-033, 2026-11-06)** The payment type and the group membership check are handled in GRP-COT-008 and GRP-COT-009.
 
-- **GRP-COT-007** As a membership manager, recording a membership adds the fee as a debt for the member and an immediate cash payment of the same amount. <!-- 03-features/groups-membership.md R17; camap-ts/packages/api-core/src/groups/services/memberships.service.ts:96-152 -->
+- **GRP-COT-007** As a membership manager, recording a membership adds the fee as a debt for the member and an immediate payment of the same amount, with the payment type I chose. <!-- 03-features/groups-membership.md R17; camap-ts/packages/api-core/src/groups/services/memberships.service.ts:96-152 -->
   - The debt is labelled "Adhésion" followed by the period.
   - The balance of the member stays unchanged.
+  - **DECISION (UND-033, 2026-11-06)** The immediate payment uses the chosen payment type instead of always cash.
 
-- **GRP-COT-008** *Undecided (UND-033)*: As a membership manager, I can choose the payment type of the membership. <!-- 03-features/groups-membership.md R17; camap-ts/packages/api-core/src/groups/services/memberships.service.ts:114 -->
-  - **SUGGESTION** Fix both: honour the chosen payment type and reject a user who is not in the group; keep result order by mapping on user id. Based on: `camap-ts/packages/front-core/src/modules/members/components/MembersTableToolbar.tsx:137` (front sends `check`), `camap-ts/packages/api-core/src/groups/services/memberships.service.ts:114` (always cash), `camap-ts/packages/api-core/src/groups/resolvers/memberships.resolver.ts:166-176` (no membership of the group checked). Confidence: high.
+- **GRP-COT-008** As a membership manager, I can choose the payment type of the membership. <!-- 03-features/groups-membership.md R17; camap-ts/packages/api-core/src/groups/services/memberships.service.ts:114 -->
+  - The immediate payment created with the membership uses the payment type I chose.
+  - **ERRATUM** Today the payment type input is ignored and the payment is always cash. Source: `camap-ts/packages/api-core/src/groups/services/memberships.service.ts:114` (CODE-038).
+  - **DECISION (UND-033, 2026-11-06)** Honour the chosen payment type.
 
-- **GRP-COT-009** *Undecided (UND-033)*: As a membership manager, I can only record a membership for a user who belongs to my group. <!-- 03-features/groups-membership.md R17; camap-ts/packages/api-core/src/groups/services/memberships.service.ts:96-152 -->
-  - **SUGGESTION** Fix both: honour the chosen payment type and reject a user who is not in the group; keep result order by mapping on user id. Based on: `camap-ts/packages/front-core/src/modules/members/components/MembersTableToolbar.tsx:137` (front sends `check`), `camap-ts/packages/api-core/src/groups/services/memberships.service.ts:114` (always cash), `camap-ts/packages/api-core/src/groups/resolvers/memberships.resolver.ts:166-176` (no membership of the group checked). Confidence: high.
+- **GRP-COT-009** As a membership manager, I can only record a membership for a user who belongs to my group. <!-- 03-features/groups-membership.md R17; camap-ts/packages/api-core/src/groups/services/memberships.service.ts:96-152 -->
+  - A user who is not in the group is rejected, in single and batch creation.
+  - **ERRATUM** Today the user is not checked to belong to the group. Source: `camap-ts/packages/api-core/src/groups/resolvers/memberships.resolver.ts:166-176`, `camap-ts/packages/api-core/src/groups/services/memberships.service.ts:96-152` (CODE-038).
+  - **DECISION (UND-033, 2026-11-06)** Reject a user who is not in the group.
 
 - **GRP-COT-010** As a membership manager, I can record memberships for several members at once. <!-- 03-features/groups-membership.md R17; camap-ts/packages/api-core/src/groups/resolvers/memberships.resolver.ts:193-249 -->
   - A member who already has one for that year is reported as an error and skipped.
+  - The results are matched to the requested users by user id, not by the order the database returns them.
+  - **DECISION (UND-033, 2026-11-06)** Batch results are mapped on user id.
 
 - **GRP-COT-011** As a membership manager, I can delete a membership. <!-- 03-features/groups-membership.md R18; camap-ts/packages/api-core/src/groups/services/memberships.service.ts:154-193 -->
   - The related payment and debt are deleted.

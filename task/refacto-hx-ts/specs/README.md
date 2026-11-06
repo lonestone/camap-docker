@@ -205,10 +205,40 @@ A French version of the suggestion summary, with a short context for each point,
 When the product owner settles a point, the statements concerned lose their *Undecided* marker and are rewritten to the decided behavior, with a `- **DECISION (UND-NNN, date)** …` sub-bullet. The entry in `UNDECIDED.md` is marked **DECIDED** with a **Decision** line, and both summary tables say so. Points affected by a decision get an `IMPACT OF UND-NNN` note.
 
 Decided so far:
+- UND-119 (2026-11-06): void; the widgets disappear with the migration, so no graceful degradation is built.
+- UND-005 (2026-11-06): suggestion accepted; passwords are never trimmed, the Haxe trim is removed.
+- UND-006 (2026-11-06): suggestion accepted; registration joins the group only if it is open or a valid invitation exists for the email.
+- UND-007 (2026-11-06): suggestion accepted; a password reset clears pass2 so the old password stops working at once.
+- UND-009 (2026-11-06): suggestion accepted; the password reset token and user id are verified on submit.
+- UND-010 (2026-11-06): Haxe behaviour kept; log-in-as is for superadmins or the group manager of a single-group non-admin member, check awaited in TS.
+- UND-015 (2026-11-06): suggestion accepted; account deletion stops with an error when it cannot proceed, with no logout and no admin email.
+- UND-018 (2026-11-06): current behaviour kept; the invitation hash covers the email only.
+- UND-022 (2026-11-06): suggestion accepted; the superadmin sees why a user deletion was refused and the bridge delete is a POST.
+- UND-023 (2026-11-06): current behaviour kept; "full" is a closed state with a "group is full" notice.
+- UND-029 (2026-11-06): suggestion accepted; TS member and waiting lists require the membership right on the requested group.
+- UND-030 (2026-11-06): suggestion accepted; the rights editor rejects non-members and self-lockout before any write, in one transaction.
+- UND-033 (2026-11-06): suggestion accepted; membership recording honours the payment type, checks group membership and maps batch results on user id.
+- UND-036 (2026-11-06): suggestion accepted; a member is new when they have never logged in.
+- UND-037 (2026-11-06): percentage fees are deactivated everywhere (no field, no fee applied) but kept in the data model.
+- UND-038 (2026-11-06): suggestion accepted; a product edit validates before rewriting its stock rows.
+- UND-041 (2026-11-06): suggestion accepted; vendor email and phone honour the show flags, managers always see them.
+- UND-042 (2026-11-06): suggestion accepted; TS catalog and vendor documents follow the Haxe visibility rules.
+- UND-046 (2026-11-06): current behaviour kept; the upload limit is the 4 MB server cap and the 3 MB labels are corrected.
+- UND-048 (2026-11-06): suggestion accepted; claiming a vendor works without a secondary email.
+- UND-049 (2026-11-06): current behaviour kept; multi-weight is allowed without variable price.
+- UND-051 (2026-11-06): current behaviour kept; only place delete requires a group manager.
+- UND-053 (2026-11-06): current behaviour kept; documents are checked as PDF by file name only.
 - UND-109 (2026-11-02): suggestion accepted; admin group search uses parameterised queries and an explicit superadmin guard.
+- UND-055 (2026-11-04): suggestion accepted; dates stay stored as Paris wall-clock and TS raw-column comparisons are converted.
+- UND-056 (2026-11-04): suggestion accepted; daylight-saving changes follow the real calendar through a time-zone library.
+- UND-057 (2026-11-04): current behaviour kept; the dead "validated" state stays only for Haxe/DB compatibility.
+- UND-058 (2026-11-04): suggestion accepted; price change redirects to `/distribution` and the validate buttons are removed.
+- UND-059 (2026-11-04): current behaviour kept; session edit and price change are not scoped to the user's group.
+- UND-060 (2026-11-04): current behaviour kept; no explicit rights checks are added to the distribution handlers.
 - UND-061 (2026-11-02): suggestion accepted; TS distribution reads require login and group membership, user orders only for the owner and managers.
 - UND-062 (2026-11-02): suggestion accepted; the variable-orders attendance sheet uses the classic access rule.
-- UND-065 (2026-11-02): suggestion accepted; removing registered volunteers needs a confirmation, and role edit/delete check rights.
+- UND-065 (2026-11-02, amended 2026-11-04): suggestion accepted; removing registered volunteers needs a confirmation; the role edit/delete rights checks were dropped.
+- UND-066 (2026-11-04): suggestion accepted; vacant roles are decided per role.
 - UND-067 (2026-11-02): suggestion accepted; members subscribe with all member checks, admin mode only for admins and catalog coordinators.
 - UND-068 (2026-11-02): suggestion accepted; reading a subscription requires login and is limited to the owner, catalog coordinators and admins.
 - UND-069 (2026-11-02): suggestion accepted; history pages are limited to the owner, coordinators and admins, and the payments page is read-only.

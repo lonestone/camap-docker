@@ -1,0 +1,100 @@
+# Characterisation test stack (see tests/README.md).
+#
+# Isolated from the dev stack: own compose project ("camap-test"), own network,
+# throw-away MySQL (tmpfs), no Traefik. Host ports: hx 8180, MySQL 3307,
+# mailpit UI 8026.
+#
+#   tests/scripts/stack.sh up      # build + start + wait until healthy
+#   tests/scripts/stack.sh down
+name: camap-test
+
+services:
+
+  mysql-test:
+    build:
+      context: .
+      dockerfile: mysql.Dockerfile
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=camap_test
+    ports:
+      - "3307:3306"
+    tmpfs:
+      - /var/lib/mysql
+    volumes:
+      # schema.sql then seed.sql (alphabetical order) on first start only
+      - ./tests/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./tests/db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      interval: 2s
+      timeout: 5s
+      retries: 60
+
+  nest-test:
+    platform: linux/amd64
+    build:
+      context: ./camap-ts
+      dockerfile: camap-ts.Dockerfile
+    depends_on:
+      mysql-test:
+        condition: service_healthy
+    environment:
+      # "development" keeps cookies host-only (no Domain=, see
+      # auth.service.ts getDomainProperty) so they work on http://localhost:8180.
+      - NODE_ENV=development
+    volumes:
+      # Both ConfigModule and ormconfig.js read /srv/.env, and ormconfig.js lets
+      # the file override process.env: the env file must be mounted, not passed
+      # with env_file.
+      - ./tests/stack/nest.test.env:/srv/.env:ro
+    command: ["node", "packages/api-core/dist/main.js"]
+    networks:
+      default:
+        aliases:
+          # camap-hx/apache/camap-static.conf proxies /graphql, /neostatic/,
+          # /locales/ to this hostname.
+          - nest-devcamap
+
+  neko-base:
+    # Plain camap-hx production image, only used as the base of neko-test.
+    # Not a real service: it exits at once (compose cannot reference a build
+    # from a service hidden behind a profile).
+    platform: linux/amd64
+    image: camap-test-neko-base:latest
+    build:
+      context: ./camap-hx
+      dockerfile: camap-hx.Dockerfile
+    entrypoint: ["true"]
+    restart: "no"
+
+  neko-test:
+    platform: linux/amd64
+    build:
+      context: ./tests/stack
+      dockerfile: neko-test.Dockerfile
+      additional_contexts:
+        neko-base: service:neko-base
+    depends_on:
+      mysql-test:
+        condition: service_healthy
+      nest-test:
+        condition: service_started
+    environment:
+      - TZ=Europe/Paris
+    ports:
+      - "8180:80"
+    volumes:
+      - ./tests/stack/config.test.xml:/srv/config.xml:ro
+      # entrypoint.sh turns this into /srv/www/env.js for the neo front modules
+      - ./tests/stack/nest.test.env:/srv/camapts.env:ro
+      # libfaketime offset file, written by tests/src/clock.ts
+      - ./tests/.faketime:/faketime
+
+  mailpit-test:
+    image: axllent/mailpit
+    ports:
+      - "8026:8025"
+    environment:
+      - MP_SMTP_AUTH=mail_user:mail_pass
+      - MP_SMTP_AUTH_ALLOW_INSECURE=true

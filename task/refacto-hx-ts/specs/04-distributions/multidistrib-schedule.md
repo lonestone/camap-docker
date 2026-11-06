@@ -28,8 +28,9 @@ Actors: coordinator of all catalogs, member. A distribution session (multi-distr
   - Ticked: every catalog distribution takes the session's order dates.
   - Not ticked: a catalog distribution follows a new session date only if it was equal to the previous session date, and keeps its own date otherwise.
 
-- **DIS-MDS-009** *Undecided (UND-059)*: As a coordinator of all catalogs, I can edit or change prices only on sessions of my own group, and choose only places of my group. <!-- 03-features/distributions-volunteers.md R8, S3.1; camap-hx/src/controller/Distribution.hx:614-678,1106-1151 -->
-  - **SUGGESTION** Limit to the current group. Reject a session whose group differs from the user's group, and accept only a place of that group. Mirror the TS group-bound check. Based on: `camap-hx/src/controller/Distribution.hx:24-27,614-618,1106-1109` (section right only, no group comparison), `camap-ts/packages/api-core/src/shop/resolvers/multi-distribs.resolver.ts:216-218` (rights checked against the group id). Confidence: high.
+- **DIS-MDS-009**: As a coordinator of all catalogs, I can edit a session or change its prices with my section right; the session and the chosen place are not compared with my group. <!-- 03-features/distributions-volunteers.md R8, S3.1; camap-hx/src/controller/Distribution.hx:614-678,1106-1151 -->
+  - This is intended: `editMd` and `changePrice` check only the section right. Source: `camap-hx/src/controller/Distribution.hx:614-678,1106-1151`, `camap-hx/src/service/DistributionService.hx:194-248` (CODE-011).
+  - **DECISION (UND-059, 2026-11-04)** Keep the current behaviour: no group scoping is added to session edit and price change.
 
 - **DIS-MDS-010** As a coordinator of all catalogs, I can delete a session. <!-- 03-features/distributions-volunteers.md S3.1, R9; camap-hx/src/service/DistributionService.hx:253-266 -->
   - Deletion needs a security token.
@@ -38,11 +39,16 @@ Actors: coordinator of all catalogs, member. A distribution session (multi-distr
 - **DIS-MDS-011** As a coordinator of all catalogs, I can print or export attendance for a session. <!-- 03-features/distributions-volunteers.md S3.1, F; camap-hx/src/controller/Distribution.hx:143 -->
   - See 04-distributions/attendance-sheets.md.
 
-- **DIS-MDS-012** *Undecided (UND-055)*: As a member, every date and time is shown in the group's local time (Paris time), whichever application shows it. <!-- 03-features/distributions-volunteers.md R1-R3, R5; camap-hx/camap-hx.Dockerfile:115; camap-ts/packages/api-core/src/shop/entities/multi-distrib.entity.ts:90-142 -->
-  - **SUGGESTION** Keep Paris wall-clock storage in the shared database, and convert only through the entity getters and setters. Wrap every raw-column comparison with `utcToZonedTime(date, TZ_PARIS)`. Based on: `camap-hx/camap-hx.Dockerfile:115` (Haxe runs in Europe/Paris), `camap-ts/packages/api-core/src/shop/entities/multi-distrib.entity.ts:99-105` (getters convert), `camap-ts/packages/api-core/src/shop/services/multi-distribs.service.ts:50-87` (finders compare raw columns with unconverted dates). Confidence: high.
+- **DIS-MDS-012**: As a member, every date and time is shown in the group's local time (Paris time), whichever application shows it. <!-- 03-features/distributions-volunteers.md R1-R3, R5; camap-hx/camap-hx.Dockerfile:115; camap-ts/packages/api-core/src/shop/entities/multi-distrib.entity.ts:90-142 -->
+  - The shared database keeps Paris wall-clock times; they are converted only through the entity getters and setters.
+  - Every comparison of a raw date column is wrapped with `utcToZonedTime(date, TZ_PARIS)`.
+  - **ERRATUM** Today some TS finders compare raw columns with unconverted dates, the catalog dates are plain dates without conversion, and tests run in UTC. Source: `camap-ts/packages/api-core/src/shop/services/multi-distribs.service.ts:50-115`, `camap-ts/packages/api-core/src/vendors/entities/catalog.entity.ts:39-66` (CODE-096).
+  - **DECISION (UND-055, 2026-11-04)** Keep Paris wall-clock storage and wrap raw-column comparisons with `utcToZonedTime`.
 
-- **DIS-MDS-013** *Undecided (UND-056)*: As a member, summer and winter time changes are applied on the real change dates each year. <!-- 03-features/distributions-volunteers.md R3, R4; camap-hx/common/Formatting.hx:226-255 -->
-  - **SUGGESTION** Use a time-zone library (Europe/Paris rules) instead of a hard-coded table of change dates. Based on: `camap-hx/src/tools/DateTool.hx:10-35` (fixed DST ranges that stop at 2024). Confidence: high.
+- **DIS-MDS-013**: As a member, summer and winter time changes are applied on the real change dates each year. <!-- 03-features/distributions-volunteers.md R3, R4; camap-hx/common/Formatting.hx:226-255 -->
+  - The change dates follow the Europe/Paris rules (last Sunday of March and of October), through a time-zone library.
+  - **ERRATUM** Today the Haxe JSON API appends +01:00 or +02:00 using fixed dates every year ("29 March 02:00" and "25 October 03:00"), and a date tool holds a table for 2019 to 2024 only. Source: `camap-hx/common/Formatting.hx:226-255`, `camap-hx/src/tools/DateTool.hx:10-35,93-139` (CODE-081).
+  - **DECISION (UND-056, 2026-11-04)** Follow the real DST calendar with a time-zone library instead of a hard-coded table.
 
 - **DIS-MDS-014** As a coordinator of all catalogs, I can list the distribution sessions of a period from the TS side. <!-- 03-features/distributions-volunteers.md S3.6; camap-ts/packages/api-core/src/shop/resolvers/multi-distribs.resolver.ts:78-120 -->
   - Sessions already distributed are listed separately.
